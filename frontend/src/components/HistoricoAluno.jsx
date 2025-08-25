@@ -12,6 +12,7 @@ import {
   MapPin
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
+import Header from './Header'
 
 const HistoricoAluno = () => {
   const [alunos, setAlunos] = useState([])
@@ -144,15 +145,11 @@ const HistoricoAluno = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <FileText className="w-8 h-8 text-blue-600" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Histórico de Alunos</h1>
-          <p className="text-gray-600 mt-1">
-            Visualize e gerencie o histórico de todos os alunos cadastrados
-          </p>
-        </div>
-      </div>
+      <Header
+        icon={<FileText className="w-8 h-8 text-blue-600" />}
+        title={"Histórico de Alunos"}
+        text={"Visualize e gerencie o histórico de todos os alunos cadastrados"}
+      />
 
       {/* Filtros e Busca */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
