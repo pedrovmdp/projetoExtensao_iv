@@ -10,6 +10,7 @@ import {
   Menu,
   X
 } from 'lucide-react'
+import logo from '../public/logo.png'
 import { Button } from '@/components/ui/button.jsx'
 import './App.css'
 
@@ -22,9 +23,9 @@ import AcompanhamentoAluno from './components/AcompanhamentoAluno'
 
 // Componente do Logo
 const Logo = () => (
-  <div className="flex items-center gap-3 p-4">
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 via-yellow-500 to-green-500 flex items-center justify-center">
-      <div className="w-6 h-6 bg-white rounded-full"></div>
+  <div className="flex items-center gap-3 pl-1 pt-2 pr-1">
+    <div>
+      <img src={logo} alt='logo do insituto diomicio freitas'/>
     </div>
     <div className="text-white">
       <h1 className="text-lg font-bold">Instituto Diomício Freitas</h1>

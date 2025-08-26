@@ -9,6 +9,7 @@ import {
   CheckCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
+import Header from './Header'
 
 // Questões do formulário de avaliação baseadas no documento
 const questoes = [
@@ -172,16 +173,12 @@ const AvaliacaoAluno = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <ClipboardList className="w-8 h-8 text-purple-600" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Avaliação de Aluno</h1>
-          <p className="text-gray-600 mt-1">
-            Avaliação de usuário em período de experiência
-          </p>
-        </div>
-      </div>
-
+      <Header 
+        icon={<ClipboardList className="w-8 h-8 text-purple-600" />}
+        title={"Avaliação de Aluno"}
+        text={"Avaliação de usuário em período de experiência"}
+      />
+      
       {/* Barra de Progresso */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center justify-between mb-2">

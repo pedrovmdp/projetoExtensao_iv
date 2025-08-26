@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { UserPlus, Save, RotateCcw, CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
+import Header from './Header'
 
 const CadastroAluno = () => {
   const [formData, setFormData] = useState({
@@ -193,15 +194,11 @@ const CadastroAluno = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <UserPlus className="w-8 h-8 text-blue-600" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Cadastro de Aluno</h1>
-          <p className="text-gray-600 mt-1">
-            Preencha as informações do novo aluno
-          </p>
-        </div>
-      </div>
+      <Header 
+        icon={<UserPlus className="w-8 h-8 text-blue-600" />}
+        title={"Cadastro de Aluno"}
+        text={"Preencha as informações do novo aluno"}
+      />
 
       {/* Mensagem de feedback */}
       {message.text && (

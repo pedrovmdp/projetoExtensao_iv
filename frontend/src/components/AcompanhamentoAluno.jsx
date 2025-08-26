@@ -13,6 +13,7 @@ import {
   Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
+import Header from './Header'
 
 // Dados simulados de acompanhamentos
 const acompanhamentosData = [
@@ -180,15 +181,11 @@ const AcompanhamentoAluno = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Users className="w-8 h-8 text-blue-600" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Acompanhamento de Alunos</h1>
-            <p className="text-gray-600 mt-1">
-              Acompanhamento no mercado de trabalho
-            </p>
-          </div>
-        </div>
+        <Header
+          icon={<Users className="w-8 h-8 text-blue-600" />}
+          title={"Acompanhamento de Alunos"}
+          text={"Acompanhamento no mercado de trabalho"}
+        />
         
         {!showForm && (
           <Button
