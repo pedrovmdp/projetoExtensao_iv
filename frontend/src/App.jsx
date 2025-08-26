@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import './App.css'
+import Login from './components/ui/Login'
+
 
 // Componentes das páginas
 import Dashboard from './components/Dashboard'
@@ -167,6 +169,8 @@ function App() {
               <Route path="/historico" element={<HistoricoAluno />} />
               <Route path="/avaliacao" element={<AvaliacaoAluno />} />
               <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
+              <Route path="/login" element={<Login />} />
+
             </Routes>
           </main>
         </div>
