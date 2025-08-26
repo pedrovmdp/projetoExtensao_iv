@@ -19,7 +19,8 @@ import {
   ClipboardCheck, 
   TrendingUp,
   Calendar,
-  Award
+  Award,
+  LayoutDashboard
 } from 'lucide-react'
 import Header from './Header'
 
@@ -129,6 +130,7 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Header */}
       <Header
+      icon={<LayoutDashboard className="w-8 h-8 text-blue-600"/>}
         title={"Dashboard"}
         text={"Visão geral das atividades do Instituto Diomício Freitas"}
       />
