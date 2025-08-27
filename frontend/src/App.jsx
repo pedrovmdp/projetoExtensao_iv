@@ -10,7 +10,7 @@ import {
   Menu,
   X
 } from 'lucide-react'
-import logo from '../public/logo.png'
+import logo from '/logo.png'
 import { Button } from '@/components/ui/button.jsx'
 import './App.css'
 
@@ -20,6 +20,7 @@ import CadastroAluno from './components/CadastroAluno'
 import HistoricoAluno from './components/HistoricoAluno'
 import AvaliacaoAluno from './components/AvaliacaoAluno'
 import AcompanhamentoAluno from './components/AcompanhamentoAluno'
+import UserProfile from './components/UserProfile'
 
 // Componente do Logo
 const Logo = () => (
@@ -29,21 +30,6 @@ const Logo = () => (
     </div>
     <div className="text-white">
       <h1 className="text-lg font-bold">Instituto Diomício Freitas</h1>
-    </div>
-  </div>
-)
-
-// Componente do perfil do usuário
-const UserProfile = () => (
-  <div className="p-4 border-b border-blue-600">
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-        <User className="w-6 h-6 text-purple-600" />
-      </div>
-      <div className="text-white">
-        <p className="font-medium">Professor</p>
-        <p className="text-sm text-blue-200">Login:</p>
-      </div>
     </div>
   </div>
 )
@@ -111,7 +97,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <UserProfile />
         
         {/* Navegação */}
-        <nav className="mt-4">
+        <nav className="mt-5">
           {navItems.map((item) => (
             <NavItem
               key={item.to}
