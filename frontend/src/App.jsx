@@ -9,7 +9,6 @@ import {
   Menu,
   X
 } from 'lucide-react'
-import logo from '/logo.png'
 import { Button } from '@/components/ui/button.jsx'
 import './App.css'
 
@@ -21,18 +20,7 @@ import AvaliacaoAluno from './components/AvaliacaoAluno'
 import AcompanhamentoAluno from './components/AcompanhamentoAluno'
 import UserProfile from './components/UserProfile'
 import NavItem from './components/NavItem'
-
-// Componente do Logo
-const Logo = () => (
-  <div className="flex items-center gap-3 pl-1 pt-2 pr-1">
-    <div>
-      <img src={logo} alt='logo do insituto diomicio freitas'/>
-    </div>
-    <div className="text-white">
-      <h1 className="text-lg font-bold">Instituto Diomício Freitas</h1>
-    </div>
-  </div>
-)
+import Logo from './components/Logo'
 
 // Componente da Sidebar
 const Sidebar = ({ isOpen, onClose }) => {
