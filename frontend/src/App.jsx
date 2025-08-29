@@ -20,6 +20,7 @@ import HistoricoAluno from './components/HistoricoAluno'
 import AvaliacaoAluno from './components/AvaliacaoAluno'
 import AcompanhamentoAluno from './components/AcompanhamentoAluno'
 import UserProfile from './components/UserProfile'
+import NavItem from './components/NavItem'
 
 // Componente do Logo
 const Logo = () => (
