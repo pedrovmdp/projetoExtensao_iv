@@ -6,7 +6,6 @@ import {
   ClipboardList, 
   Users, 
   BarChart3, 
-  User,
   Menu,
   X
 } from 'lucide-react'
