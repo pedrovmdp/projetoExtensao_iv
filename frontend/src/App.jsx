@@ -34,19 +34,6 @@ const Logo = () => (
   </div>
 )
 
-// Componente de item de navegação
-const NavItem = ({ to, icon: Icon, children, isActive }) => (
-  <Link
-    to={to}
-    className={`flex items-center gap-3 px-4 py-3 text-white hover:bg-blue-600 transition-colors ${
-      isActive ? 'bg-blue-600 border-r-2 border-white' : ''
-    }`}
-  >
-    <Icon className="w-5 h-5" />
-    <span>{children}</span>
-  </Link>
-)
-
 // Componente da Sidebar
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation()
