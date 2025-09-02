@@ -23,7 +23,7 @@ export default function Sidebar ({ isOpen, onClose }) {
             {/* Overlay para mobile */}
             {isOpen && (
                 <div 
-                className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+                className="fixed inset-0 bg-black bg-opacity-60 z-50 lg:hidden"
                 onClick={onClose}
                 />
             )}
@@ -36,8 +36,9 @@ export default function Sidebar ({ isOpen, onClose }) {
             `}>
                 {/* Header da sidebar */}
                 <div className="flex items-center justify-between p-4 lg:hidden">
-                <Logo />
+                {/* <Logo /> */}
                 <Button
+                
                     variant="ghost"
                     size="sm"
                     onClick={onClose}
@@ -49,8 +50,9 @@ export default function Sidebar ({ isOpen, onClose }) {
                 
                 {/* Logo para desktop */}
                 <div className="hidden lg:block">
-                <Logo />
+                {/* <Logo /> */}
                 </div>
+                
                 
                 {/* Perfil do usuário */}
                 <UserProfile />
