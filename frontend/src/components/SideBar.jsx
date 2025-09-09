@@ -1,6 +1,5 @@
 import { useLocation } from "react-router-dom"
-import Logo from "./Logo"
-import { BarChart3, ClipboardList, FileText, Plus, Users, X } from "lucide-react"
+import { BarChart3, ClipboardList, FileText, HousePlus, UserPlus, Users, X } from "lucide-react"
 import UserProfile from "./UserProfile"
 import NavItem from "./NavItem"
 import { Button } from '@/components/ui/button.jsx'
@@ -12,8 +11,9 @@ export default function Sidebar ({ isOpen, onClose }) {
   
     const navItems = [
         { to: '/', icon: BarChart3, label: 'Dashboard' },
-        { to: '/cadastro', icon: Plus, label: 'Cadastro aluno' },
-        { to: '/historico', icon: FileText, label: 'Histórico Aluno' },
+        { to: '/cadastroAluno', icon: UserPlus, label: 'Cadastro aluno' },
+        { to: '/cadastroEmpresa', icon: HousePlus, label: 'Cadastro empresa'},
+        { to: '/historico', icon: FileText, label: 'Histórico aluno' },
         { to: '/avaliacao', icon: ClipboardList, label: 'Avaliação aluno' },
         { to: '/acompanhamento', icon: Users, label: 'Acompanhamento aluno' },
     ]

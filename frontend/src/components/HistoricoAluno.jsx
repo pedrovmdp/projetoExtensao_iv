@@ -123,7 +123,7 @@ const HistoricoAluno = () => {
         <div className="flex items-center gap-3 mb-8">
           <FileText className="w-8 h-8 text-blue-600" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Histórico de Alunos</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Histórico de alunos</h1>
             <p className="text-gray-600 mt-1">
               Visualize e gerencie o histórico de todos os alunos cadastrados
             </p>
@@ -147,7 +147,7 @@ const HistoricoAluno = () => {
       {/* Header */}
       <Header
         icon={<FileText className="w-8 h-8 text-blue-600" />}
-        title={"Histórico de Alunos"}
+        title={"Histórico de alunos"}
         text={"Visualize e gerencie o histórico de todos os alunos cadastrados"}
       />
 

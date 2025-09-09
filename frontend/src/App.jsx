@@ -7,6 +7,7 @@ import './App.css'
 // Componentes das páginas
 import Dashboard from './components/Dashboard'
 import CadastroAluno from './components/CadastroAluno'
+import CadastroEmpresa from './components/CadastroEmpresa'
 import HistoricoAluno from './components/HistoricoAluno'
 import AvaliacaoAluno from './components/AvaliacaoAluno'
 import AcompanhamentoAluno from './components/AcompanhamentoAluno'
@@ -48,7 +49,8 @@ function App() {
           <main className="flex-1 overflow-auto p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/cadastro" element={<CadastroAluno />} />
+              <Route path="/cadastroAluno" element={<CadastroAluno />} />
+              <Route path='/CadastroEmpresa' element={<CadastroEmpresa/>}/>
               <Route path="/historico" element={<HistoricoAluno />} />
               <Route path="/avaliacao" element={<AvaliacaoAluno />} />
               <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
