@@ -80,6 +80,16 @@ export default function CadastroEmpresa() {
         }
     }
 
+    const formatCNPJ = (value) => {
+        const numbers = value.replace(/\D/g, '')
+
+        if (numbers.length <= 14) {
+            return numbers.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5');
+        }
+
+        return value
+    }
+
     const formatCPF = (value) => {
         // Remove tudo que não é dígito
         const numbers = value.replace(/\D/g, '')
@@ -92,6 +102,27 @@ export default function CadastroEmpresa() {
         return value
     }
 
+    const formatPhone = (value) => {
+        const numbers = value.replace(/\D/g, '');
+
+        if (numbers.length <= 10) {
+            // Formato: (XX) XXXX-XXXX
+            return numbers.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+        } else {
+            // Formato: (XX) 9XXXX-XXXX
+            return numbers.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+        }
+    };
+
+
+    const handleCNPJChange = (e) => {
+        const formatted = formatCNPJ(e.target.value);
+        setFormData(prev => ({
+            ...prev,
+            cnpj: formatted
+        }));
+    };
+
     const handleCPFChange = (e) => {
         const formatted = formatCPF(e.target.value)
         setFormData(prev => ({
@@ -99,6 +130,22 @@ export default function CadastroEmpresa() {
             cpf: formatted
         }))
     }
+
+    const handlePhoneChange = (e) => {
+        const formatted = formatPhone(e.target.value);
+        setFormData(prev => ({
+            ...prev,
+            telefone: formatted
+        }));
+    };
+
+    const handleTelChange = (e) => {
+        const formatted = formatPhone(e.target.value);
+        setFormData(prev => ({
+            ...prev,
+            telefone: formatted
+        }));
+    };
 
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState({ type: '', text: '' })
@@ -173,43 +220,35 @@ export default function CadastroEmpresa() {
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados da Empresa</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Razão Social *</label>
-                            <input
-                                type="text"
-                                name="razao_social"
+                            <FormInput
+                                label={"Razão Social *"}
+                                type={"text"}
+                                name={"razao_social"}
                                 value={formData.razao_social}
                                 onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.razao_social ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Digite a razão social"
+                                placeholder={"Digite a razão social"}
                             />
                             {errors.razao_social && <p className="text-red-500 text-sm mt-1">{errors.razao_social}</p>}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Nome Fantasia</label>
-                            <input
-                                type="text"
-                                name="nome_fantasia"
-                                value={formData.nome_fantasia}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Digite o nome fantasia"
-                            />
-                        </div>
+                        <FormInput
+                            label={"Nome Fantasia"}
+                            type={"text"}
+                            name={"nome_fantasia"}
+                            value={formData.nome_fantasia}
+                            onChange={handleInputChange}
+                            placeholder={"Digite o nome fantasia"}
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">CNPJ *</label>
-                            <input
-                                type="text"
-                                name="cnpj"
-                                value={formData.cnpj}
-                                onChange={handleInputChange}
-                                maxLength="18"
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cnpj ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="00.000.000/0001-00"
-                            />
-                            {errors.cnpj && <p className="text-red-500 text-sm mt-1">{errors.cnpj}</p>}
-                        </div>
+                        <FormInput
+                            label={"CNPJ *"}
+                            type={"text"}
+                            name={"cnpj"}
+                            value={formData.cnpj}
+                            onChange={handleCNPJChange}
+                            placeholder={"00.000.000/0001-00"}
+                        />
+                        {errors.cnpj && <p className="text-red-500 text-sm mt-1">{errors.cnpj}</p>}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Empresa</label>
@@ -228,13 +267,12 @@ export default function CadastroEmpresa() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Data de Abertura</label>
-                            <input
-                                type="date"
-                                name="data_abertura"
+                            <FormInput
+                                label={"Data de Abertura"}
+                                type={"date"}
+                                name={"data_abertura"}
                                 value={formData.data_abertura}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.data_nascimento && <p className="text-red-500 text-sm mt-1">{errors.data_nascimento}</p>}
                         </div>
@@ -247,86 +285,68 @@ export default function CadastroEmpresa() {
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Endereço</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div className="lg:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Endereço
-                            </label>
-                            <input
-                                type="text"
-                                name="endereco"
+                            <FormInput
+                                label={"Endereço"}
+                                type={"text"}
+                                name={"endereco"}
                                 value={formData.endereco}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Rua, Avenida, etc."
+                                placeholder={"Rua Jardim da Silva"}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Número
-                            </label>
-                            <input
-                                type="text"
-                                name="numero"
+                            <FormInput
+                                label={"Número"}
+                                type={"text"}
+                                name={"numero"}
                                 value={formData.numero}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="123"
+                                placeholder={"123"}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Complemento
-                            </label>
-                            <input
-                                type="text"
-                                name="complemento"
+                            <FormInput
+                                label={"Complemento"}
+                                type={"text"}
+                                name={"complemento"}
                                 value={formData.complemento}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Apto, Casa, etc."
+                                placeholder={"Apto"}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Bairro
-                            </label>
-                            <input
-                                type="text"
-                                name="bairro"
+                            <FormInput
+                                label={"Bairro"}
+                                type={"text"}
+                                name={"bairro"}
                                 value={formData.bairro}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Nome do bairro"
+                                placeholder={"Centro"}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Cidade
-                            </label>
-                            <input
-                                type="text"
-                                name="cidade"
+                            <FormInput
+                                label={"Cidade"}
+                                type={"text"}
+                                name={"cidade"}
                                 value={formData.cidade}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Nome da cidade"
+                                placeholder={"Digite sua cidade"}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                CEP
-                            </label>
-                            <input
-                                type="text"
-                                name="cep"
+                            <FormInput
+                                label={"CEP"}
+                                type={"text"}
+                                name={"cep"}
                                 value={formData.cep}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="00000-000"
+                                placeholder={"00000-000"}
                             />
                         </div>
 
@@ -368,21 +388,27 @@ export default function CadastroEmpresa() {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="(48) 3000-0000"
                             />
+                            <FormInput
+                                label={"CEP"}
+                                type={"text"}
+                                name={"cep"}
+                                value={formData.cep}
+                                onChange={handleInputChange}
+                                placeholder={"00000-000"}
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Celular
-                            </label>
-                            <input
-                                type="tel"
-                                name="celular"
+                            <FormInput
+                                label={"Celular"}
+                                type={"tel"}
+                                name={"celular"}
                                 value={formData.celular}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="(48) 99000-0000"
+                                placeholder={"(48) 99000-0000"}
                             />
                         </div>
+
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -415,7 +441,7 @@ export default function CadastroEmpresa() {
                             onChange={handleInputChange}
                             placeholder={"Nome do representante"}
                         />
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 CPF *
@@ -426,8 +452,7 @@ export default function CadastroEmpresa() {
                                 value={formData.responsavel_cpf}
                                 onChange={handleCPFChange}
                                 maxLength="14"
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="000.000.000-00"
                             />
                             {errors.cpf && <p className="text-red-500 text-sm mt-1">{errors.cpf}</p>}
@@ -446,16 +471,13 @@ export default function CadastroEmpresa() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Telefone
-                            </label>
-                            <input
-                                type="tel"
-                                name="responsavel_telefone"
+                            <FormInput
+                                label={"Telefone"}
+                                type={"tel"}
+                                name={"responsavel_telefone"}
                                 value={formData.responsavel_telefone}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="(48) 99000-0000"
+                                placeholder={"(48) 99000-0000"}
                             />
                         </div>
 
