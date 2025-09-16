@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button.jsx'
 import FormInput from "./FormInput";
 
 export default function CadastroEmpresa() {
+    const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
         // Dados da Empresa
         razao_social: '',
@@ -27,13 +28,12 @@ export default function CadastroEmpresa() {
         telefone: '',
         celular: '',
         email: '',
-        site: '',
 
         // Representante Legal
         responsavel_nome: '',
         responsavel_cpf: '',
         responsavel_cargo: '',
-        responsavel_telefone: '',
+        responsavel_celular: '',
         responsavel_email: ''
     });
 
@@ -54,15 +54,60 @@ export default function CadastroEmpresa() {
             telefone: '',
             celular: '',
             email: '',
-            site: '',
             responsavel_nome: '',
             responsavel_cpf: '',
             responsavel_cargo: '',
-            responsavel_telefone: '',
+            responsavel_celular: '',
             responsavel_email: '',
             tipo_empresa: "",
         })
     }
+
+    const buscarEndereco = async (cep) => {
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+
+            //se o CEP não for inserido
+            if (data.erro) {
+                setError('CEP não encontrado');
+                setFormData((prev) => ({
+                    ...prev,
+                    logradouro: '',
+                    bairro: '',
+                    cidade: '',
+                    estado: '',
+                }));
+                return;
+            }
+
+            //
+            setError(null)
+            setFormData((prev) => ({
+                ...prev,
+                logradouro: data.logradouro,
+                bairro: data.bairro,
+                cidade: data.localidade,
+                estado: data.uf,
+            }))
+        } catch (error) {
+            setError('Erro ao buscar CEP');
+            console.error(err);
+        }
+    }
+
+    const handleCEPChange = (e) => {
+        const formatted = formatCEP(e.target.value);
+        setFormData((prev) => ({
+            ...prev,
+            cep: formatted
+        }));
+
+        // Quando o CEP tem 9 caracteres, faz a busca do endereço
+        if (formatted.length === 9) {
+            buscarEndereco(formatted.replace('-', '')); // Remove o hífen antes de buscar
+        }
+    };  
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -103,17 +148,27 @@ export default function CadastroEmpresa() {
     }
 
     const formatPhone = (value) => {
+        // Remove todos os caracteres não numéricos
         const numbers = value.replace(/\D/g, '');
 
+        // Se o valor tiver até 10 dígitos (telefone fixo)
         if (numbers.length <= 10) {
             // Formato: (XX) XXXX-XXXX
-            return numbers.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-        } else {
+            return numbers.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+        }
+        else {
+            // Se o valor tiver 11 ou mais dígitos (telefone celular)
             // Formato: (XX) 9XXXX-XXXX
-            return numbers.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+            return numbers.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
         }
     };
 
+    const formatCEP = (value) => {
+        const numbers = value.replace(/\D/g, '');
+        if (numbers.length <= 8) {
+            return numbers.replace(/^(\d{5})(\d{3})(\d{0,4}).*/, '$1-$2');
+        }
+    }
 
     const handleCNPJChange = (e) => {
         const formatted = formatCNPJ(e.target.value);
@@ -127,7 +182,7 @@ export default function CadastroEmpresa() {
         const formatted = formatCPF(e.target.value)
         setFormData(prev => ({
             ...prev,
-            cpf: formatted
+            responsavel_cpf: formatted
         }))
     }
 
@@ -135,7 +190,7 @@ export default function CadastroEmpresa() {
         const formatted = formatPhone(e.target.value);
         setFormData(prev => ({
             ...prev,
-            telefone: formatted
+            celular: formatted
         }));
     };
 
@@ -219,17 +274,15 @@ export default function CadastroEmpresa() {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados da Empresa</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
-                            <FormInput
-                                label={"Razão Social *"}
-                                type={"text"}
-                                name={"razao_social"}
-                                value={formData.razao_social}
-                                onChange={handleInputChange}
-                                placeholder={"Digite a razão social"}
-                            />
-                            {errors.razao_social && <p className="text-red-500 text-sm mt-1">{errors.razao_social}</p>}
-                        </div>
+                        <FormInput
+                            label={"Razão Social *"}
+                            type={"text"}
+                            name={"razao_social"}
+                            value={formData.razao_social}
+                            onChange={handleInputChange}
+                            placeholder={"Digite a razão social"}
+                            error={errors.razao_social}
+                        />
 
                         <FormInput
                             label={"Nome Fantasia"}
@@ -247,8 +300,9 @@ export default function CadastroEmpresa() {
                             value={formData.cnpj}
                             onChange={handleCNPJChange}
                             placeholder={"00.000.000/0001-00"}
+                            maxLength='14'
+                            error={errors.cnpj}
                         />
-                        {errors.cnpj && <p className="text-red-500 text-sm mt-1">{errors.cnpj}</p>}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Empresa</label>
@@ -266,16 +320,14 @@ export default function CadastroEmpresa() {
                             </select>
                         </div>
 
-                        <div>
-                            <FormInput
-                                label={"Data de Abertura"}
-                                type={"date"}
-                                name={"data_abertura"}
-                                value={formData.data_abertura}
-                                onChange={handleInputChange}
-                            />
-                            {errors.data_nascimento && <p className="text-red-500 text-sm mt-1">{errors.data_nascimento}</p>}
-                        </div>
+                        <FormInput
+                            label={"Data de Abertura"}
+                            type={"date"}
+                            name={"data_abertura"}
+                            value={formData.data_abertura}
+                            onChange={handleInputChange}
+                            error={errors.data_nascimento}
+                        />
 
                     </div>
                 </div>
@@ -284,75 +336,65 @@ export default function CadastroEmpresa() {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Endereço</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="lg:col-span-2">
-                            <FormInput
-                                label={"Endereço"}
-                                type={"text"}
-                                name={"endereco"}
-                                value={formData.endereco}
-                                onChange={handleInputChange}
-                                placeholder={"Rua Jardim da Silva"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"CEP *"}
+                            type={"text"}
+                            name={"cep"}
+                            value={formData.cep}
+                            onChange={handleCEPChange}
+                            placeholder={"00000-000"}
+                            maxLength={"8"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"Número"}
-                                type={"text"}
-                                name={"numero"}
-                                value={formData.numero}
-                                onChange={handleInputChange}
-                                placeholder={"123"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Endereço *"}
+                            type={"text"}
+                            name={"logradouro"}
+                            value={formData.logradouro}
+                            onChange={handleInputChange}
+                            placeholder={"Rua Jardim da Silva"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"Complemento"}
-                                type={"text"}
-                                name={"complemento"}
-                                value={formData.complemento}
-                                onChange={handleInputChange}
-                                placeholder={"Apto"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Número *"}
+                            type={"text"}
+                            name={"numero"}
+                            value={formData.numero}
+                            onChange={handleInputChange}
+                            placeholder={"123"}
+                            maxLength={"10"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"Bairro"}
-                                type={"text"}
-                                name={"bairro"}
-                                value={formData.bairro}
-                                onChange={handleInputChange}
-                                placeholder={"Centro"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Complemento"}
+                            type={"text"}
+                            name={"complemento"}
+                            value={formData.complemento}
+                            onChange={handleInputChange}
+                            placeholder={"Apto"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"Cidade"}
-                                type={"text"}
-                                name={"cidade"}
-                                value={formData.cidade}
-                                onChange={handleInputChange}
-                                placeholder={"Digite sua cidade"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Bairro *"}
+                            type={"text"}
+                            name={"bairro"}
+                            value={formData.bairro}
+                            onChange={handleInputChange}
+                            placeholder={"Centro"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"CEP"}
-                                type={"text"}
-                                name={"cep"}
-                                value={formData.cep}
-                                onChange={handleInputChange}
-                                placeholder={"00000-000"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Cidade *"}
+                            type={"text"}
+                            name={"cidade"}
+                            value={formData.cidade}
+                            onChange={handleInputChange}
+                            placeholder={"Digite sua cidade"}
+                        />
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Estado
+                                Estado *
                             </label>
                             <select
                                 name="estado"
@@ -376,55 +418,36 @@ export default function CadastroEmpresa() {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Contato</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Telefone
-                            </label>
-                            <input
-                                type="tel"
-                                name="telefone"
-                                value={formData.telefone}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="(48) 3000-0000"
-                            />
-                            <FormInput
-                                label={"CEP"}
-                                type={"text"}
-                                name={"cep"}
-                                value={formData.cep}
-                                onChange={handleInputChange}
-                                placeholder={"00000-000"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Telefone"}
+                            type={"tel"}
+                            name={"telefone"}
+                            value={formData.telefone}
+                            onChange={handleTelChange}
+                            placeholder={"(48) 3000-0000"}
+                            maxLength={"14"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"Celular"}
-                                type={"tel"}
-                                name={"celular"}
-                                value={formData.celular}
-                                onChange={handleInputChange}
-                                placeholder={"(48) 99000-0000"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Celular"}
+                            type={"tel"}
+                            name={"celular"}
+                            value={formData.celular}
+                            onChange={handlePhoneChange}
+                            placeholder={"(48) 99000-0000"}
+                            maxLength={"15"}
+                        />
 
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                E-mail
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
-                                    }`}
-                                placeholder="email@exemplo.com"
-                            />
-                            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                        </div>
+                        <FormInput
+                            label={"E-mail"}
+                            type={"email"}
+                            name={"email"}
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder={"email@exemplo.com"}
+                            error={errors.email}
+                        />
                     </div>
                 </div>
 
@@ -434,7 +457,7 @@ export default function CadastroEmpresa() {
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">Representante Legal</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <FormInput
-                            label={"Nome"}
+                            label={"Nome *"}
                             type={"text"}
                             name={"responsavel_nome"}
                             value={formData.responsavel_nome}
@@ -442,60 +465,47 @@ export default function CadastroEmpresa() {
                             placeholder={"Nome do representante"}
                         />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                CPF *
-                            </label>
-                            <input
-                                type="text"
-                                name="responsavel_cpf"
-                                value={formData.responsavel_cpf}
-                                onChange={handleCPFChange}
-                                maxLength="14"
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="000.000.000-00"
-                            />
-                            {errors.cpf && <p className="text-red-500 text-sm mt-1">{errors.cpf}</p>}
-                        </div>
+                        <FormInput
+                            label={"CPF"}
+                            type={"text"}
+                            name={"responsavel_cpf"}
+                            value={formData.responsavel_cpf}
+                            maxLength={"11"}
+                            onChange={handleCPFChange}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 ${errors.cpf ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder={"000.000.000-00"}
+                            error={errors.cpf}
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Cargo</label>
-                            <input
-                                type="text"
-                                name="responsavel_cargo"
-                                value={formData.responsavel_cargo}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Cargo do responsável"
-                            />
-                        </div>
+                        <FormInput
+                            label={"Cargo"}
+                            type={"text"}
+                            name={"responsavel_cargo"}
+                            value={formData.responsavel_cargo}
+                            onChange={handleInputChange}
+                            placeholder={"Cargo do responsável"}
+                        />
 
-                        <div>
-                            <FormInput
-                                label={"Telefone"}
-                                type={"tel"}
-                                name={"responsavel_telefone"}
-                                value={formData.responsavel_telefone}
-                                onChange={handleInputChange}
-                                placeholder={"(48) 99000-0000"}
-                            />
-                        </div>
+                        <FormInput
+                            label={"Celular"}
+                            type={"tel"}
+                            name={"responsavel_celular"}
+                            value={formData.responsavel_celular}
+                            onChange={handleInputChange}
+                            placeholder={"(48) 99000-0000"}
+                            maxLength={"11"}
+                        />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                E-mail
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
-                                    }`}
-                                placeholder="email@exemplo.com"
-                            />
-                            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                        </div>
+                        <FormInput
+                            label={"E-mail"}
+                            type={"email"}
+                            name={"responsavel_email"}
+                            value={formData.responsavel_email}
+                            onChange={handleInputChange}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder={"email@exemplo.com"}
+                            error={errors.email}
+                        />
                     </div>
                 </div>
 
@@ -518,7 +528,7 @@ export default function CadastroEmpresa() {
                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                     >
                         <Save className="w-4 h-4" />
-                        {loading ? 'Salvando...' : 'Salvar Aluno'}
+                        {loading ? 'Salvando...' : 'Salvar Empresa'}
                     </Button>
                 </div>
             </form>
