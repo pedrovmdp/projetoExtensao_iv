@@ -1,196 +1,256 @@
-import { useState } from 'react'
-import { UserPlus, Save, RotateCcw, CheckCircle, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button.jsx'
-import Header from './Header'
-import FormInput from './FormInput'
+import { useState } from "react";
+import {
+  UserPlus,
+  Save,
+  RotateCcw,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button.jsx";
+import Header from "./Header";
+import FormInput from "./FormInput";
 
 const CadastroAluno = () => {
   const [formData, setFormData] = useState({
     // Dados pessoais
-    nome: '',
-    cpf: '',
-    rg: '',
-    data_nascimento: '',
-    sexo: '',
-    estado_civil: '',
+    nome: "",
+    cpf: "",
+    rg: "",
+    data_nascimento: "",
+    sexo: "",
+    estado_civil: "",
 
     // Contato
-    telefone: '',
-    celular: '',
-    email: '',
+    telefone: "",
+    celular: "",
+    email: "",
 
     // Endereço
-    endereco: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cidade: '',
-    cep: '',
-    estado: '',
+    logradouro: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    cep: "",
+    estado: "",
 
     // Dados familiares
-    nome_pai: '',
-    nome_mae: '',
-    telefone_responsavel: '',
+    nome_pai: "",
+    nome_mae: "",
+    telefone_responsavel: "",
 
     // Dados institucionais
-    data_ingresso: '',
-    observacoes: '',
-    status: 'Ativo'
-  })
+    data_ingresso: "",
+    observacoes: "",
+    status: "Ativo",
+  });
 
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState({ type: '', text: '' })
-  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
+      [name]: value,
+    }));
 
     // Limpar erro do campo quando o usuário começar a digitar
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
-      }))
+        [name]: "",
+      }));
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     // Campos obrigatórios
     if (!formData.nome.trim()) {
-      newErrors.nome = 'Nome é obrigatório'
+      newErrors.nome = "Nome é obrigatório";
     }
 
     if (!formData.cpf.trim()) {
-      newErrors.cpf = 'CPF é obrigatório'
+      newErrors.cpf = "CPF é obrigatório";
     } else if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
-      newErrors.cpf = 'CPF deve estar no formato 000.000.000-00'
+      newErrors.cpf = "CPF deve estar no formato 000.000.000-00";
     }
 
     if (!formData.data_nascimento) {
-      newErrors.data_nascimento = 'Data de nascimento é obrigatória'
+      newErrors.data_nascimento = "Data de nascimento é obrigatória";
     }
 
     if (!formData.data_ingresso) {
-      newErrors.data_ingresso = 'Data de ingresso é obrigatória'
+      newErrors.data_ingresso = "Data de ingresso é obrigatória";
     }
 
     // Validar email se fornecido
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'E-mail inválido'
+      newErrors.email = "E-mail inválido";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
       setMessage({
-        type: 'error',
-        text: 'Por favor, corrija os erros no formulário'
-      })
-      return
+        type: "error",
+        text: "Por favor, corrija os erros no formulário",
+      });
+      return;
     }
 
-    setLoading(true)
-    setMessage({ type: '', text: '' })
+    setLoading(true);
+    setMessage({ type: "", text: "" });
 
     try {
-      const response = await fetch('http://localhost:5000/api/alunos', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/alunos", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
-      })
+        body: JSON.stringify(formData),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
         setMessage({
-          type: 'success',
-          text: 'Aluno cadastrado com sucesso!'
-        })
+          type: "success",
+          text: "Aluno cadastrado com sucesso!",
+        });
 
         // Limpar formulário após sucesso
         setTimeout(() => {
-          handleReset()
-          setMessage({ type: '', text: '' })
-        }, 2000)
+          handleReset();
+          setMessage({ type: "", text: "" });
+        }, 2000);
       } else {
         setMessage({
-          type: 'error',
-          text: data.message || 'Erro ao cadastrar aluno'
-        })
+          type: "error",
+          text: data.message || "Erro ao cadastrar aluno",
+        });
       }
     } catch (error) {
-      console.error('Erro ao cadastrar aluno:', error)
+      console.error("Erro ao cadastrar aluno:", error);
       setMessage({
-        type: 'error',
-        text: 'Erro ao conectar com o servidor'
-      })
+        type: "error",
+        text: "Erro ao conectar com o servidor",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const buscarEndereco = async (cep) => {
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+
+      //se o CEP não for inserido
+      if (data.erro) {
+        setError("CEP não encontrado");
+        setFormData((prev) => ({
+          ...prev,
+          logradouro: "",
+          bairro: "",
+          cidade: "",
+          estado: "",
+        }));
+        return;
+      }
+
+      //
+      setError(null);
+      setFormData((prev) => ({
+        ...prev,
+        logradouro: data.logradouro,
+        bairro: data.bairro,
+        cidade: data.localidade,
+        estado: data.uf,
+      }));
+    } catch (error) {
+      setError("Erro ao buscar CEP");
+      console.error(err);
+    }
+  };
 
   const handleReset = () => {
     setFormData({
-      nome: '',
-      cpf: '',
-      rg: '',
-      data_nascimento: '',
-      sexo: '',
-      estado_civil: '',
-      telefone: '',
-      celular: '',
-      email: '',
-      endereco: '',
-      numero: '',
-      complemento: '',
-      bairro: '',
-      cidade: '',
-      cep: '',
-      estado: '',
-      nome_pai: '',
-      nome_mae: '',
-      telefone_responsavel: '',
-      data_ingresso: '',
-      observacoes: '',
-      status: 'Ativo'
-    })
-    setErrors({})
-    setMessage({ type: '', text: '' })
-  }
+      nome: "",
+      cpf: "",
+      rg: "",
+      data_nascimento: "",
+      sexo: "",
+      estado_civil: "",
+      telefone: "",
+      celular: "",
+      email: "",
+      logradouro: "",
+      numero: "",
+      complemento: "",
+      bairro: "",
+      cidade: "",
+      cep: "",
+      estado: "",
+      nome_pai: "",
+      nome_mae: "",
+      telefone_responsavel: "",
+      data_ingresso: "",
+      observacoes: "",
+      status: "Ativo",
+    });
+    setErrors({});
+    setMessage({ type: "", text: "" });
+  };
 
   const formatCPF = (value) => {
     // Remove tudo que não é dígito
-    const numbers = value.replace(/\D/g, '')
+    const numbers = value.replace(/\D/g, "");
 
     // Aplica a máscara
     if (numbers.length <= 11) {
-      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     }
 
-    return value
-  }
+    return value;
+  };
+
+  const formatCEP = (value) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 8) {
+      return numbers.replace(/^(\d{5})(\d{3})(\d{0,4}).*/, "$1-$2");
+    }
+  };
 
   const handleCPFChange = (e) => {
-    const formatted = formatCPF(e.target.value)
-    setFormData(prev => ({
+    const formatted = formatCPF(e.target.value);
+    setFormData((prev) => ({
       ...prev,
-      cpf: formatted
-    }))
-  }
+      cpf: formatted,
+    }));
+  };
+
+  const handleCEPChange = (e) => {
+    const formatted = formatCEP(e.target.value);
+    setFormData((prev) => ({
+      ...prev,
+      cep: formatted,
+    }));
+
+    // Quando o CEP tem 9 caracteres, faz a busca do endereço
+    if (formatted.length === 9) {
+      buscarEndereco(formatted.replace("-", "")); // Remove o hífen antes de buscar
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -203,11 +263,14 @@ const CadastroAluno = () => {
 
       {/* Mensagem de feedback */}
       {message.text && (
-        <div className={`p-4 rounded-lg flex items-center gap-2 ${message.type === 'success'
-          ? 'bg-green-50 border border-green-200 text-green-800'
-          : 'bg-red-50 border border-red-200 text-red-800'
-          }`}>
-          {message.type === 'success' ? (
+        <div
+          className={`p-4 rounded-lg flex items-center gap-2 ${
+            message.type === "success"
+              ? "bg-green-50 border border-green-200 text-green-800"
+              : "bg-red-50 border border-red-200 text-red-800"
+          }`}
+        >
+          {message.type === "success" ? (
             <CheckCircle className="w-5 h-5" />
           ) : (
             <AlertCircle className="w-5 h-5" />
@@ -220,7 +283,9 @@ const CadastroAluno = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Dados Pessoais */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Pessoais</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Dados Pessoais
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormInput
               label={"Nome Compleot *"}
@@ -228,7 +293,9 @@ const CadastroAluno = () => {
               name={"nome"}
               value={formData.nome}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nome ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.nome ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="Digite o nome completo"
               error={errors.nome}
             />
@@ -240,7 +307,9 @@ const CadastroAluno = () => {
               value={formData.cpf}
               onChange={handleCPFChange}
               maxLength={"14"}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.cpf ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="000.000.000-00"
               error={errors.cpf}
             />
@@ -260,7 +329,9 @@ const CadastroAluno = () => {
               name={"data_nascimento"}
               value={formData.data_nascimento}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_nascimento ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.data_nascimento ? "border-red-500" : "border-gray-300"
+              }`}
               error={errors.data_nascimento}
             />
 
@@ -329,8 +400,9 @@ const CadastroAluno = () => {
               type={"email"}
               name={"email"}
               value={formData.email}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              }`}
               onChange={handleInputChange}
               placeholder="email@exemplo.com"
               error={errors.email}
@@ -345,8 +417,8 @@ const CadastroAluno = () => {
             <FormInput
               label={"Endereço"}
               type={"text"}
-              name={"endereco"}
-              value={formData.endereco}
+              name={"logradouro"}
+              value={formData.logradouro}
               onChange={handleInputChange}
               placeholder="Rua, Avenida, etc."
             />
@@ -392,7 +464,8 @@ const CadastroAluno = () => {
               type={"text"}
               name={"cep"}
               value={formData.cep}
-              onChange={handleInputChange}
+              onChange={handleCEPChange}
+              maxLength={'8'}
               placeholder="00000-000"
             />
 
@@ -420,7 +493,9 @@ const CadastroAluno = () => {
 
         {/* Dados Familiares */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Familiares</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Dados Familiares
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormInput
               label={"Nome do Pai"}
@@ -453,7 +528,9 @@ const CadastroAluno = () => {
 
         {/* Dados Institucionais */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Institucionais</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Dados Institucionais
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput
               label={"Data de Ingresso *"}
@@ -461,7 +538,8 @@ const CadastroAluno = () => {
               name={"data_ingresso"}
               value={formData.data_ingresso}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_ingresso ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.data_ingresso ? "border-red-500" : "border-gray-300"
               }`}
               error={errors.data_ingresso}
             />
@@ -518,13 +596,12 @@ const CadastroAluno = () => {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
           >
             <Save className="w-4 h-4" />
-            {loading ? 'Salvando...' : 'Salvar Aluno'}
+            {loading ? "Salvando..." : "Salvar Aluno"}
           </Button>
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default CadastroAluno
-
+export default CadastroAluno;

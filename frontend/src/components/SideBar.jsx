@@ -11,8 +11,8 @@ export default function Sidebar ({ isOpen, onClose }) {
   
     const navItems = [
         { to: '/', icon: BarChart3, label: 'Dashboard' },
-        { to: '/cadastroAluno', icon: UserPlus, label: 'Cadastro aluno' },
-        { to: '/cadastroEmpresa', icon: HousePlus, label: 'Cadastro empresa'},
+        { to: '/cadastro-aluno', icon: UserPlus, label: 'Cadastro aluno' },
+        { to: '/cadastro-empresa', icon: HousePlus, label: 'Cadastro empresa'},
         { to: '/historico', icon: FileText, label: 'Histórico aluno' },
         { to: '/avaliacao', icon: ClipboardList, label: 'Avaliação aluno' },
         { to: '/acompanhamento', icon: Users, label: 'Acompanhamento aluno' },
