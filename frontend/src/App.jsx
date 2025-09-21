@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import { Button } from './components/ui/button' // ajuste se não tiver alias "@"
 import './App.css'
-import Login from './components/ui/Login'
+import Login from './components/Login'
 
 // Páginas
 import Dashboard from './components/Dashboard'

@@ -8,8 +8,8 @@ export default function UserProfile() {
     };
 
     return (
-        <div className="p-4 border border-blue-600 bg-blue-700 rounded-md w-full text-white">
-            <div className="flex items-center gap-4">
+        <div className="p-3 border border-blue-600 bg-blue-700 rounded-md w-full text-white">
+            <div className="flex items-center gap-3">
                 <img
                     src={users.img}
                     alt="imagem do usuário"

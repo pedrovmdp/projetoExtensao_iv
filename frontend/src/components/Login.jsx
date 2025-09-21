@@ -37,7 +37,9 @@ export default function Login() {
         {/* Painel ilustrativo (desktop) */}
         <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
           <header className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-white/20" />
+            <div>
+              <img src="../public/logo.png" alt="logo IEEDF" className="w-18"/>
+            </div>
             <h2 className="font-semibold">Instituto Diomício Freitas</h2>
           </header>
           <div>
@@ -45,7 +47,8 @@ export default function Login() {
               Bem-vindo de volta!
             </h3>
             <p className="mt-2 text-white/90">
-              Acesse o painel para acompanhar alunos, avaliações e encaminhamentos.
+              Acesse o painel para acompanhar alunos, avaliações e
+              encaminhamentos.
             </p>
           </div>
           <footer className="text-sm text-white/80">
@@ -55,7 +58,10 @@ export default function Login() {
 
         {/* Card do formulário */}
         <div className="p-8 sm:p-10">
-          <h1 id="titulo-login" className="text-2xl font-semibold text-slate-900">
+          <h1
+            id="titulo-login"
+            className="text-2xl font-semibold text-slate-900"
+          >
             Entrar na plataforma
           </h1>
           <p className="mt-1 text-sm text-slate-600">
@@ -113,7 +119,9 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   aria-invalid={!!errors.password}
-                  aria-describedby={errors.password ? "password-erro" : undefined}
+                  aria-describedby={
+                    errors.password ? "password-erro" : undefined
+                  }
                 />
                 <button
                   type="button"
@@ -147,7 +155,10 @@ export default function Login() {
                 />
                 Lembrar de mim
               </label>
-              <button type="button" className="text-sm text-blue-700 hover:underline">
+              <button
+                type="button"
+                className="text-sm text-blue-700 hover:underline"
+              >
                 Esqueci minha senha
               </button>
             </div>
