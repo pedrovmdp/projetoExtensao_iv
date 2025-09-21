@@ -50,22 +50,22 @@ const HistoricoAluno = () => {
   // }, [])
 
   // Filtrar alunos baseado na busca e filtro de status
-  useEffect(() => {
-    let filtered = alunos
+  // useEffect(() => {
+  //   let filtered = alunos
     
-    if (searchTerm) {
-      filtered = filtered.filter(aluno => 
-        aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        aluno.cpf.includes(searchTerm)
-      )
-    }
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(aluno => 
+  //       aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       aluno.cpf.includes(searchTerm)
+  //     )
+  //   }
     
-    if (statusFilter) {
-      filtered = filtered.filter(aluno => aluno.status === statusFilter)
-    }
+  //   if (statusFilter) {
+  //     filtered = filtered.filter(aluno => aluno.status === statusFilter)
+  //   }
     
-    setFilteredAlunos(filtered)
-  }, [alunos, searchTerm, statusFilter])
+  //   setFilteredAlunos(filtered)
+  // }, [alunos, searchTerm, statusFilter])
 
   const handleViewDetails = (aluno) => {
     setSelectedAluno(aluno)
@@ -96,51 +96,51 @@ const HistoricoAluno = () => {
   const alunosEncaminhados = alunos.filter(a => a.status === 'Encaminhado').length
   const alunosAvaliacao = alunos.filter(a => a.status === 'Em Avaliação').length
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-8">
-          <FileText className="w-8 h-8 text-blue-600" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Histórico de Alunos</h1>
-            <p className="text-gray-600 mt-1">
-              Visualize e gerencie o histórico de todos os alunos cadastrados
-            </p>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <div className="text-center">
-            <p className="text-gray-500">Carregando alunos...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="space-y-6">
+  //       <div className="flex items-center gap-3 mb-8">
+  //         <FileText className="w-8 h-8 text-blue-600" />
+  //         <div>
+  //           <h1 className="text-3xl font-bold text-gray-900">Histórico de Alunos</h1>
+  //           <p className="text-gray-600 mt-1">
+  //             Visualize e gerencie o histórico de todos os alunos cadastrados
+  //           </p>
+  //         </div>
+  //       </div>
+  //       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+  //         <div className="text-center">
+  //           <p className="text-gray-500">Carregando alunos...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-8">
-          <FileText className="w-8 h-8 text-blue-600" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Histórico de alunos</h1>
-            <p className="text-gray-600 mt-1">
-              Visualize e gerencie o histórico de todos os alunos cadastrados
-            </p>
-          </div>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
-          <button 
-            onClick={fetchAlunos}
-            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Tentar Novamente
-          </button>
-        </div>
-      </div>
-    )
-  }
+  // if (error) {
+  //   return (
+  //     <div className="space-y-6">
+  //       <div className="flex items-center gap-3 mb-8">
+  //         <FileText className="w-8 h-8 text-blue-600" />
+  //         <div>
+  //           <h1 className="text-3xl font-bold text-gray-900">Histórico de alunos</h1>
+  //           <p className="text-gray-600 mt-1">
+  //             Visualize e gerencie o histórico de todos os alunos cadastrados
+  //           </p>
+  //         </div>
+  //       </div>
+  //       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+  //         <p className="text-red-800">{error}</p>
+  //         <button 
+  //           onClick={fetchAlunos}
+  //           className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+  //         >
+  //           Tentar Novamente
+  //         </button>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="space-y-6">
