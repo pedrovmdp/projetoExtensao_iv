@@ -181,11 +181,11 @@ const Dashboard = () => {
               Alunos por Mês
             </h3>
           </div>
-          {loading ? (
+          {/* {loading ? (
             <div className="h-[300px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : (
+          ) : ( */}
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={acompanhamentoData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -195,7 +195,7 @@ const Dashboard = () => {
                 <Bar dataKey="alunos" fill="#4A90E2" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          )}
+          {/* )} */}
         </div>
 
         {/* Gráfico de Status dos Acompanhamentos */}
@@ -206,11 +206,11 @@ const Dashboard = () => {
               Status dos Acompanhamentos
             </h3>
           </div>
-          {loading ? (
+          {/* {loading ? (
             <div className="h-[300px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : (
+          ) : ( */}
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -228,7 +228,7 @@ const Dashboard = () => {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-          )}
+          {/* // )} */}
         </div>
       </div>
 
@@ -242,11 +242,11 @@ const Dashboard = () => {
               Avaliações por Período
             </h3>
           </div>
-          {loading ? (
+          {/* {loading ? ( */}
             <div className="h-[250px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : (
+          {/* ) : ( */}
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={avaliacoesData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -262,7 +262,7 @@ const Dashboard = () => {
                 />
               </LineChart>
             </ResponsiveContainer>
-          )}
+          {/* )} */}
         </div>
 
         {/* Resumo de Status */}

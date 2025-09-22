@@ -38,7 +38,7 @@ export default function Login() {
         <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
           <header className="flex items-center gap-3">
             <div>
-              <img src="../public/logo.png" alt="logo IEEDF" className="w-18"/>
+              <img src="./logo.png" alt="logo IEEDF" className="w-18"/>
             </div>
             <h2 className="font-semibold">Instituto Diomício Freitas</h2>
           </header>
