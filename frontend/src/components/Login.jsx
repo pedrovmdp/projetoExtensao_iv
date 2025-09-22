@@ -126,7 +126,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-sm text-slate-600 hover:underline"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-sm text-slate-600 hover:underline cursor-pointer"
                   aria-pressed={showPassword}
                 >
                   {showPassword ? "Ocultar" : "Mostrar"}
