@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { 
-  Users, 
-  Save, 
+import {
+  Users,
+  Save,
   Plus,
   Building,
   Calendar,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import Header from './Header'
+import FormInput from './FormInput'
 
 // Dados simulados de acompanhamentos
 const acompanhamentosData = [
@@ -57,11 +58,12 @@ const AcompanhamentoAluno = () => {
   const [editingId, setEditingId] = useState(null)
   const [selectedAcompanhamento, setSelectedAcompanhamento] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  
+
   const [formData, setFormData] = useState({
     nomeAluno: '',
     empresa: '',
     responsavelRH: '',
+    cargo: "",
     dataAdmissao: '',
     dataVisita: '',
     contatoCom: '',
@@ -77,7 +79,7 @@ const AcompanhamentoAluno = () => {
       ...prev,
       [name]: value
     }))
-    
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -88,7 +90,7 @@ const AcompanhamentoAluno = () => {
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!formData.nomeAluno.trim()) newErrors.nomeAluno = 'Nome do aluno é obrigatório'
     if (!formData.empresa.trim()) newErrors.empresa = 'Nome da empresa é obrigatório'
     if (!formData.responsavelRH.trim()) newErrors.responsavelRH = 'Responsável RH é obrigatório'
@@ -96,23 +98,25 @@ const AcompanhamentoAluno = () => {
     if (!formData.dataVisita) newErrors.dataVisita = 'Data da visita é obrigatória'
     if (!formData.contatoCom.trim()) newErrors.contatoCom = 'Contato é obrigatório'
     if (!formData.parecerGeral.trim()) newErrors.parecerGeral = 'Parecer geral é obrigatório'
-    
+    if (!formData.cargo.trim()) newErrors.cargo = 'Cargo do aluno é obrigatório'
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     if (validateForm()) {
       console.log('Dados do acompanhamento:', formData)
       alert(editingId ? 'Acompanhamento atualizado com sucesso!' : 'Acompanhamento cadastrado com sucesso!')
-      
+
       // Limpar formulário e fechar
       setFormData({
         nomeAluno: '',
         empresa: '',
         responsavelRH: '',
+        cargo: '',
         dataAdmissao: '',
         dataVisita: '',
         contatoCom: '',
@@ -129,6 +133,7 @@ const AcompanhamentoAluno = () => {
       nomeAluno: acompanhamento.nomeAluno,
       empresa: acompanhamento.empresa,
       responsavelRH: acompanhamento.responsavelRH,
+      cargo: acompanhamento.cargo,
       dataAdmissao: acompanhamento.dataAdmissao,
       dataVisita: acompanhamento.dataVisita,
       contatoCom: acompanhamento.contatoCom,
@@ -149,6 +154,7 @@ const AcompanhamentoAluno = () => {
       nomeAluno: '',
       empresa: '',
       responsavelRH: '',
+      cargo: '',
       dataAdmissao: '',
       dataVisita: '',
       contatoCom: '',
@@ -186,7 +192,7 @@ const AcompanhamentoAluno = () => {
           title={"Acompanhamento de Alunos"}
           text={"Acompanhamento no mercado de trabalho"}
         />
-        
+
         {!showForm && (
           <Button
             onClick={() => setShowForm(true)}
@@ -233,7 +239,7 @@ const AcompanhamentoAluno = () => {
               {editingId ? 'Editar Acompanhamento' : 'Novo Acompanhamento'}
             </h2>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Dados do Aluno e Empresa */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -242,83 +248,76 @@ const AcompanhamentoAluno = () => {
                   <User className="w-5 h-5 text-purple-600" />
                   <h3 className="text-lg font-semibold text-gray-900">Dados do Aluno</h3>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome do Aluno *
-                    </label>
-                    <input
-                      type="text"
-                      name="nomeAluno"
-                      value={formData.nomeAluno}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.nomeAluno ? 'border-red-500' : 'border-gray-300'
+                  <FormInput
+                    label={"Nome do Aluno *"}
+                    type={"text"}
+                    name={"nomeAluno"}
+                    value={formData.nomeAluno}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nomeAluno ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Nome completo do aluno"
-                    />
-                    {errors.nomeAluno && <p className="text-red-500 text-sm mt-1">{errors.nomeAluno}</p>}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Data de Admissão *
-                    </label>
-                    <input
-                      type="date"
-                      name="dataAdmissao"
-                      value={formData.dataAdmissao}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.dataAdmissao ? 'border-red-500' : 'border-gray-300'
+                    placeholder={"Nome completo do aluno"}
+                    error={errors.nomeAluno}
+                  />
+
+                  <FormInput
+                    label={"Data de Admissão *"}
+                    type={"date"}
+                    name={"dataAdmissao"}
+                    value={formData.dataAdmissao}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dataAdmissao ? 'border-red-500' : 'border-gray-300'
                       }`}
-                    />
-                    {errors.dataAdmissao && <p className="text-red-500 text-sm mt-1">{errors.dataAdmissao}</p>}
-                  </div>
+                    placeholder={"Nome completo do aluno"}
+                    error={errors.dataAdmissao}
+                  />
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Building className="w-5 h-5 text-green-600" />
                   <h3 className="text-lg font-semibold text-gray-900">Dados da Empresa</h3>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome da Empresa *
-                    </label>
-                    <input
-                      type="text"
-                      name="empresa"
-                      value={formData.empresa}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.empresa ? 'border-red-500' : 'border-gray-300'
+                  <FormInput
+                    label={"Nome da Empresa *"}
+                    type={"text"}
+                    name={"empresa"}
+                    value={formData.empresa}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.empresa ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Nome da empresa"
-                    />
-                    {errors.empresa && <p className="text-red-500 text-sm mt-1">{errors.empresa}</p>}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Responsável RH *
-                    </label>
-                    <input
-                      type="text"
-                      name="responsavelRH"
-                      value={formData.responsavelRH}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.responsavelRH ? 'border-red-500' : 'border-gray-300'
+                    placeholder={"Nome da empresa"}
+                    error={errors.empresa}
+                  />
+
+                  <FormInput
+                    label={"Responsável RH *"}
+                    type={"text"}
+                    name={"responsavelRH"}
+                    value={formData.responsavelRH}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.responsavelRH ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Nome do responsável pelo RH"
-                    />
-                    {errors.responsavelRH && <p className="text-red-500 text-sm mt-1">{errors.responsavelRH}</p>}
-                  </div>
+                    placeholder={"Nome do responsável pelo RH"}
+                    error={errors.responsavelRH}
+                  />
+
+                  <FormInput
+                    label={"Cargo *"}
+                    type={"text"}
+                    name={"cargo"}
+                    value={formData.cargo}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cargo ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    placeholder={"Cargo do aluno"}
+                    error={errors.cargo}
+                  />
                 </div>
               </div>
             </div>
@@ -329,41 +328,43 @@ const AcompanhamentoAluno = () => {
                 <Calendar className="w-5 h-5 text-orange-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Dados da Visita</h3>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data da Visita *
-                  </label>
-                  <input
-                    type="date"
-                    name="dataVisita"
-                    value={formData.dataVisita}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.dataVisita ? 'border-red-500' : 'border-gray-300'
+                <FormInput
+                  label={"Cargo *"}
+                  type={"text"}
+                  name={"cargo"}
+                  value={formData.cargo}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cargo ? 'border-red-500' : 'border-gray-300'
                     }`}
-                  />
-                  {errors.dataVisita && <p className="text-red-500 text-sm mt-1">{errors.dataVisita}</p>}
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contato com *
-                  </label>
-                  <input
-                    type="text"
-                    name="contatoCom"
-                    value={formData.contatoCom}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.contatoCom ? 'border-red-500' : 'border-gray-300'
+                  placeholder={"Cargo do aluno"}
+                  error={errors.cargo}
+                />
+
+                <FormInput
+                  label={"Data da Visita *"}
+                  type={"date"}
+                  name={"dataVisita"}
+                  value={formData.dataVisita}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dataVisita ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder="Ex: Supervisor, Gerente, etc."
-                  />
-                  {errors.contatoCom && <p className="text-red-500 text-sm mt-1">{errors.contatoCom}</p>}
-                </div>
-                
+                  error={errors.dataVisita}
+                />
+
+                <FormInput
+                  label={"Contato com *"}
+                  type={"text"}
+                  name={"contatoCom"}
+                  value={formData.contatoCom}
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.contatoCom ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  placeholder={"Ex: Supervisor, Gerente, etc."}
+                  error={errors.contatoCom}
+                />
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Status
@@ -392,9 +393,8 @@ const AcompanhamentoAluno = () => {
                 value={formData.parecerGeral}
                 onChange={handleInputChange}
                 rows={6}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.parecerGeral ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.parecerGeral ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Descreva o parecer geral sobre o acompanhamento do aluno na empresa..."
               />
               {errors.parecerGeral && <p className="text-red-500 text-sm mt-1">{errors.parecerGeral}</p>}
@@ -427,7 +427,7 @@ const AcompanhamentoAluno = () => {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">Acompanhamentos Registrados</h2>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -527,7 +527,7 @@ const AcompanhamentoAluno = () => {
                   ✕
                 </Button>
               </div>
-              
+
               <div className="space-y-6">
                 {/* Dados do Aluno */}
                 <div>
@@ -606,7 +606,7 @@ const AcompanhamentoAluno = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-3 mt-6">
                 <Button
                   variant="outline"
@@ -614,7 +614,7 @@ const AcompanhamentoAluno = () => {
                 >
                   Fechar
                 </Button>
-                <Button 
+                <Button
                   onClick={() => {
                     setShowModal(false)
                     handleEdit(selectedAcompanhamento)
