@@ -8,6 +8,7 @@ import {
   UserPlus,
   Users,
   X,
+  Building2
 } from "lucide-react";
 import UserProfile from "./UserProfile";
 import NavItem from "./NavItem";
@@ -20,6 +21,7 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: "/", icon: BarChart3, label: "Dashboard" },
     { to: "/cadastro-aluno", icon: UserPlus, label: "Cadastro aluno" },
     { to: "/cadastro-empresa", icon: HousePlus, label: "Cadastro empresa" },
+    { to: "/empresas", icon: Building2 ,label: "Empresas parceiras"},
     { to: "/historico", icon: FileText, label: "Histórico aluno" },
     { to: "/avaliacao", icon: ClipboardList, label: "Avaliação aluno" },
     { to: "/acompanhamento", icon: Users, label: "Acompanhamento aluno" },

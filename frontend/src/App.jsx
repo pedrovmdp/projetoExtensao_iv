@@ -13,6 +13,7 @@ import HistoricoAluno from './components/HistoricoAluno'
 import AvaliacaoAluno from './components/AvaliacaoAluno'
 import AcompanhamentoAluno from './components/AcompanhamentoAluno'
 import Sidebar from './components/SideBar'
+import EmpresasParceiras from './components/EmpresasParceias'
 
 // Shell que separa layout de auth do layout do app
 function AppShell() {
@@ -72,6 +73,7 @@ function AppShell() {
             <Route path="/historico" element={<HistoricoAluno />} />
             <Route path="/avaliacao" element={<AvaliacaoAluno />} />
             <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
+            <Route path="/empresas" element={<EmpresasParceiras/>} />
           </Routes>
         </main>
       </div>

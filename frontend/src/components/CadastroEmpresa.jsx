@@ -12,7 +12,6 @@ export default function CadastroEmpresa() {
         nome_fantasia: '',
         cnpj: '',
         tipo_empresa: "",
-        cnae_principal: '', // Código da atividade econômica principal
         data_abertura: '',
 
         // Endereço
