@@ -1,10 +1,19 @@
-import { Building2, Edit, Eye, Search, User } from "lucide-react";
+import { Building, Building2, Edit, Eye, FileText, MapPinned, Search, User } from "lucide-react";
 import Header from "./Header";
 import TextRow from "./ui/textRow";
 import { Button } from '@/components/ui/button.jsx'
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCompanys } from "../../store/features/companySlice";
 
 export default function EmpresasParceiras() {
+    const dispatch = useDispatch()
+    const companys = useSelector((state) => state.companys.companys || [])
+
+    const [showForm, setShowForm] = useState(false)
+    const [editingId, setEditingId] = useState(null)
+    const [selectedEmpresa, setSelectedEmpresa] = useState(null)
+    const [showModal, setShowModal] = useState(false)
 
     const [formData, setFormData] = useState({
         razao_social: "",
@@ -35,157 +44,14 @@ export default function EmpresasParceiras() {
         responsavel_email: ""
     })
 
-    const empresasData = [
-        {
-            id: 1,
-            razao_social: "TechSol Sistemas Ltda",
-            nome_fantasia: "TechSol",
-            cnpj: "12.345.678/0001-90",
-            tipo_empresa: "LTDA",
-            data_abertura: "12/06/2018",
+    useEffect(() => {
+        dispatch(fetchCompanys())
+    }, [dispatch])
 
-            // Endereço
-            cep: "04567-123",
-            logradouro: "Av. das Nações Unidas",
-            numero: "1500",
-            complemento: "Sala 210",
-            bairro: "Vila Nova",
-            cidade: "São Paulo",
-            estado: "SP",
-
-            // Contato
-            telefone: "(11) 3022-4455",
-            celular: "(11) 99123-4567",
-            email: "contato@techsol.com.br",
-
-            // Representante Legal
-            responsavel_nome: "Mariana Alves",
-            responsavel_cpf: "123.456.789-09",
-            responsavel_cargo: "Diretora Geral",
-            responsavel_celular: "(11) 99876-5432",
-            responsavel_email: "mariana.alves@techsol.com.br"
-        },
-
-        {
-            id: 2,
-            razao_social: "VerdeViva Agropecuária S.A.",
-            nome_fantasia: "VerdeViva",
-            cnpj: "23.456.789/0001-81",
-            tipo_empresa: "S.A.",
-            data_abertura: "2005-03-12",
-
-            // Endereço
-            cep: "78700-000",
-            logradouro: "Rod. BR-163",
-            numero: "Km 124",
-            complemento: "Fazenda 3",
-            bairro: "Zona Rural",
-            cidade: "Cuiabá",
-            estado: "MT",
-
-            // Contato
-            telefone: "(65) 3321-7788",
-            celular: "(65) 99888-1122",
-            email: "contato@verdeviva.com.br",
-
-            // Representante Legal
-            responsavel_nome: "João Pedro Ribeiro",
-            responsavel_cpf: "987.654.321-00",
-            responsavel_cargo: "Presidente",
-            responsavel_celular: "(65) 99777-6655",
-            responsavel_email: "jp.ribeiro@verdeviva.com.br"
-        },
-
-        {
-            id: 3,
-            razao_social: "Café da Esquina Microempresa",
-            nome_fantasia: "Café da Esquina",
-            cnpj: "34.567.890/0001-72",
-            tipo_empresa: "ME",
-            data_abertura: "2021-09-12",
-
-            // Endereço
-            cep: "40015-220",
-            logradouro: "Rua das Flores",
-            numero: "45",
-            complemento: "Fundos",
-            bairro: "Centro",
-            cidade: "Salvador",
-            estado: "BA",
-
-            // Contato
-            telefone: "(71) 3322-5566",
-            celular: "(71) 98811-2233",
-            email: "contato@cafedaesquina.com.br",
-
-            // Representante Legal
-            responsavel_nome: "Ana Beatriz Costa",
-            responsavel_cpf: "321.654.987-66",
-            responsavel_cargo: "Proprietária",
-            responsavel_celular: "(71) 99922-3344",
-            responsavel_email: "ana@cafedaesquina.com.br"
-        },
-
-        {
-            id: 4,
-            razao_social: "Lumen Arquitetura e Design Ltda",
-            nome_fantasia: "Lumen Arquitetura",
-            cnpj: "45.678.901/0001-63",
-            tipo_empresa: "LTDA",
-            data_abertura: "2020-05-12",
-
-            // Endereço
-            cep: "80040-020",
-            logradouro: "Rua das Palmeiras",
-            numero: "200",
-            complemento: "Conjunto 701",
-            bairro: "Batel",
-            cidade: "Curitiba",
-            estado: "PR",
-
-            // Contato
-            telefone: "(41) 3244-7788",
-            celular: "(41) 99800-1122",
-            email: "contato@lumenarq.com.br",
-
-            // Representante Legal
-            responsavel_nome: "Carlos Henrique Martins",
-            responsavel_cpf: "456.123.789-50",
-            responsavel_cargo: "Arquiteto Chefe",
-            responsavel_celular: "(41) 99755-3344",
-            responsavel_email: "carlos.martins@lumenarq.com.br"
-        },
-
-        {
-            id: 5,
-            razao_social: "Rápido & Cia Logística Ltda",
-            nome_fantasia: "RápidoLog",
-            cnpj: "56.789.012/0001-54",
-            tipo_empresa: "LTDA",
-            data_abertura: "2018-02-22",
-
-            // Endereço
-            cep: "70040-010",
-            logradouro: "Av. das Américas",
-            numero: "820",
-            complemento: "Galpão B",
-            bairro: "Distrito Industrial",
-            cidade: "Brasília",
-            estado: "DF",
-
-            // Contato
-            telefone: "(61) 3222-9900",
-            celular: "(61) 99111-2233",
-            email: "suporte@rapidolog.com.br",
-
-            // Representante Legal
-            responsavel_nome: "Fernanda Lima",
-            responsavel_cpf: "654.321.987-11",
-            responsavel_cargo: "Gerente Operacional",
-            responsavel_celular: "(61) 99833-4455",
-            responsavel_email: "fernanda.lima@rapidolog.com.br"
-        }
-    ]
+    const handleViewDetails = (empresa) => {
+        setSelectedEmpresa(empresa)
+        setShowModal(true)
+    }
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('pt-BR')
@@ -231,23 +97,25 @@ export default function EmpresasParceiras() {
                 text={"Vizualize e gerencia todas as empresas cadastradas"}
             />
             {/* Barra de pesquisa */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 flex justify-center items-center">
-                <div className="flex md:flex-row gap-4 w-full max-w-1xl">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex flex-col md:flex-row gap-4">
+                    {/* Campo de busca */}
                     <div className="flex-1">
-                        <div className="relative h-full w-6xl">
+                        <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                             <input
                                 type="text"
                                 placeholder="Buscar por nome"
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-full"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
 
-                    <div className="flex-1">
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 h-full flex flex-col justify-center items-center">
-                            <p className="text-2xl font-bold text-blue-600">{empresasData.length}</p>
-                            <p className="text-sm text-gray-600">Total de empresas parceiras</p>
+                    {/* Total de empresas */}
+                    <div className="md:w-48">
+                        <div className="relative">
+                            <p className="text-2xl font-bold text-blue-600 text-center">{companys.length}</p>
+                            <p className="text-xs text-gray-600 text-center">Total de empresas parceiras</p>
                         </div>
                     </div>
                 </div>
@@ -284,8 +152,8 @@ export default function EmpresasParceiras() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {empresasData.map((empresa) => (
-                                <tr key={empresa.id} className="hover:bg-gray-50">
+                            {companys.map((company) => (
+                                <tr key={company.id} className="hover:bg-gray-50">
                                     {/* razao social */}
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
@@ -294,30 +162,30 @@ export default function EmpresasParceiras() {
                                             </div>
                                             <div className="ml-4">
                                                 <div className="text-sm font-medium text-gray-900">
-                                                    {empresa.razao_social}
+                                                    {company.razao_social}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{empresa.nome_fantasia}</div>
-                                        <div className="text-sm text-gray-500">{empresa.cnpj}</div>
+                                        <div className="text-sm text-gray-900">{company.nome_fantasia}</div>
+                                        <div className="text-sm text-gray-500">{company.cnpj}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {empresa.tipo_empresa}
+                                        {company.tipo_empresa}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {formatDate(empresa.data_abertura)}
+                                        {formatDate(company.data_abertura)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{empresa.email}</div>
+                                        <div className="text-sm text-gray-900">{company.email}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div className="flex gap-2">
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={() => handleViewDetails(empresa)}
+                                                onClick={() => handleViewDetails(company)}
                                                 className="flex items-center gap-1"
                                             >
                                                 <Eye className="w-4 h-4" />
@@ -326,7 +194,7 @@ export default function EmpresasParceiras() {
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={() => handleEdit(empresa)}
+                                                onClick={() => handleEdit(company)}
                                                 className="flex items-center gap-1"
                                             >
                                                 <Edit className="w-4 h-4" />
@@ -339,8 +207,158 @@ export default function EmpresasParceiras() {
                         </tbody>
                     </table>
                 </div>
-
             </div>
+
+            {/* Modal de Detalhes */}
+            {showModal && selectedEmpresa && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Detalhes da empresa</h2>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setShowModal(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    ✕
+                                </Button>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Dados do Representante */}
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                        <User className="w-5 h-5 text-purple-600" />
+                                        Dados do Representante
+                                    </h3>
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Nome</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel_nome}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Cargo</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel_cargo}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Email</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel_email}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Celular</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel_celular}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">CPF</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel_cpf}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Dados da Empresa */}
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                        <Building className="w-5 h-5 text-green-600" />
+                                        Dados da Empresa
+                                    </h3>
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Empresa</p>
+                                                <p className="text-gray-900">{selectedEmpresa.razao_social}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">CNPJ</p>
+                                                <p className="text-gray-900">{selectedEmpresa.cnpj}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Tipo</p>
+                                                <p className="text-gray-900">{selectedEmpresa.tipo_empresa}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Data Abertura</p>
+                                                <p className="text-gray-900">{selectedEmpresa.data_abertura}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Dados do Endereço */}
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                        <MapPinned className="w-5 h-5 text-orange-600" />
+                                        Endereço da Empresa
+                                    </h3>
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Cidade</p>
+                                                <p className="text-gray-900">{selectedEmpresa.cidade}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Estado</p>
+                                                <p className="text-gray-900">{selectedEmpresa.estado}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">CEP</p>
+                                                <p className="text-gray-900">{selectedEmpresa.cep}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Logradouro</p>
+                                                <p className="text-gray-900">{selectedEmpresa.logradouro}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Número</p>
+                                                <p className="text-gray-900">{selectedEmpresa.numero}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Bairro</p>
+                                                <p className="text-gray-900">{selectedEmpresa.bairro}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600">Complemento</p>
+                                                <p className="text-gray-900">{selectedEmpresa.complemento}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Parecer Geral */}
+                                {/* <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                        <FileText className="w-5 h-5 text-blue-600" />
+                                        Parecer Geral
+                                    </h3>
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <p className="text-gray-900 whitespace-pre-wrap">{selectedAcompanhamento.parecerGeral}</p>
+                                    </div>
+                                </div> */}
+                            </div>
+
+                            <div className="flex justify-end gap-3 mt-6">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Fechar
+                                </Button>
+                                {/* <Button
+                                    onClick={() => {
+                                        setShowModal(false)
+                                        handleEdit(selectedAcompanhamento)
+                                    }}
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                >
+                                    Editar Empresa
+                                </Button> */}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     )

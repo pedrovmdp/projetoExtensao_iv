@@ -4,6 +4,7 @@ import { Menu } from 'lucide-react'
 import { Button } from './components/ui/button' // ajuste se não tiver alias "@"
 import './App.css'
 import Login from './components/Login'
+import { store } from '../store'
 
 // Páginas
 import Dashboard from './components/Dashboard'
@@ -14,6 +15,7 @@ import AvaliacaoAluno from './components/AvaliacaoAluno'
 import AcompanhamentoAluno from './components/AcompanhamentoAluno'
 import Sidebar from './components/SideBar'
 import EmpresasParceiras from './components/EmpresasParceias'
+import { Provider } from 'react-redux'
 
 // Shell que separa layout de auth do layout do app
 function AppShell() {
@@ -39,11 +41,11 @@ function AppShell() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        onClose={() => setSidebarOpen(false)} 
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
-      
+
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header mobile */}
@@ -62,7 +64,7 @@ function AppShell() {
             </Button>
           </div>
         </div>
-        
+
         {/* Área de conteúdo */}
         <main className="flex-1 overflow-auto p-6">
           <Routes>
@@ -73,7 +75,7 @@ function AppShell() {
             <Route path="/historico" element={<HistoricoAluno />} />
             <Route path="/avaliacao" element={<AvaliacaoAluno />} />
             <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
-            <Route path="/empresas" element={<EmpresasParceiras/>} />
+            <Route path="/empresas" element={<EmpresasParceiras />} />
           </Routes>
         </main>
       </div>
@@ -84,8 +86,10 @@ function AppShell() {
 // Componente principal com o Router
 export default function App() {
   return (
-    <Router>
-      <AppShell />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <AppShell />
+      </Router>
+    </Provider>
   )
 }
