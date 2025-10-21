@@ -13,9 +13,13 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import Header from './Header'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchStudents, selectAllStudents } from '../../store/features/studentSlice'
 
 const HistoricoAluno = () => {
-  const [alunos, setAlunos] = useState([])
+  const dispatch = useDispatch()
+  const students = useSelector(selectAllStudents)
+
   const [filteredAlunos, setFilteredAlunos] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -24,48 +28,9 @@ const HistoricoAluno = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Função para buscar alunos da API
-  // const fetchAlunos = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const response = await fetch('http://localhost:5000/api/alunos')
-  //     const data = await response.json()
-      
-  //     if (data.success) {
-  //       setAlunos(data.data)
-  //       setFilteredAlunos(data.data)
-  //     } else {
-  //       setError('Erro ao carregar alunos')
-  //     }
-  //   } catch (err) {
-  //     console.error('Erro ao buscar alunos:', err)
-  //     setError('Erro ao conectar com o servidor')
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchAlunos()
-  // }, [])
-
-  // Filtrar alunos baseado na busca e filtro de status
-  // useEffect(() => {
-  //   let filtered = alunos
-    
-  //   if (searchTerm) {
-  //     filtered = filtered.filter(aluno => 
-  //       aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       aluno.cpf.includes(searchTerm)
-  //     )
-  //   }
-    
-  //   if (statusFilter) {
-  //     filtered = filtered.filter(aluno => aluno.status === statusFilter)
-  //   }
-    
-  //   setFilteredAlunos(filtered)
-  // }, [alunos, searchTerm, statusFilter])
+  useEffect(() => {
+    dispatch(fetchStudents())
+  }, [dispatch])
 
   const handleViewDetails = (aluno) => {
     setSelectedAluno(aluno)
@@ -91,10 +56,9 @@ const HistoricoAluno = () => {
   }
 
   // Calcular estatísticas
-  const totalAlunos = alunos.length
-  const alunosAtivos = alunos.filter(a => a.status === 'Ativo').length
-  const alunosEncaminhados = alunos.filter(a => a.status === 'Encaminhado').length
-  const alunosAvaliacao = alunos.filter(a => a.status === 'Em Avaliação').length
+  const alunosAtivos = students.filter(a => a.status === 'Ativo').length
+  const alunosEncaminhados = students.filter(a => a.status === 'Encaminhado').length
+  const alunosAvaliacao = students.filter(a => a.status === 'Em Avaliação').length
 
   // if (loading) {
   //   return (
@@ -197,7 +161,7 @@ const HistoricoAluno = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-blue-600">{totalAlunos}</p>
+            <p className="text-2xl font-bold text-blue-600">{students.length}</p>
             <p className="text-sm text-gray-600">Total de Alunos</p>
           </div>
         </div>
@@ -248,8 +212,8 @@ const HistoricoAluno = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredAlunos.map((aluno) => (
-                <tr key={aluno.id} className="hover:bg-gray-50">
+              {students.map((students) => (
+                <tr key={students.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -257,26 +221,26 @@ const HistoricoAluno = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {aluno.nome}
+                          {students.nome}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {aluno.telefone || aluno.celular || '-'}
+                          {students.telefone || students.celular || '-'}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {aluno.cpf}
+                    {students.cpf}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {aluno.idade ? `${aluno.idade} anos` : '-'}
+                    {students.idade ? `${students.idade} anos` : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatDate(aluno.data_ingresso)}
+                    {formatDate(students.data_ingresso)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(aluno.status)}`}>
-                      {aluno.status}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(students.status)}`}>
+                      {students.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -284,7 +248,7 @@ const HistoricoAluno = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleViewDetails(aluno)}
+                        onClick={() => handleViewDetails(students)}
                         className="flex items-center gap-1"
                       >
                         <Eye className="w-4 h-4" />

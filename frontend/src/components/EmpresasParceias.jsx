@@ -178,7 +178,7 @@ export default function EmpresasParceiras() {
                                         {formatDate(company.data_abertura)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{company.email}</div>
+                                        <div className="text-sm text-gray-900">{company.contato.email}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div className="flex gap-2">
@@ -236,23 +236,23 @@ export default function EmpresasParceiras() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Nome</p>
-                                                <p className="text-gray-900">{selectedEmpresa.responsavel_nome}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel.nome}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Cargo</p>
-                                                <p className="text-gray-900">{selectedEmpresa.responsavel_cargo}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel.cargo}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Email</p>
-                                                <p className="text-gray-900">{selectedEmpresa.responsavel_email}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel.email}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Celular</p>
-                                                <p className="text-gray-900">{selectedEmpresa.responsavel_celular}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel.celular}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">CPF</p>
-                                                <p className="text-gray-900">{selectedEmpresa.responsavel_cpf}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.responsavel.cpf}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -296,31 +296,31 @@ export default function EmpresasParceiras() {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Cidade</p>
-                                                <p className="text-gray-900">{selectedEmpresa.cidade}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.cidade}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Estado</p>
-                                                <p className="text-gray-900">{selectedEmpresa.estado}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.estado}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">CEP</p>
-                                                <p className="text-gray-900">{selectedEmpresa.cep}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.cep}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Logradouro</p>
-                                                <p className="text-gray-900">{selectedEmpresa.logradouro}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.logradouro}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Número</p>
-                                                <p className="text-gray-900">{selectedEmpresa.numero}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.numero}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Bairro</p>
-                                                <p className="text-gray-900">{selectedEmpresa.bairro}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.bairro}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-600">Complemento</p>
-                                                <p className="text-gray-900">{selectedEmpresa.complemento}</p>
+                                                <p className="text-gray-900">{selectedEmpresa.endereco.complemento}</p>
                                             </div>
                                         </div>
                                     </div>

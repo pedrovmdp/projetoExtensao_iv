@@ -1,11 +1,20 @@
-import { HousePlus, RotateCcw, Save } from "lucide-react"
+import { AlertCircle, CheckCircle, HousePlus, RotateCcw, Save } from "lucide-react"
 import Header from "./Header"
 import { useState } from "react"
 import { Button } from '@/components/ui/button.jsx'
 import FormInput from "./FormInput";
+import { useDispatch } from "react-redux";
+import { addCompany } from "../../store/features/companySlice";
 
 export default function CadastroEmpresa() {
+    const dispatch = useDispatch()
+
     const [error, setError] = useState(null);
+
+    const [loading, setLoading] = useState(false)
+    const [message, setMessage] = useState({ type: '', text: '' })
+    const [errors, setErrors] = useState({})
+
     const [formData, setFormData] = useState({
         // Dados da Empresa
         razao_social: '',
@@ -95,6 +104,15 @@ export default function CadastroEmpresa() {
         }
     }
 
+    const clearError = (fieldName) => {
+        if (errors[fieldName]) {
+            setErrors(prev => ({
+                ...prev,
+                [fieldName]: ''
+            }))
+        }
+    }
+
     const handleCEPChange = (e) => {
         const formatted = formatCEP(e.target.value);
         setFormData((prev) => ({
@@ -102,11 +120,13 @@ export default function CadastroEmpresa() {
             cep: formatted
         }));
 
+        clearError('cep')
+
         // Quando o CEP tem 9 caracteres, faz a busca do endereço
         if (formatted.length === 9) {
             buscarEndereco(formatted.replace('-', '')); // Remove o hífen antes de buscar
         }
-    };  
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -175,6 +195,8 @@ export default function CadastroEmpresa() {
             ...prev,
             cnpj: formatted
         }));
+
+        clearError('cnpj')
     };
 
     const handleCPFChange = (e) => {
@@ -201,54 +223,131 @@ export default function CadastroEmpresa() {
         }));
     };
 
-    const [loading, setLoading] = useState(false)
-    const [message, setMessage] = useState({ type: '', text: '' })
-    const [errors, setErrors] = useState({})
+    const validateForm = () => {
+        const newErrors = {};
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+        // Campos obrigatórios
+        if (!formData.razao_social.trim()) {
+            newErrors.razao_social = "Razão social é obrigatório";
+        }
 
+        if (!formData.nome_fantasia) {
+            newErrors.nome_fantasia = "Nome fantasia da empresa é obrigatório";
+        }
+
+        if (!formData.cnpj.trim()) {
+            newErrors.cnpj = "CNPJ é obrigatório"
+        } else if (formData.cnpj && !/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/.test(formData.cnpj)) {
+            newErrors.cnpj = "CNPJ inválido";
+        }
+
+        if (!formData.data_abertura) {
+            newErrors.data_abertura = "Data de abertura é obrigatória";
+        }
+
+        // Validar email se fornecido
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = "E-mail inválido";
+        } else if (!formData.email.trim()) {
+            newErrors.email = "E-mail é obrigatório"
+        }
+
+        if (!formData.cep.trim()) {
+            newErrors.cep = "Cep é obrigatório";
+        }
+
+        if (!formData.logradouro.trim()) {
+            newErrors.logradouro = "Endereço é obrigatório";
+        } else {
+            clearError('logradouro')
+        }
+
+        if (!formData.numero.trim()) {
+            newErrors.numero = "Número é obrigatório";
+        } else {
+            clearError('numero')
+        }
+
+        if (!formData.bairro.trim()) {
+            newErrors.bairro = "Bairro é obrigatório";
+        } else {
+            clearError('bairro')
+        }
+
+        if (!formData.cidade.trim()) {
+            newErrors.cidade = "Cidade é obrigatório";
+        } else (
+            clearError('cidade')
+        )
+
+        if (!formData.responsavel_nome.trim()) {
+            newErrors.responsavel_nome = "Nome do responsavel é obrigatório";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (data) => {
+        data.preventDefault();
+
+        // Validação do formulário
         if (!validateForm()) {
             setMessage({
                 type: 'error',
-                text: 'Por favor, corrija os erros no formulário'
-            })
-            return
+                text: 'Por favor, corrija os erros no formulário',
+            });
+            return;
         }
 
-        setLoading(true)
-        setMessage({ type: '', text: '' })
+        setLoading(true);
+        setMessage({ type: '', text: '' });
 
         try {
-            const response = await fetch('http://localhost:5000/api/alunos', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const newCompany = {
+                razao_social: formData.razao_social,
+                nome_fantasia: formData.nome_fantasia,
+                cnpj: formData.cnpj,
+                tipo_empresa: formData.tipo_empresa,
+                data_abertura: formData.data_abertura,
+                endereco: {
+                    cep: formData.cep,
+                    logradouro: formData.logradouro,
+                    numero: formData.numero,
+                    complemento: formData.complemento,
+                    bairro: formData.bairro,
+                    cidade: formData.cidade,
+                    estado: formData.estado,
                 },
-                body: JSON.stringify(formData)
-            })
+                contato: {
+                    telefone: formData.telefone,
+                    celular: formData.celular,
+                    email: formData.email,
+                },
+                responsavel: {
+                    nome: formData.responsavel_nome,
+                    cpf: formData.responsavel_cpf,
+                    cargo: formData.responsavel_cargo,
+                    celular: formData.responsavel_celular,
+                    email: formData.responsavel_email,
+                }
+            };
 
-            const data = await response.json()
+            dispatch(addCompany(newCompany));
 
-            if (data.success) {
-                setMessage({
-                    type: 'success',
-                    text: 'Aluno cadastrado com sucesso!'
-                })
+            setMessage({
+                type: 'success',
+                text: 'Empresa cadastrada com sucesso!',
+            });
 
-                // Limpar formulário após sucesso
-                setTimeout(() => {
-                    handleReset()
-                    setMessage({ type: '', text: '' })
-                }, 2000)
-            } else {
-                setMessage({
-                    type: 'error',
-                    text: data.message || 'Erro ao cadastrar aluno'
-                })
-            }
+            // Limpar formulário após sucesso
+            setTimeout(() => {
+                handleReset();
+                setMessage({ type: '', text: '' });
+            }, 2000);
+
         } catch (error) {
-            console.error('Erro ao cadastrar aluno:', error)
+            console.error('Erro ao cadastrar empresa:', error)
             setMessage({
                 type: 'error',
                 text: 'Erro ao conectar com o servidor'
@@ -267,6 +366,23 @@ export default function CadastroEmpresa() {
                 text={"Preencha as informações da nova empresa"}
             />
 
+            {/* Mensagem de feedback */}
+            {message.text && (
+                <div
+                    className={`p-4 rounded-lg flex items-center gap-2 ${message.type === "success"
+                        ? "bg-green-50 border border-green-200 text-green-800"
+                        : "bg-red-50 border border-red-200 text-red-800"
+                        }`}
+                >
+                    {message.type === "success" ? (
+                        <CheckCircle className="w-5 h-5" />
+                    ) : (
+                        <AlertCircle className="w-5 h-5" />
+                    )}
+                    {message.text}
+                </div>
+            )}
+
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Dados Pessoais */}
@@ -284,12 +400,13 @@ export default function CadastroEmpresa() {
                         />
 
                         <FormInput
-                            label={"Nome Fantasia"}
+                            label={"Nome Fantasia *"}
                             type={"text"}
                             name={"nome_fantasia"}
                             value={formData.nome_fantasia}
                             onChange={handleInputChange}
                             placeholder={"Digite o nome fantasia"}
+                            error={errors.nome_fantasia}
                         />
 
                         <FormInput
@@ -325,7 +442,7 @@ export default function CadastroEmpresa() {
                             name={"data_abertura"}
                             value={formData.data_abertura}
                             onChange={handleInputChange}
-                            error={errors.data_nascimento}
+                            error={errors.data_abertura}
                         />
 
                     </div>
@@ -343,6 +460,7 @@ export default function CadastroEmpresa() {
                             onChange={handleCEPChange}
                             placeholder={"00000-000"}
                             maxLength={"8"}
+                            error={errors.cep}
                         />
 
                         <FormInput
@@ -352,6 +470,7 @@ export default function CadastroEmpresa() {
                             value={formData.logradouro}
                             onChange={handleInputChange}
                             placeholder={"Rua Jardim da Silva"}
+                            error={errors.logradouro}
                         />
 
                         <FormInput
@@ -362,6 +481,7 @@ export default function CadastroEmpresa() {
                             onChange={handleInputChange}
                             placeholder={"123"}
                             maxLength={"10"}
+                            error={errors.numero}
                         />
 
                         <FormInput
@@ -380,6 +500,7 @@ export default function CadastroEmpresa() {
                             value={formData.bairro}
                             onChange={handleInputChange}
                             placeholder={"Centro"}
+                            error={errors.bairro}
                         />
 
                         <FormInput
@@ -389,6 +510,7 @@ export default function CadastroEmpresa() {
                             value={formData.cidade}
                             onChange={handleInputChange}
                             placeholder={"Digite sua cidade"}
+                            error={errors.cidade}
                         />
 
                         <div>
@@ -438,7 +560,7 @@ export default function CadastroEmpresa() {
                         />
 
                         <FormInput
-                            label={"E-mail"}
+                            label={"E-mail *"}
                             type={"email"}
                             name={"email"}
                             value={formData.email}
@@ -462,6 +584,7 @@ export default function CadastroEmpresa() {
                             value={formData.responsavel_nome}
                             onChange={handleInputChange}
                             placeholder={"Nome do representante"}
+                            error={errors.responsavel_nome}
                         />
 
                         <FormInput
@@ -496,7 +619,7 @@ export default function CadastroEmpresa() {
                         />
 
                         <FormInput
-                            label={"E-mail"}
+                            label={"E-mail *"}
                             type={"email"}
                             name={"responsavel_email"}
                             value={formData.responsavel_email}
@@ -515,7 +638,7 @@ export default function CadastroEmpresa() {
                         variant="outline"
                         onClick={handleReset}
                         disabled={loading}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 cursor-pointer"
                     >
                         <RotateCcw className="w-4 h-4" />
                         Limpar
@@ -524,7 +647,8 @@ export default function CadastroEmpresa() {
                     <Button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                        onClick={handleSubmit}
                     >
                         <Save className="w-4 h-4" />
                         {loading ? 'Salvando...' : 'Salvar Empresa'}

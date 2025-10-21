@@ -9,8 +9,12 @@ import {
 import { Button } from "@/components/ui/button.jsx";
 import Header from "./Header";
 import FormInput from "./FormInput";
+import { useDispatch } from "react-redux";
+import { addStudent } from "../../store/features/studentSlice";
 
 const CadastroAluno = () => {
+  const dispatch = useDispatch()
+
   const [formData, setFormData] = useState({
     // Dados pessoais
     nome: "",
@@ -97,58 +101,79 @@ const CadastroAluno = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (data) => {
+    data.preventDefault();
 
+    // Validação do formulário
     if (!validateForm()) {
       setMessage({
-        type: "error",
-        text: "Por favor, corrija os erros no formulário",
+        type: 'error',
+        text: 'Por favor, corrija os erros no formulário',
       });
       return;
     }
 
     setLoading(true);
-    setMessage({ type: "", text: "" });
+    setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch("http://localhost:5000/api/alunos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const newStudent = {
+        nome: formData.nome,
+        cpf: formData.cpf,
+        rg: formData.rg,
+        data_nascimento: formData.data_nascimento,
+        sexo: formData.sexo,
+        estado_civil: formData.estado_civil,
+        contato: {
+          telefone: formData.telefone,
+          celular: formData.celular,
+          email: formData.email,
         },
-        body: JSON.stringify(formData),
-      });
+        endereco: {
+          logradouro: formData.logradouro,
+          numero: formData.numero,
+          complemento: formData.complemento,
+          bairro: formData.bairro,
+          cidade: formData.cidade,
+          cep: formData.cep,
+          estado: formData.estado,
+        },
+        dados_familiares: {
+          nome_pai: formData.nome_pai,
+          nome_mae: formData.nome_mae,
+          telefone_responsavel: formData.telefone_responsavel,
+        },
+        dados_institucionais: {
+          data_ingresso: formData.data_ingresso,
+          observacoes: formData.observacoes,
+          status: "Ativo",
+        }
+      };
 
-      const data = await response.json();
+      dispatch(addStudent(newStudent));
 
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Aluno cadastrado com sucesso!",
-        });
-
-        // Limpar formulário após sucesso
-        setTimeout(() => {
-          handleReset();
-          setMessage({ type: "", text: "" });
-        }, 2000);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.message || "Erro ao cadastrar aluno",
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao cadastrar aluno:", error);
       setMessage({
-        type: "error",
-        text: "Erro ao conectar com o servidor",
+        type: 'success',
+        text: 'Aluno cadastrado com sucesso!',
       });
+
+      // Limpar formulário após sucesso
+      setTimeout(() => {
+        handleReset();
+        setMessage({ type: '', text: '' });
+      }, 2000);
+
+    } catch (error) {
+      console.error('Erro ao cadastrar aluno:', error)
+      setMessage({
+        type: 'error',
+        text: 'Erro ao conectar com o servidor'
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
 
   const buscarEndereco = async (cep) => {
     try {
@@ -264,11 +289,10 @@ const CadastroAluno = () => {
       {/* Mensagem de feedback */}
       {message.text && (
         <div
-          className={`p-4 rounded-lg flex items-center gap-2 ${
-            message.type === "success"
-              ? "bg-green-50 border border-green-200 text-green-800"
-              : "bg-red-50 border border-red-200 text-red-800"
-          }`}
+          className={`p-4 rounded-lg flex items-center gap-2 ${message.type === "success"
+            ? "bg-green-50 border border-green-200 text-green-800"
+            : "bg-red-50 border border-red-200 text-red-800"
+            }`}
         >
           {message.type === "success" ? (
             <CheckCircle className="w-5 h-5" />
@@ -288,14 +312,13 @@ const CadastroAluno = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormInput
-              label={"Nome Compleot *"}
+              label={"Nome Completo *"}
               type={"text"}
               name={"nome"}
               value={formData.nome}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.nome ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nome ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Digite o nome completo"
               error={errors.nome}
             />
@@ -307,9 +330,8 @@ const CadastroAluno = () => {
               value={formData.cpf}
               onChange={handleCPFChange}
               maxLength={"14"}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.cpf ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="000.000.000-00"
               error={errors.cpf}
             />
@@ -319,6 +341,7 @@ const CadastroAluno = () => {
               type={"text"}
               name={"rg"}
               value={formData.rg}
+              maxLength={10}
               onChange={handleInputChange}
               placeholder="Digite o RG"
             />
@@ -329,9 +352,8 @@ const CadastroAluno = () => {
               name={"data_nascimento"}
               value={formData.data_nascimento}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.data_nascimento ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_nascimento ? "border-red-500" : "border-gray-300"
+                }`}
               error={errors.data_nascimento}
             />
 
@@ -400,9 +422,8 @@ const CadastroAluno = () => {
               type={"email"}
               name={"email"}
               value={formData.email}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? "border-red-500" : "border-gray-300"
+                }`}
               onChange={handleInputChange}
               placeholder="email@exemplo.com"
               error={errors.email}
@@ -538,9 +559,8 @@ const CadastroAluno = () => {
               name={"data_ingresso"}
               value={formData.data_ingresso}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.data_ingresso ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_ingresso ? "border-red-500" : "border-gray-300"
+                }`}
               error={errors.data_ingresso}
             />
 
@@ -584,7 +604,7 @@ const CadastroAluno = () => {
             variant="outline"
             onClick={handleReset}
             disabled={loading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             Limpar
@@ -593,7 +613,8 @@ const CadastroAluno = () => {
           <Button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            onClick={handleSubmit}
           >
             <Save className="w-4 h-4" />
             {loading ? "Salvando..." : "Salvar Aluno"}
