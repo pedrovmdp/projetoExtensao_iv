@@ -1,29 +1,42 @@
-import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { Menu } from 'lucide-react'
-import { Button } from './components/ui/button' // ajuste se não tiver alias "@"
-import './App.css'
-import Login from './components/Login'
-import { store } from '../store'
+import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { Button } from "./components/ui/button";
+import "./App.css";
 
-// Páginas
-import Dashboard from './components/Dashboard'
-import CadastroAluno from './components/CadastroAluno'
-import CadastroEmpresa from './components/CadastroEmpresa'
-import HistoricoAluno from './components/HistoricoAluno'
-import AvaliacaoAluno from './components/AvaliacaoAluno'
-import AcompanhamentoAluno from './components/AcompanhamentoAluno'
-import Sidebar from './components/SideBar'
-import EmpresasParceiras from './components/EmpresasParceias'
-import { Provider } from 'react-redux'
+// Redux
+import { Provider } from "react-redux";
+import { store } from "../store/index.js";
 
-// Shell que separa layout de auth do layout do app
+
+
+
+
+// Páginas principais
+import Login from "./components/Login";
+
+
+
+import Dashboard from "./components/Dashboard";
+
+import CadastroAluno from "./components/CadastroAluno";
+import CadastroEmpresa from "./components/CadastroEmpresa";
+import HistoricoAluno from "./components/HistoricoAluno";
+import AvaliacaoAluno from "./components/AvaliacaoAluno";
+import AcompanhamentoAluno from "./components/AcompanhamentoAluno";
+import EmpresasParceiras from "./components/EmpresasParceias";
+import EditarPerfil from "./pages/EditarPerfil";
+
+// Layout
+import Sidebar from "./components/SideBar";
+
+
 function AppShell() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const location = useLocation()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
-  // Qualquer rota que comece com /login NÃO mostra sidebar/header
-  const isAuthRoute = location.pathname.startsWith('/login')
+  // Oculta Sidebar em rotas de autenticação (login)
+  const isAuthRoute = location.pathname.startsWith("/login");
 
   if (isAuthRoute) {
     return (
@@ -35,16 +48,13 @@ function AppShell() {
           </Routes>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -68,7 +78,6 @@ function AppShell() {
         {/* Área de conteúdo */}
         <main className="flex-1 overflow-auto p-6">
           <Routes>
-            <Route path="/login" element={<Login />} />
             <Route path="/" element={<Dashboard />} />
             <Route path="/cadastro-aluno" element={<CadastroAluno />} />
             <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
@@ -76,14 +85,16 @@ function AppShell() {
             <Route path="/avaliacao" element={<AvaliacaoAluno />} />
             <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
             <Route path="/empresas" element={<EmpresasParceiras />} />
+            <Route path="/editar-perfil" element={<EditarPerfil />} /> {/* 🔹 nova rota */}
+            <Route path="/login" element={<Login />} />
           </Routes>
         </main>
       </div>
     </div>
-  )
+  );
 }
 
-// Componente principal com o Router
+// Componente principal com Provider + Router
 export default function App() {
   return (
     <Provider store={store}>
@@ -91,5 +102,5 @@ export default function App() {
         <AppShell />
       </Router>
     </Provider>
-  )
+  );
 }
