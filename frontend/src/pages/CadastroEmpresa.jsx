@@ -1,8 +1,8 @@
 import { AlertCircle, CheckCircle, HousePlus, RotateCcw, Save } from "lucide-react"
-import Header from "./Header"
+import Header from "../components/Header"
 import { useState } from "react"
 import { Button } from '@/components/ui/button.jsx'
-import FormInput from "./FormInput";
+import FormInput from "../components/FormInput";
 import { useDispatch } from "react-redux";
 import { addCompany } from "../../store/features/companySlice";
 

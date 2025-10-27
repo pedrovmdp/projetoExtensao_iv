@@ -7,8 +7,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
-import Header from "./Header";
-import FormInput from "./FormInput";
+import Header from "../components/Header";
+import FormInput from "../components/FormInput";
 import { useDispatch } from "react-redux";
 import { addStudent } from "../../store/features/studentSlice";
 

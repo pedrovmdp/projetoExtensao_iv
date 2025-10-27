@@ -13,18 +13,15 @@ import { store } from "../store/index.js";
 
 
 // Páginas principais
-import Login from "./components/Login";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
-
-
-import Dashboard from "./components/Dashboard";
-
-import CadastroAluno from "./components/CadastroAluno";
-import CadastroEmpresa from "./components/CadastroEmpresa";
-import HistoricoAluno from "./components/HistoricoAluno";
-import AvaliacaoAluno from "./components/AvaliacaoAluno";
-import AcompanhamentoAluno from "./components/AcompanhamentoAluno";
-import EmpresasParceiras from "./components/EmpresasParceias";
+import CadastroAluno from "./pages/CadastroAluno";
+import CadastroEmpresa from "./pages/CadastroEmpresa";
+import HistoricoAluno from "./pages/HistoricoAluno";
+import AvaliacaoAluno from "./pages/AvaliacaoAluno";
+import AcompanhamentoAluno from "./pages/AcompanhamentoAluno";
+import EmpresasParceiras from "./pages/EmpresasParceias";
 import EditarPerfil from "./pages/EditarPerfil";
 
 // Layout

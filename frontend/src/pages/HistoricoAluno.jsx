@@ -12,7 +12,7 @@ import {
   MapPin
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
-import Header from './Header'
+import Header from '../components/Header'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchStudents, selectAllStudents } from '../../store/features/studentSlice'
 

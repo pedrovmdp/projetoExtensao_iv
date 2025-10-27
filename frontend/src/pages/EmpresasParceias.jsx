@@ -1,6 +1,6 @@
 import { Building, Building2, Edit, Eye, FileText, MapPinned, Search, User } from "lucide-react";
-import Header from "./Header";
-import TextRow from "./ui/textRow";
+import Header from "../components/Header";
+import TextRow from "../components/ui/textRow";
 import { Button } from '@/components/ui/button.jsx'
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

@@ -13,9 +13,9 @@ import {
   Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
-import Header from './Header'
-import FormInput from './FormInput'
-import TextRow from "./ui/textRow";
+import Header from '../components/Header'
+import FormInput from '../components/FormInput'
+import TextRow from "../components/ui/textRow";
 
 // Dados simulados de acompanhamentos
 const acompanhamentosData = [

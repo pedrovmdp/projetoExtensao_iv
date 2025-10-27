@@ -22,7 +22,7 @@ import {
   Award,
   LayoutDashboard
 } from 'lucide-react'
-import Header from './Header'
+import Header from '../components/Header'
 
 // Componente de Card de estatística
 const StatCard = ({ title, value, icon: Icon, color, subtitle, loading }) => (

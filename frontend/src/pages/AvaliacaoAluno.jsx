@@ -9,8 +9,8 @@ import {
   CheckCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
-import Header from './Header'
-import FormInput from './FormInput'
+import Header from '../components/Header'
+import FormInput from '../components/FormInput'
 
 // Questões do formulário de avaliação baseadas no documento
 const questoes = [
