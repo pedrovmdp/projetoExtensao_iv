@@ -1,135 +1,168 @@
-import { useState } from 'react'
-import { UserPlus, Save, RotateCcw, CheckCircle, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button.jsx'
+import { useState } from "react";
+import {
+  UserPlus,
+  Save,
+  RotateCcw,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button.jsx";
+import Header from "./Header";
+import FormInput from "./FormInput";
+import { useDispatch } from "react-redux";
+import { addStudent } from "../../store/features/studentSlice";
 
 const CadastroAluno = () => {
+  const dispatch = useDispatch()
+
   const [formData, setFormData] = useState({
     // Dados pessoais
-    nome: '',
-    cpf: '',
-    rg: '',
-    data_nascimento: '',
-    sexo: '',
-    estado_civil: '',
-    
-    // Contato
-    telefone: '',
-    celular: '',
-    email: '',
-    
-    // Endereço
-    endereco: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cidade: '',
-    cep: '',
-    estado: '',
-    
-    // Dados familiares
-    nome_pai: '',
-    nome_mae: '',
-    telefone_responsavel: '',
-    
-    // Dados institucionais
-    data_ingresso: '',
-    observacoes: '',
-    status: 'Ativo'
-  })
+    nome: "",
+    cpf: "",
+    rg: "",
+    data_nascimento: "",
+    sexo: "",
+    estado_civil: "",
 
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState({ type: '', text: '' })
-  const [errors, setErrors] = useState({})
+    // Contato
+    telefone: "",
+    celular: "",
+    email: "",
+
+    // Endereço
+    logradouro: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    cep: "",
+    estado: "",
+
+    // Dados familiares
+    nome_pai: "",
+    nome_mae: "",
+    telefone_responsavel: "",
+
+    // Dados institucionais
+    data_ingresso: "",
+    observacoes: "",
+    status: "Ativo",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-    
+      [name]: value,
+    }));
+
     // Limpar erro do campo quando o usuário começar a digitar
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
-      }))
+        [name]: "",
+      }));
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors = {}
-    
+    const newErrors = {};
+
     // Campos obrigatórios
     if (!formData.nome.trim()) {
-      newErrors.nome = 'Nome é obrigatório'
+      newErrors.nome = "Nome é obrigatório";
     }
-    
+
     if (!formData.cpf.trim()) {
-      newErrors.cpf = 'CPF é obrigatório'
+      newErrors.cpf = "CPF é obrigatório";
     } else if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
-      newErrors.cpf = 'CPF deve estar no formato 000.000.000-00'
+      newErrors.cpf = "CPF deve estar no formato 000.000.000-00";
     }
-    
+
     if (!formData.data_nascimento) {
-      newErrors.data_nascimento = 'Data de nascimento é obrigatória'
+      newErrors.data_nascimento = "Data de nascimento é obrigatória";
     }
-    
+
     if (!formData.data_ingresso) {
-      newErrors.data_ingresso = 'Data de ingresso é obrigatória'
+      newErrors.data_ingresso = "Data de ingresso é obrigatória";
     }
-    
+
     // Validar email se fornecido
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'E-mail inválido'
+      newErrors.email = "E-mail inválido";
     }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (data) => {
+    data.preventDefault();
+
+    // Validação do formulário
     if (!validateForm()) {
       setMessage({
         type: 'error',
-        text: 'Por favor, corrija os erros no formulário'
-      })
-      return
+        text: 'Por favor, corrija os erros no formulário',
+      });
+      return;
     }
-    
-    setLoading(true)
-    setMessage({ type: '', text: '' })
-    
+
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+
     try {
-      const response = await fetch('http://localhost:5000/api/alunos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const newStudent = {
+        nome: formData.nome,
+        cpf: formData.cpf,
+        rg: formData.rg,
+        data_nascimento: formData.data_nascimento,
+        sexo: formData.sexo,
+        estado_civil: formData.estado_civil,
+        contato: {
+          telefone: formData.telefone,
+          celular: formData.celular,
+          email: formData.email,
         },
-        body: JSON.stringify(formData)
-      })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        setMessage({
-          type: 'success',
-          text: 'Aluno cadastrado com sucesso!'
-        })
-        
-        // Limpar formulário após sucesso
-        setTimeout(() => {
-          handleReset()
-          setMessage({ type: '', text: '' })
-        }, 2000)
-      } else {
-        setMessage({
-          type: 'error',
-          text: data.message || 'Erro ao cadastrar aluno'
-        })
-      }
+        endereco: {
+          logradouro: formData.logradouro,
+          numero: formData.numero,
+          complemento: formData.complemento,
+          bairro: formData.bairro,
+          cidade: formData.cidade,
+          cep: formData.cep,
+          estado: formData.estado,
+        },
+        dados_familiares: {
+          nome_pai: formData.nome_pai,
+          nome_mae: formData.nome_mae,
+          telefone_responsavel: formData.telefone_responsavel,
+        },
+        dados_institucionais: {
+          data_ingresso: formData.data_ingresso,
+          observacoes: formData.observacoes,
+          status: "Ativo",
+        }
+      };
+
+      dispatch(addStudent(newStudent));
+
+      setMessage({
+        type: 'success',
+        text: 'Aluno cadastrado com sucesso!',
+      });
+
+      // Limpar formulário após sucesso
+      setTimeout(() => {
+        handleReset();
+        setMessage({ type: '', text: '' });
+      }, 2000);
+
     } catch (error) {
       console.error('Erro ao cadastrar aluno:', error)
       setMessage({
@@ -141,76 +174,127 @@ const CadastroAluno = () => {
     }
   }
 
+
+  const buscarEndereco = async (cep) => {
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+
+      //se o CEP não for inserido
+      if (data.erro) {
+        setError("CEP não encontrado");
+        setFormData((prev) => ({
+          ...prev,
+          logradouro: "",
+          bairro: "",
+          cidade: "",
+          estado: "",
+        }));
+        return;
+      }
+
+      //
+      setError(null);
+      setFormData((prev) => ({
+        ...prev,
+        logradouro: data.logradouro,
+        bairro: data.bairro,
+        cidade: data.localidade,
+        estado: data.uf,
+      }));
+    } catch (error) {
+      setError("Erro ao buscar CEP");
+      console.error(err);
+    }
+  };
+
   const handleReset = () => {
     setFormData({
-      nome: '',
-      cpf: '',
-      rg: '',
-      data_nascimento: '',
-      sexo: '',
-      estado_civil: '',
-      telefone: '',
-      celular: '',
-      email: '',
-      endereco: '',
-      numero: '',
-      complemento: '',
-      bairro: '',
-      cidade: '',
-      cep: '',
-      estado: '',
-      nome_pai: '',
-      nome_mae: '',
-      telefone_responsavel: '',
-      data_ingresso: '',
-      observacoes: '',
-      status: 'Ativo'
-    })
-    setErrors({})
-    setMessage({ type: '', text: '' })
-  }
+      nome: "",
+      cpf: "",
+      rg: "",
+      data_nascimento: "",
+      sexo: "",
+      estado_civil: "",
+      telefone: "",
+      celular: "",
+      email: "",
+      logradouro: "",
+      numero: "",
+      complemento: "",
+      bairro: "",
+      cidade: "",
+      cep: "",
+      estado: "",
+      nome_pai: "",
+      nome_mae: "",
+      telefone_responsavel: "",
+      data_ingresso: "",
+      observacoes: "",
+      status: "Ativo",
+    });
+    setErrors({});
+    setMessage({ type: "", text: "" });
+  };
 
   const formatCPF = (value) => {
     // Remove tudo que não é dígito
-    const numbers = value.replace(/\D/g, '')
-    
+    const numbers = value.replace(/\D/g, "");
+
     // Aplica a máscara
     if (numbers.length <= 11) {
-      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     }
-    
-    return value
-  }
+
+    return value;
+  };
+
+  const formatCEP = (value) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 8) {
+      return numbers.replace(/^(\d{5})(\d{3})(\d{0,4}).*/, "$1-$2");
+    }
+  };
 
   const handleCPFChange = (e) => {
-    const formatted = formatCPF(e.target.value)
-    setFormData(prev => ({
+    const formatted = formatCPF(e.target.value);
+    setFormData((prev) => ({
       ...prev,
-      cpf: formatted
-    }))
-  }
+      cpf: formatted,
+    }));
+  };
+
+  const handleCEPChange = (e) => {
+    const formatted = formatCEP(e.target.value);
+    setFormData((prev) => ({
+      ...prev,
+      cep: formatted,
+    }));
+
+    // Quando o CEP tem 9 caracteres, faz a busca do endereço
+    if (formatted.length === 9) {
+      buscarEndereco(formatted.replace("-", "")); // Remove o hífen antes de buscar
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <UserPlus className="w-8 h-8 text-blue-600" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Cadastro de Aluno</h1>
-          <p className="text-gray-600 mt-1">
-            Preencha as informações do novo aluno
-          </p>
-        </div>
-      </div>
+      <Header
+        icon={<UserPlus className="w-8 h-8 text-blue-600" />}
+        title={"Cadastro de Aluno"}
+        text={"Preencha as informações do novo aluno"}
+      />
 
       {/* Mensagem de feedback */}
       {message.text && (
-        <div className={`p-4 rounded-lg flex items-center gap-2 ${
-          message.type === 'success' 
-            ? 'bg-green-50 border border-green-200 text-green-800' 
-            : 'bg-red-50 border border-red-200 text-red-800'
-        }`}>
-          {message.type === 'success' ? (
+        <div
+          className={`p-4 rounded-lg flex items-center gap-2 ${message.type === "success"
+            ? "bg-green-50 border border-green-200 text-green-800"
+            : "bg-red-50 border border-red-200 text-red-800"
+            }`}
+        >
+          {message.type === "success" ? (
             <CheckCircle className="w-5 h-5" />
           ) : (
             <AlertCircle className="w-5 h-5" />
@@ -223,73 +307,56 @@ const CadastroAluno = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Dados Pessoais */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Pessoais</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Dados Pessoais
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome Completo *
-              </label>
-              <input
-                type="text"
-                name="nome"
-                value={formData.nome}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.nome ? 'border-red-500' : 'border-gray-300'
+            <FormInput
+              label={"Nome Completo *"}
+              type={"text"}
+              name={"nome"}
+              value={formData.nome}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nome ? "border-red-500" : "border-gray-300"
                 }`}
-                placeholder="Digite o nome completo"
-              />
-              {errors.nome && <p className="text-red-500 text-sm mt-1">{errors.nome}</p>}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                CPF *
-              </label>
-              <input
-                type="text"
-                name="cpf"
-                value={formData.cpf}
-                onChange={handleCPFChange}
-                maxLength="14"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.cpf ? 'border-red-500' : 'border-gray-300'
+              placeholder="Digite o nome completo"
+              error={errors.nome}
+            />
+
+            <FormInput
+              label={"CPF *"}
+              type={"text"}
+              name={"cpf"}
+              value={formData.cpf}
+              onChange={handleCPFChange}
+              maxLength={"14"}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? "border-red-500" : "border-gray-300"
                 }`}
-                placeholder="000.000.000-00"
-              />
-              {errors.cpf && <p className="text-red-500 text-sm mt-1">{errors.cpf}</p>}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                RG
-              </label>
-              <input
-                type="text"
-                name="rg"
-                value={formData.rg}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Digite o RG"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Nascimento *
-              </label>
-              <input
-                type="date"
-                name="data_nascimento"
-                value={formData.data_nascimento}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.data_nascimento ? 'border-red-500' : 'border-gray-300'
+              placeholder="000.000.000-00"
+              error={errors.cpf}
+            />
+
+            <FormInput
+              label={"RG"}
+              type={"text"}
+              name={"rg"}
+              value={formData.rg}
+              maxLength={10}
+              onChange={handleInputChange}
+              placeholder="Digite o RG"
+            />
+
+            <FormInput
+              label={"Data de Nascimento *"}
+              type={"date"}
+              name={"data_nascimento"}
+              value={formData.data_nascimento}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_nascimento ? "border-red-500" : "border-gray-300"
                 }`}
-              />
-              {errors.data_nascimento && <p className="text-red-500 text-sm mt-1">{errors.data_nascimento}</p>}
-            </div>
-            
+              error={errors.data_nascimento}
+            />
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sexo
@@ -306,7 +373,7 @@ const CadastroAluno = () => {
                 <option value="Outro">Outro</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Estado Civil
@@ -332,50 +399,35 @@ const CadastroAluno = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Contato</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Telefone
-              </label>
-              <input
-                type="tel"
-                name="telefone"
-                value={formData.telefone}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="(48) 3000-0000"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Celular
-              </label>
-              <input
-                type="tel"
-                name="celular"
-                value={formData.celular}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="(48) 99000-0000"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                E-mail
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+            <FormInput
+              label={"Telefone"}
+              type={"tel"}
+              name={"telefone"}
+              value={formData.telefone}
+              onChange={handleInputChange}
+              placeholder="(48) 3000-0000"
+            />
+
+            <FormInput
+              label={"Celular"}
+              type={"tel"}
+              name={"celular"}
+              value={formData.celular}
+              onChange={handleInputChange}
+              placeholder="(48) 99000-0000"
+            />
+
+            <FormInput
+              label={"E-mail"}
+              type={"email"}
+              name={"email"}
+              value={formData.email}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? "border-red-500" : "border-gray-300"
                 }`}
-                placeholder="email@exemplo.com"
-              />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-            </div>
+              onChange={handleInputChange}
+              placeholder="email@exemplo.com"
+              error={errors.email}
+            />
           </div>
         </div>
 
@@ -383,90 +435,61 @@ const CadastroAluno = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Endereço</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Endereço
-              </label>
-              <input
-                type="text"
-                name="endereco"
-                value={formData.endereco}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Rua, Avenida, etc."
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Número
-              </label>
-              <input
-                type="text"
-                name="numero"
-                value={formData.numero}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="123"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Complemento
-              </label>
-              <input
-                type="text"
-                name="complemento"
-                value={formData.complemento}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Apto, Casa, etc."
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bairro
-              </label>
-              <input
-                type="text"
-                name="bairro"
-                value={formData.bairro}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nome do bairro"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cidade
-              </label>
-              <input
-                type="text"
-                name="cidade"
-                value={formData.cidade}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nome da cidade"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                CEP
-              </label>
-              <input
-                type="text"
-                name="cep"
-                value={formData.cep}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="00000-000"
-              />
-            </div>
-            
+            <FormInput
+              label={"Endereço"}
+              type={"text"}
+              name={"logradouro"}
+              value={formData.logradouro}
+              onChange={handleInputChange}
+              placeholder="Rua, Avenida, etc."
+            />
+
+            <FormInput
+              label={"Número"}
+              type={"text"}
+              name={"numero"}
+              value={formData.numero}
+              onChange={handleInputChange}
+              placeholder="123"
+            />
+
+            <FormInput
+              label={"Complemento"}
+              type={"text"}
+              name={"complemento"}
+              value={formData.complemento}
+              onChange={handleInputChange}
+              placeholder="Apto, Casa, etc."
+            />
+
+            <FormInput
+              label={"Bairro"}
+              type={"text"}
+              name={"bairro"}
+              value={formData.bairro}
+              onChange={handleInputChange}
+              placeholder="Nome do bairro"
+            />
+
+            <FormInput
+              label={"Cidade"}
+              type={"text"}
+              name={"cidade"}
+              value={formData.cidade}
+              onChange={handleInputChange}
+              placeholder="Nome da cidade"
+            />
+
+            <FormInput
+              label={"CEP"}
+              type={"text"}
+              name={"cep"}
+              value={formData.cep}
+              onChange={handleCEPChange}
+              maxLength={'8'}
+              placeholder="00000-000"
+            />
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Estado
@@ -491,72 +514,56 @@ const CadastroAluno = () => {
 
         {/* Dados Familiares */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Familiares</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Dados Familiares
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome do Pai
-              </label>
-              <input
-                type="text"
-                name="nome_pai"
-                value={formData.nome_pai}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nome completo do pai"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome da Mãe
-              </label>
-              <input
-                type="text"
-                name="nome_mae"
-                value={formData.nome_mae}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nome completo da mãe"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Telefone do Responsável
-              </label>
-              <input
-                type="tel"
-                name="telefone_responsavel"
-                value={formData.telefone_responsavel}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="(48) 99000-0000"
-              />
-            </div>
+            <FormInput
+              label={"Nome do Pai"}
+              type={"text"}
+              name={"nome_pai"}
+              value={formData.nome_pai}
+              onChange={handleInputChange}
+              placeholder="Nome completo do pai"
+            />
+
+            <FormInput
+              label={"Nome da Mãe"}
+              type={"text"}
+              name={"nome_mae"}
+              value={formData.nome_mae}
+              onChange={handleInputChange}
+              placeholder="Nome completo da mãe"
+            />
+
+            <FormInput
+              label={"Telefone do Responsável"}
+              type={"text"}
+              name={"telefone_responsavel"}
+              value={formData.telefone_responsavel}
+              onChange={handleInputChange}
+              placeholder="(48) 99000-0000"
+            />
           </div>
         </div>
 
         {/* Dados Institucionais */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados Institucionais</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Dados Institucionais
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Ingresso *
-              </label>
-              <input
-                type="date"
-                name="data_ingresso"
-                value={formData.data_ingresso}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.data_ingresso ? 'border-red-500' : 'border-gray-300'
+            <FormInput
+              label={"Data de Ingresso *"}
+              type={"date"}
+              name={"data_ingresso"}
+              value={formData.data_ingresso}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_ingresso ? "border-red-500" : "border-gray-300"
                 }`}
-              />
-              {errors.data_ingresso && <p className="text-red-500 text-sm mt-1">{errors.data_ingresso}</p>}
-            </div>
-            
+              error={errors.data_ingresso}
+            />
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Status
@@ -573,7 +580,7 @@ const CadastroAluno = () => {
                 <option value="Inativo">Inativo</option>
               </select>
             </div>
-            
+
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Observações
@@ -597,25 +604,25 @@ const CadastroAluno = () => {
             variant="outline"
             onClick={handleReset}
             disabled={loading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             Limpar
           </Button>
-          
+
           <Button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            onClick={handleSubmit}
           >
             <Save className="w-4 h-4" />
-            {loading ? 'Salvando...' : 'Salvar Aluno'}
+            {loading ? "Salvando..." : "Salvar Aluno"}
           </Button>
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default CadastroAluno
-
+export default CadastroAluno;

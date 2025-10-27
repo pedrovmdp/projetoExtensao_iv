@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { 
-  ClipboardList, 
-  Save, 
-  User, 
+import {
+  ClipboardList,
+  Save,
+  User,
   Calendar,
   FileText,
   AlertCircle,
   CheckCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
+import Header from './Header'
+import FormInput from './FormInput'
 
 // Questões do formulário de avaliação baseadas no documento
 const questoes = [
@@ -102,7 +104,7 @@ const AvaliacaoAluno = () => {
       ...prev,
       [name]: value
     }))
-    
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -123,29 +125,29 @@ const AvaliacaoAluno = () => {
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!formData.nomeAluno.trim()) newErrors.nomeAluno = 'Nome do aluno é obrigatório'
     if (!formData.dataEntrada) newErrors.dataEntrada = 'Data de entrada é obrigatória'
     if (!formData.dataAvaliacao) newErrors.dataAvaliacao = 'Data da avaliação é obrigatória'
     if (!formData.nomeProfessor.trim()) newErrors.nomeProfessor = 'Nome do professor é obrigatório'
-    
+
     // Verificar se todas as questões foram respondidas
     const questoesNaoRespondidas = questoes.filter(q => !formData.respostas[q.id])
     if (questoesNaoRespondidas.length > 0) {
       newErrors.respostas = `${questoesNaoRespondidas.length} questões não foram respondidas`
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     if (validateForm()) {
       console.log('Dados da avaliação:', formData)
       alert('Avaliação salva com sucesso!')
-      
+
       // Limpar formulário
       setFormData({
         nomeAluno: '',
@@ -172,15 +174,11 @@ const AvaliacaoAluno = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <ClipboardList className="w-8 h-8 text-purple-600" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Avaliação de Aluno</h1>
-          <p className="text-gray-600 mt-1">
-            Avaliação de usuário em período de experiência
-          </p>
-        </div>
-      </div>
+      <Header
+        icon={<ClipboardList className="w-8 h-8 text-purple-600" />}
+        title={"Avaliação de Aluno"}
+        text={"Avaliação de usuário em período de experiência"}
+      />
 
       {/* Barra de Progresso */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -189,7 +187,7 @@ const AvaliacaoAluno = () => {
           <span className="text-sm text-gray-500">{getProgressPercentage()}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             className="bg-purple-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${getProgressPercentage()}%` }}
           ></div>
@@ -203,25 +201,20 @@ const AvaliacaoAluno = () => {
             <User className="w-5 h-5 text-blue-600" />
             <h2 className="text-xl font-semibold text-gray-900">Dados da Avaliação</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome do Aluno *
-              </label>
-              <input
-                type="text"
-                name="nomeAluno"
-                value={formData.nomeAluno}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.nomeAluno ? 'border-red-500' : 'border-gray-300'
+            <FormInput
+              label={"Nome do Aluno *"}
+              type={"text"}
+              name={"nomeAluno"}
+              value={formData.nomeAluno}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.nomeAluno ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="Digite o nome completo do aluno"
-              />
-              {errors.nomeAluno && <p className="text-red-500 text-sm mt-1">{errors.nomeAluno}</p>}
-            </div>
-            
+              placeholder={"Digite o nome completo do aluno"}
+              error={errors.nomeAluno}
+            />
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tipo de Avaliação
@@ -236,55 +229,40 @@ const AvaliacaoAluno = () => {
                 <option value="2">2ª Avaliação</option>
               </select>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data da Entrada *
-              </label>
-              <input
-                type="date"
-                name="dataEntrada"
-                value={formData.dataEntrada}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.dataEntrada ? 'border-red-500' : 'border-gray-300'
+
+            <FormInput
+              label="Data de Entrada *"
+              type={"date"}
+              name={"dataEntrada"}
+              value={formData.dataEntrada}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.dataEntrada ? 'border-red-500' : 'border-gray-300'
                 }`}
-              />
-              {errors.dataEntrada && <p className="text-red-500 text-sm mt-1">{errors.dataEntrada}</p>}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data da Avaliação *
-              </label>
-              <input
-                type="date"
-                name="dataAvaliacao"
-                value={formData.dataAvaliacao}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.dataAvaliacao ? 'border-red-500' : 'border-gray-300'
+              error={errors.dataEntrada}
+            />
+
+            <FormInput
+              label="Data da Avaliação *"
+              type={"date"}
+              name={"dataAvaliacao"}
+              value={formData.dataAvaliacao}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.dataAvaliacao ? 'border-red-500' : 'border-gray-300'
                 }`}
-              />
-              {errors.dataAvaliacao && <p className="text-red-500 text-sm mt-1">{errors.dataAvaliacao}</p>}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome do Professor *
-              </label>
-              <input
-                type="text"
-                name="nomeProfessor"
-                value={formData.nomeProfessor}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.nomeProfessor ? 'border-red-500' : 'border-gray-300'
+              error={errors.dataAvaliacao}
+            />
+
+            <FormInput
+              label="Nome do Professor *"
+              type={"text"}
+              name={"nomeProfessor"}
+              value={formData.nomeProfessor}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.nomeProfessor ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="Nome do professor avaliador"
-              />
-              {errors.nomeProfessor && <p className="text-red-500 text-sm mt-1">{errors.nomeProfessor}</p>}
-            </div>
+              error={errors.nomeProfessor}
+              placeholder={"Nome do professor avaliador"}
+            />
           </div>
         </div>
 
@@ -314,7 +292,7 @@ const AvaliacaoAluno = () => {
               {secoes[currentSection].titulo}
             </h2>
           </div>
-          
+
           <div className="space-y-4">
             {secoes[currentSection].questoes.map((questao) => (
               <div key={questao.id} className="border border-gray-200 rounded-lg p-4">
@@ -350,7 +328,7 @@ const AvaliacaoAluno = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Navegação entre seções */}
           <div className="flex justify-between mt-6">
             <Button
@@ -378,7 +356,7 @@ const AvaliacaoAluno = () => {
             <AlertCircle className="w-5 h-5 text-orange-600" />
             <h2 className="text-xl font-semibold text-gray-900">Observações Adicionais</h2>
           </div>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -393,7 +371,7 @@ const AvaliacaoAluno = () => {
                 placeholder="Descreva as situações em que o aluno demonstra irritação..."
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Em sua opinião o usuário tem perfil para esta instituição?
@@ -431,7 +409,7 @@ const AvaliacaoAluno = () => {
                 placeholder="Por quê? Justifique sua resposta..."
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Observações Gerais

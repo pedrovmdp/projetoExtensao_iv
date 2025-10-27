@@ -19,8 +19,10 @@ import {
   ClipboardCheck, 
   TrendingUp,
   Calendar,
-  Award
+  Award,
+  LayoutDashboard
 } from 'lucide-react'
+import Header from './Header'
 
 // Componente de Card de estatística
 const StatCard = ({ title, value, icon: Icon, color, subtitle, loading }) => (
@@ -127,12 +129,11 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Visão geral das atividades do Instituto Diomício Freitas
-        </p>
-      </div>
+      <Header
+      icon={<LayoutDashboard className="w-8 h-8 text-blue-600"/>}
+        title={"Dashboard"}
+        text={"Visão geral das atividades do Instituto Diomício Freitas"}
+      />
 
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -180,11 +181,11 @@ const Dashboard = () => {
               Alunos por Mês
             </h3>
           </div>
-          {loading ? (
+          {/* {loading ? (
             <div className="h-[300px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : (
+          ) : ( */}
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={acompanhamentoData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -194,7 +195,7 @@ const Dashboard = () => {
                 <Bar dataKey="alunos" fill="#4A90E2" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          )}
+          {/* )} */}
         </div>
 
         {/* Gráfico de Status dos Acompanhamentos */}
@@ -205,11 +206,11 @@ const Dashboard = () => {
               Status dos Acompanhamentos
             </h3>
           </div>
-          {loading ? (
+          {/* {loading ? (
             <div className="h-[300px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : (
+          ) : ( */}
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -227,7 +228,7 @@ const Dashboard = () => {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-          )}
+          {/* // )} */}
         </div>
       </div>
 
@@ -241,11 +242,11 @@ const Dashboard = () => {
               Avaliações por Período
             </h3>
           </div>
-          {loading ? (
+          {/* {loading ? ( */}
             <div className="h-[250px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : (
+          {/* ) : ( */}
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={avaliacoesData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -261,7 +262,7 @@ const Dashboard = () => {
                 />
               </LineChart>
             </ResponsiveContainer>
-          )}
+          {/* )} */}
         </div>
 
         {/* Resumo de Status */}
