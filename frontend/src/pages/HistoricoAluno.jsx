@@ -224,7 +224,7 @@ const HistoricoAluno = () => {
                           {students.nome}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {students.telefone || students.celular || '-'}
+                          {students.contato.telefone || students.contato.celular || '-'}
                         </div>
                       </div>
                     </div>
@@ -236,11 +236,11 @@ const HistoricoAluno = () => {
                     {students.idade ? `${students.idade} anos` : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatDate(students.data_ingresso)}
+                    {formatDate(students.dados_institucionais.data_ingresso)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(students.status)}`}>
-                      {students.status}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(students.dados_institucionais.status)}`}>
+                      {students.dados_institucionais.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -339,29 +339,29 @@ const HistoricoAluno = () => {
                     Contato
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                    {selectedAluno.telefone && (
+                    {selectedAluno.contato.telefone && (
                       <div>
                         <p className="text-sm font-medium text-gray-600">Telefone</p>
-                        <p className="text-gray-900">{selectedAluno.telefone}</p>
+                        <p className="text-gray-900">{selectedAluno.contato.telefone}</p>
                       </div>
                     )}
-                    {selectedAluno.celular && (
+                    {selectedAluno.contato.celular && (
                       <div>
                         <p className="text-sm font-medium text-gray-600">Celular</p>
-                        <p className="text-gray-900">{selectedAluno.celular}</p>
+                        <p className="text-gray-900">{selectedAluno.contato.celular}</p>
                       </div>
                     )}
-                    {selectedAluno.email && (
+                    {selectedAluno.contato.email && (
                       <div>
                         <p className="text-sm font-medium text-gray-600">E-mail</p>
-                        <p className="text-gray-900">{selectedAluno.email}</p>
+                        <p className="text-gray-900">{selectedAluno.contato.email}</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Endereço */}
-                {(selectedAluno.endereco || selectedAluno.bairro || selectedAluno.cidade) && (
+                {(selectedAluno.endereco.logradouro || selectedAluno.endereco.bairro || selectedAluno.endereco.cidade) && (
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-red-600" />
@@ -370,16 +370,16 @@ const HistoricoAluno = () => {
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <p className="text-gray-900">
                         {[
-                          selectedAluno.endereco,
-                          selectedAluno.numero,
-                          selectedAluno.complemento,
-                          selectedAluno.bairro,
-                          selectedAluno.cidade,
-                          selectedAluno.estado
+                          selectedAluno.endereco.logradouro,
+                          selectedAluno.endereco.numero,
+                          selectedAluno.endereco.complemento,
+                          selectedAluno.endereco.bairro,
+                          selectedAluno.endereco.cidade,
+                          selectedAluno.endereco.estado
                         ].filter(Boolean).join(', ')}
                       </p>
-                      {selectedAluno.cep && (
-                        <p className="text-gray-600 mt-1">CEP: {selectedAluno.cep}</p>
+                      {selectedAluno.endereco.cep && (
+                        <p className="text-gray-600 mt-1">CEP: {selectedAluno.endereco.cep}</p>
                       )}
                     </div>
                   </div>
@@ -394,18 +394,18 @@ const HistoricoAluno = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-gray-600">Data de Ingresso</p>
-                      <p className="text-gray-900">{formatDate(selectedAluno.data_ingresso)}</p>
+                      <p className="text-gray-900">{formatDate(selectedAluno.dados_institucionais.data_ingresso)}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-600">Status</p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedAluno.status)}`}>
-                        {selectedAluno.status}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedAluno.dados_institucionais.status)}`}>
+                        {selectedAluno.dados_institucionais.status}
                       </span>
                     </div>
-                    {selectedAluno.observacoes && (
+                    {selectedAluno.dados_institucionais.observacoes && (
                       <div className="md:col-span-2">
                         <p className="text-sm font-medium text-gray-600">Observações</p>
-                        <p className="text-gray-900">{selectedAluno.observacoes}</p>
+                        <p className="text-gray-900">{selectedAluno.dados_institucionais.observacoes}</p>
                       </div>
                     )}
                   </div>
