@@ -70,7 +70,19 @@ const studentSlice = createSlice({
 
             // 🔹 Buscar por nome
             .addCase(fetchStudentByName.fulfilled, (state, action) => {
-                state.studentDetail = action.payload;
+                state.students = action.payload;
+                state.loading = false;
+                state.error = null;
+            })
+
+            .addCase(fetchStudentByName.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            
+            .addCase(fetchStudentByName.rejected, (state, action) => {
+                state.loading = false;
+                state.error = "Erro ao buscar alunos por nome";
             })
 
             // 🔹 Criar aluno

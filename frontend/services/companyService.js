@@ -10,11 +10,13 @@ const getCompanyById = async (id) => {
 }
 
 const getCompanyByName = async (name) => {
-    const response = await api.get(`/companys`);
-    return response.data.filter(company =>
-        company.name.toLowerCase().includes(name.toLowerCase())
-    );
+    if (!name) return [];
+    // Faz a busca usando LIKE no campo correto (ex: razao_social)
+    const response = await api.get(`/companys?razao_social_like=${encodeURIComponent(name)}`);
+
+    return response.data;
 };
+
 
 const createCompany = async (companyData) => {
     const response = await api.post(`/companys`, companyData);
