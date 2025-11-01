@@ -8,14 +8,9 @@ import "./App.css";
 import { Provider } from "react-redux";
 import { store } from "../store/index.js";
 
-
-
-
-
 // Páginas principais
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-
 import CadastroAluno from "./pages/CadastroAluno";
 import CadastroEmpresa from "./pages/CadastroEmpresa";
 import HistoricoAluno from "./pages/HistoricoAluno";
@@ -26,7 +21,7 @@ import EditarPerfil from "./pages/EditarPerfil";
 
 // Layout
 import Sidebar from "./components/SideBar";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,15 +70,70 @@ function AppShell() {
         {/* Área de conteúdo */}
         <main className="flex-1 overflow-auto p-6">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/cadastro-aluno" element={<CadastroAluno />} />
-            <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
-            <Route path="/historico" element={<HistoricoAluno />} />
-            <Route path="/avaliacao" element={<AvaliacaoAluno />} />
-            <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
-            <Route path="/empresas" element={<EmpresasParceiras />} />
-            <Route path="/editar-perfil" element={<EditarPerfil />} /> {/* 🔹 nova rota */}
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cadastro-aluno"
+              element={
+                <ProtectedRoute>
+                  <CadastroAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cadastro-empresa"
+              element={
+                <ProtectedRoute>
+                  <CadastroEmpresa />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/historico"
+              element={
+                <ProtectedRoute>
+                  <HistoricoAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/avaliacao"
+              element={
+                <ProtectedRoute>
+                  <AvaliacaoAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/acompanhamento"
+              element={
+                <ProtectedRoute>
+                  <AcompanhamentoAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/empresas"
+              element={
+                <ProtectedRoute>
+                  <EmpresasParceiras />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/editar-perfil"
+              element={
+                <ProtectedRoute>
+                  <EditarPerfil />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
