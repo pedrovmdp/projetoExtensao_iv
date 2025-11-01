@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { Provider } from "react-redux";
 import { Menu } from "lucide-react";
 import { Button } from "./components/ui/button";
+import { Toaster } from "sonner";
 import "./App.css";
 
-// Redux
-import { Provider } from "react-redux";
+// Store
 import { store } from "../store/index.js";
+
+// Layout e proteção
+import Sidebar from "./components/SideBar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Páginas principais
 import Login from "./pages/Login";
@@ -19,17 +24,14 @@ import AcompanhamentoAluno from "./pages/AcompanhamentoAluno";
 import EmpresasParceiras from "./pages/EmpresasParceias";
 import EditarPerfil from "./pages/EditarPerfil";
 
-// Layout
-import Sidebar from "./components/SideBar";
-import ProtectedRoute from "./components/ProtectedRoute";
-
 function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Oculta Sidebar em rotas de autenticação (login)
+  // Oculta Sidebar em rotas de autenticação
   const isAuthRoute = location.pathname.startsWith("/login");
 
+  // Layout da página de login
   if (isAuthRoute) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-200 relative">
@@ -43,6 +45,7 @@ function AppShell() {
     );
   }
 
+  // Layout interno protegido
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -141,13 +144,14 @@ function AppShell() {
   );
 }
 
-// Componente principal com Provider + Router
+// 🌟 App principal com Redux, Router e Toasts globais
 export default function App() {
   return (
     <Provider store={store}>
       <Router>
         <AppShell />
       </Router>
+      <Toaster richColors position="top-right" />
     </Provider>
   );
 }

@@ -1,6 +1,13 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { login } from "../../store/features/authSlice";
+import { toast } from "sonner";
 
 export default function Login() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,8 +28,30 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
+
     setIsSubmitting(true);
-    setTimeout(() => setIsSubmitting(false), 1200);
+
+    // 🔹 Simula autenticação
+    setTimeout(() => {
+      // verifica senha
+      if (password !== "1234") {
+        toast.error("Senha incorreta. Tente novamente.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // login bem-sucedido
+      const userData = {
+        email,
+        name: "Administrador IEEDF",
+        role: "admin",
+      };
+
+      dispatch(login(userData));
+      toast.success("Login realizado com sucesso!");
+      navigate("/");
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
@@ -34,34 +63,30 @@ export default function Login() {
         className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-0 rounded-2xl border border-white/30 bg-white/60 backdrop-blur-xl shadow-xl overflow-hidden"
         aria-labelledby="titulo-login"
       >
-        {/* Painel ilustrativo (desktop) */}
+        {/* Painel lateral */}
         <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
           <header className="flex items-center gap-3">
-            <div>
-              <img src="./logo.png" alt="logo IEEDF" className="w-18"/>
-            </div>
+            <img src="./logo.png" alt="logo IEEDF" className="w-18" />
             <h2 className="font-semibold">Instituto Diomício Freitas</h2>
           </header>
+
           <div>
             <h3 className="text-2xl font-semibold leading-tight">
               Bem-vindo de volta!
             </h3>
             <p className="mt-2 text-white/90">
-              Acesse o painel para acompanhar alunos, avaliações e
-              encaminhamentos.
+              Acesse o painel para acompanhar alunos, avaliações e encaminhamentos.
             </p>
           </div>
+
           <footer className="text-sm text-white/80">
             Dica: use um e-mail válido para ver a validação em ação.
           </footer>
         </div>
 
-        {/* Card do formulário */}
+        {/* Formulário */}
         <div className="p-8 sm:p-10">
-          <h1
-            id="titulo-login"
-            className="text-2xl font-semibold text-slate-900"
-          >
+          <h1 id="titulo-login" className="text-2xl font-semibold text-slate-900">
             Entrar na plataforma
           </h1>
           <p className="mt-1 text-sm text-slate-600">
@@ -78,26 +103,15 @@ export default function Login() {
                 <input
                   id="email"
                   type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  className={`w-full rounded-xl border px-4 py-3 bg-white/80 outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400 ${
+                  className={`w-full rounded-xl border px-4 py-3 bg-white/80 outline-none focus:ring-2 focus:ring-blue-500 ${
                     errors.email ? "border-rose-500" : "border-slate-300"
                   }`}
                   placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "email-erro" : undefined}
                 />
                 {errors.email && (
-                  <p
-                    id="email-erro"
-                    className="mt-1 text-sm text-rose-600"
-                    role="alert"
-                    aria-live="polite"
-                  >
-                    {errors.email}
-                  </p>
+                  <p className="mt-1 text-sm text-rose-600">{errors.email}</p>
                 )}
               </div>
             </div>
@@ -111,37 +125,24 @@ export default function Login() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  className={`w-full rounded-xl border px-4 py-3 bg-white/80 outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-slate-400 ${
+                  className={`w-full rounded-xl border px-4 py-3 bg-white/80 outline-none focus:ring-2 focus:ring-blue-500 ${
                     errors.password ? "border-rose-500" : "border-slate-300"
                   }`}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  aria-invalid={!!errors.password}
-                  aria-describedby={
-                    errors.password ? "password-erro" : undefined
-                  }
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-sm text-slate-600 hover:underline cursor-pointer"
-                  aria-pressed={showPassword}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-600 hover:underline"
                 >
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
-                {errors.password && (
-                  <p
-                    id="password-erro"
-                    className="mt-1 text-sm text-rose-600"
-                    role="alert"
-                    aria-live="polite"
-                  >
-                    {errors.password}
-                  </p>
-                )}
               </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-rose-600">{errors.password}</p>
+              )}
             </div>
 
             {/* Opções */}
@@ -155,26 +156,21 @@ export default function Login() {
                 />
                 Lembrar de mim
               </label>
-              <button
-                type="button"
-                className="text-sm text-blue-700 hover:underline"
-              >
+              <button type="button" className="text-sm text-blue-700 hover:underline">
                 Esqueci minha senha
               </button>
             </div>
 
-            {/* Submit */}
+            {/* Botão */}
             <button
               type="submit"
               disabled={isSubmitting || !email || !password}
-              className="w-full rounded-xl px-4 py-3 font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-              aria-busy={isSubmitting}
+              className="w-full rounded-xl px-4 py-3 font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 transition"
             >
               {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
 
-            {/* Rodapé opcional */}
-            <p className="text-center text-xs text-slate-500">
+            <p className="text-center text-xs text-slate-500 mt-3">
               Ao continuar, você concorda com os termos de uso.
             </p>
           </form>
