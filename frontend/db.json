@@ -6,7 +6,7 @@
       "nome_fantasia": "TechSol",
       "cnpj": "12.345.678/0001-90",
       "tipo_empresa": "LTDA",
-      "data_abertura": "12/06/2018",
+      "data_abertura": "2018-06-12",
       "endereco": {
         "cep": "04567-123",
         "logradouro": "Av. das Nações Unidas",
@@ -208,6 +208,32 @@
         "observacoes": "",
         "status": "Ativo"
       }
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Administrador IEEDF",
+      "email": "admin@admin.com",
+      "password": "1234",
+      "role": "admin",
+      "img": "https://i.pravatar.cc/150?img=1"
+    },
+    {
+      "id": 2,
+      "name": "Professor Marques",
+      "email": "professor@professor.com",
+      "password": "1234",
+      "role": "professor",
+      "img": "https://i.pravatar.cc/150?img=2"
+    },
+    {
+      "id": "d08f",
+      "name": "Pedro Vinicius",
+      "email": "pedro@pedro.com",
+      "password": "123",
+      "role": "admin",
+      "img": "https://i.pravatar.cc/150?u=pedro@pedro.com"
     }
   ]
 }

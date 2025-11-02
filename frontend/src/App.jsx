@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { Provider } from "react-redux";
 import { Menu } from "lucide-react";
 import { Button } from "./components/ui/button";
@@ -12,6 +17,7 @@ import { store } from "../store/index.js";
 // Layout e proteção
 import Sidebar from "./components/SideBar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 // Páginas principais
 import Login from "./pages/Login";
@@ -23,6 +29,7 @@ import AvaliacaoAluno from "./pages/AvaliacaoAluno";
 import AcompanhamentoAluno from "./pages/AcompanhamentoAluno";
 import EmpresasParceiras from "./pages/EmpresasParceias";
 import EditarPerfil from "./pages/EditarPerfil";
+import CadastroUsuario from "./pages/CadastroUsuario";
 
 function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -34,14 +41,19 @@ function AppShell() {
   // Layout da página de login
   if (isAuthRoute) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-200 relative">
-        <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(#00000011_1px,transparent_1px)] [background-size:16px_16px]" />
-        <div className="relative z-10 w-full max-w-5xl">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </div>
-      </div>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-200 relative">
+              <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(#00000011_1px,transparent_1px)] [background-size:16px_16px]" />
+              <div className="relative z-10 w-full max-w-5xl">
+                <Login />
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     );
   }
 
@@ -73,6 +85,7 @@ function AppShell() {
         {/* Área de conteúdo */}
         <main className="flex-1 overflow-auto p-6">
           <Routes>
+            {/* Rotas protegidas por login */}
             <Route
               path="/"
               element={
@@ -135,6 +148,16 @@ function AppShell() {
                 <ProtectedRoute>
                   <EditarPerfil />
                 </ProtectedRoute>
+              }
+            />
+
+            {/* 🔐 Rota exclusiva de admin */}
+            <Route
+              path="/cadastro-usuario"
+              element={
+                <AdminRoute>
+                  <CadastroUsuario />
+                </AdminRoute>
               }
             />
           </Routes>

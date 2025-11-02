@@ -1,29 +1,46 @@
+// 📁 src/store/features/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
-// 🔹 Tenta recuperar o usuário salvo no localStorage
+/**
+ * 🔹 Recupera o usuário salvo no localStorage (mantém sessão ativa ao recarregar)
+ */
 const savedUser = JSON.parse(localStorage.getItem("user"));
 
+/**
+ * 🔸 Estado inicial do slice
+ */
 const initialState = {
-  user: savedUser || null,              // guarda os dados do usuário logado
-  isAuthenticated: !!savedUser,         // indica se já está logado
+  user: savedUser || null,          // Dados do usuário autenticado
+  isAuthenticated: !!savedUser,     // Indica se está logado
 };
 
+/**
+ * 🔹 Slice de autenticação
+ */
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action) {
+    /**
+     * ✅ Realiza login e salva o usuário no Redux + localStorage
+     */
+    login: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
-      localStorage.setItem("user", JSON.stringify(action.payload)); // salva no localStorage
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
-    logout(state) {
+
+    /**
+     * 🚪 Realiza logout e limpa os dados do Redux + localStorage
+     */
+    logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      localStorage.removeItem("user"); // remove do localStorage
+      localStorage.removeItem("user");
     },
   },
 });
 
+// 🔸 Exportações
 export const { login, logout } = authSlice.actions;
 export default authSlice.reducer;

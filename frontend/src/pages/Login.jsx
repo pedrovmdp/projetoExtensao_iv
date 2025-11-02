@@ -15,6 +15,7 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ✅ Validação simples de formulário
   const validate = () => {
     const next = {};
     if (!email.trim()) next.email = "Informe seu e-mail.";
@@ -25,38 +26,35 @@ export default function Login() {
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  // ✅ Autenticação real com json-server
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
 
-    // 🔹 Simula autenticação
-    setTimeout(() => {
-      // verifica senha
-      if (password !== "1234") {
-        toast.error("Senha incorreta. Tente novamente.");
-        setIsSubmitting(false);
-        return;
+    try {
+      const res = await fetch(`http://localhost:3000/users?email=${email}`);
+      const data = await res.json();
+      const user = data[0];
+
+      if (user && user.password === password) {
+        dispatch(login(user));
+        toast.success(`Bem-vindo, ${user.name}!`);
+        navigate("/");
+      } else {
+        toast.error("E-mail ou senha inválidos.");
       }
-
-      // login bem-sucedido
-      const userData = {
-        email,
-        name: "Administrador IEEDF",
-        role: "admin",
-      };
-
-      dispatch(login(userData));
-      toast.success("Login realizado com sucesso!");
-      navigate("/");
+    } catch (error) {
+      toast.error("Erro ao conectar com o servidor.");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
     <main className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-200 relative">
-      {/* pattern sutil */}
+      {/* Padrão visual de fundo */}
       <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(#00000011_1px,transparent_1px)] [background-size:16px_16px]" />
 
       <section
@@ -75,7 +73,8 @@ export default function Login() {
               Bem-vindo de volta!
             </h3>
             <p className="mt-2 text-white/90">
-              Acesse o painel para acompanhar alunos, avaliações e encaminhamentos.
+              Acesse o painel para acompanhar alunos, avaliações e
+              encaminhamentos.
             </p>
           </div>
 
@@ -156,7 +155,10 @@ export default function Login() {
                 />
                 Lembrar de mim
               </label>
-              <button type="button" className="text-sm text-blue-700 hover:underline">
+              <button
+                type="button"
+                className="text-sm text-blue-700 hover:underline"
+              >
                 Esqueci minha senha
               </button>
             </div>
