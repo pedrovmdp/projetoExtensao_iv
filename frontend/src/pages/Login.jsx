@@ -40,7 +40,7 @@ export default function Login() {
     try {
       // Busca o usuário com email e senha correspondentes
       const res = await fetch(
-        `http://localhost:3001/users?email=${email}&password=${password}`
+        `http://localhost:3000/users?email=${email}&password=${password}`
       );
       const data = await res.json();
 
@@ -141,7 +141,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-600 hover:underline"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-600 hover:underline cursor-pointer"
                 >
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
@@ -164,7 +164,7 @@ export default function Login() {
               </label>
               <button
                 type="button"
-                className="text-sm text-blue-700 hover:underline"
+                className="text-sm text-blue-700 hover:underline cursor-pointer"
               >
                 Esqueci minha senha
               </button>
@@ -174,7 +174,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isSubmitting || !email || !password}
-              className="w-full rounded-xl px-4 py-3 font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 transition"
+              className="w-full rounded-xl px-4 py-3 font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
             >
               {isSubmitting ? "Entrando..." : "Entrar"}
             </button>

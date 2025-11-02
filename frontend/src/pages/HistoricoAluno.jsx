@@ -14,19 +14,19 @@ import {
 import { Button } from '@/components/ui/button.jsx'
 import Header from '../components/Header'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchStudents, selectAllStudents } from '../../store/features/studentSlice'
+import { fetchStudents, selectAllStudents, selectError, selectLoading } from '../../store/features/studentSlice'
 
 const HistoricoAluno = () => {
   const dispatch = useDispatch()
   const students = useSelector(selectAllStudents)
+  const loading = useSelector(selectLoading)
+  const error = useSelector(selectError)
 
   const [filteredAlunos, setFilteredAlunos] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [selectedAluno, setSelectedAluno] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
     dispatch(fetchStudents())
@@ -56,55 +56,55 @@ const HistoricoAluno = () => {
   }
 
   // Calcular estatísticas
-  const alunosAtivos = students.filter(a => a.status === 'Ativo').length
-  const alunosEncaminhados = students.filter(a => a.status === 'Encaminhado').length
-  const alunosAvaliacao = students.filter(a => a.status === 'Em Avaliação').length
+  const alunosAtivos = students.filter(a => a.dados_institucionais.status === 'Ativo').length
+  const alunosEncaminhados = students.filter(a => a.dados_institucionais.status === 'Encaminhado').length
+  const alunosAvaliacao = students.filter(a => a.dados_institucionais.status === 'Em Avaliação').length
 
-  // if (loading) {
-  //   return (
-  //     <div className="space-y-6">
-  //       <div className="flex items-center gap-3 mb-8">
-  //         <FileText className="w-8 h-8 text-blue-600" />
-  //         <div>
-  //           <h1 className="text-3xl font-bold text-gray-900">Histórico de Alunos</h1>
-  //           <p className="text-gray-600 mt-1">
-  //             Visualize e gerencie o histórico de todos os alunos cadastrados
-  //           </p>
-  //         </div>
-  //       </div>
-  //       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-  //         <div className="text-center">
-  //           <p className="text-gray-500">Carregando alunos...</p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 mb-8">
+          <FileText className="w-8 h-8 text-blue-600" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Histórico de Alunos</h1>
+            <p className="text-gray-600 mt-1">
+              Visualize e gerencie o histórico de todos os alunos cadastrados
+            </p>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <div className="text-center">
+            <p className="text-gray-500">Carregando alunos...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-  // if (error) {
-  //   return (
-  //     <div className="space-y-6">
-  //       <div className="flex items-center gap-3 mb-8">
-  //         <FileText className="w-8 h-8 text-blue-600" />
-  //         <div>
-  //           <h1 className="text-3xl font-bold text-gray-900">Histórico de alunos</h1>
-  //           <p className="text-gray-600 mt-1">
-  //             Visualize e gerencie o histórico de todos os alunos cadastrados
-  //           </p>
-  //         </div>
-  //       </div>
-  //       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-  //         <p className="text-red-800">{error}</p>
-  //         <button 
-  //           onClick={fetchAlunos}
-  //           className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-  //         >
-  //           Tentar Novamente
-  //         </button>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 mb-8">
+          <FileText className="w-8 h-8 text-blue-600" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Histórico de alunos</h1>
+            <p className="text-gray-600 mt-1">
+              Visualize e gerencie o histórico de todos os alunos cadastrados
+            </p>
+          </div>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+          <button 
+            onClick={fetchAlunos}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -270,11 +270,11 @@ const HistoricoAluno = () => {
           </table>
         </div>
         
-        {filteredAlunos.length === 0 && (
+        {/* {filteredAlunos.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500">Nenhum aluno encontrado com os filtros aplicados.</p>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Modal de Detalhes */}

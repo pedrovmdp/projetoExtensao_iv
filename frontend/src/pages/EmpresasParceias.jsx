@@ -325,17 +325,6 @@ export default function EmpresasParceiras() {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Parecer Geral */}
-                                {/* <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                        <FileText className="w-5 h-5 text-blue-600" />
-                                        Parecer Geral
-                                    </h3>
-                                    <div className="bg-gray-50 p-4 rounded-lg">
-                                        <p className="text-gray-900 whitespace-pre-wrap">{selectedAcompanhamento.parecerGeral}</p>
-                                    </div>
-                                </div> */}
                             </div>
 
                             <div className="flex justify-end gap-3 mt-6">

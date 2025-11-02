@@ -28,6 +28,8 @@ import {
   selectAllMonitoring,
 } from "../../store/features/monitoringSlice";
 import DetailsModal from "../components/DatailsModal";
+import FormInputDiv from "../components/FormInputDiv";
+import IconColor from "../assets/IconColor"
 
 const AcompanhamentoAluno = () => {
   const [showForm, setShowForm] = useState(false);
@@ -258,14 +260,11 @@ const AcompanhamentoAluno = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Dados do Aluno e Empresa */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <User className="w-5 h-5 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Dados do Aluno
-                  </h3>
-                </div>
-
+              <FormInputDiv
+                icon={Building}
+                iconColor={IconColor.green}
+                title={"Dados da Empresa"}
+              >
                 <div className="space-y-4">
                   <AutoCompleteInput
                     label={"Nome do Aluno *"}
@@ -282,9 +281,8 @@ const AcompanhamentoAluno = () => {
                     name={"dataAdmissao"}
                     value={formData.dataAdmissao}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.dataAdmissao ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dataAdmissao ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder={"Nome completo do aluno"}
                     error={errors.dataAdmissao}
                   />
@@ -294,23 +292,19 @@ const AcompanhamentoAluno = () => {
                     name={"cargo"}
                     value={formData.cargo}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.cargo ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cargo ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder={"Cargo do aluno"}
                     error={errors.cargo}
                   />
                 </div>
-              </div>
+              </FormInputDiv>
 
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <Building className="w-5 h-5 text-green-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Dados da Empresa
-                  </h3>
-                </div>
-
+              <FormInputDiv
+                icon={Building}
+                iconColor={IconColor.green}
+                title={"Dados da Empresa"}
+              >
                 <div className="space-y-4">
                   <AutoCompleteInput
                     label="Razão Social da Empresa *"
@@ -326,27 +320,23 @@ const AcompanhamentoAluno = () => {
                     name={"responsavelRH"}
                     value={formData.responsavelRH}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      errors.responsavelRH
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.responsavelRH
+                      ? "border-red-500"
+                      : "border-gray-300"
+                      }`}
                     placeholder={"Nome do responsável pelo RH"}
                     error={errors.responsavelRH}
                   />
                 </div>
-              </div>
+              </FormInputDiv>
             </div>
 
             {/* Dados da Visita */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="w-5 h-5 text-orange-600" />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Dados da Visita
-                </h3>
-              </div>
-
+            <FormInputDiv
+              icon={Calendar}
+              iconColor={IconColor.orange}
+              title={"Dados da Visita"}
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormInput
                   label={"Data da Visita *"}
@@ -354,9 +344,8 @@ const AcompanhamentoAluno = () => {
                   name={"dataVisita"}
                   value={formData.dataVisita}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.dataVisita ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.dataVisita ? "border-red-500" : "border-gray-300"
+                    }`}
                   error={errors.dataVisita}
                 />
 
@@ -366,9 +355,8 @@ const AcompanhamentoAluno = () => {
                   name={"contatoCom"}
                   value={formData.contatoCom}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.contatoCom ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.contatoCom ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder={"Ex: Supervisor, Gerente, etc."}
                   error={errors.contatoCom}
                 />
@@ -389,7 +377,7 @@ const AcompanhamentoAluno = () => {
                   </select>
                 </div>
               </div>
-            </div>
+            </FormInputDiv>
 
             {/* Parecer Geral */}
             <div>
@@ -401,9 +389,8 @@ const AcompanhamentoAluno = () => {
                 value={formData.parecerGeral}
                 onChange={handleInputChange}
                 rows={6}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.parecerGeral ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.parecerGeral ? "border-red-500" : "border-gray-300"
+                  }`}
                 placeholder="Descreva o parecer geral sobre o acompanhamento do aluno na empresa..."
               />
               {errors.parecerGeral && (
@@ -531,7 +518,7 @@ const AcompanhamentoAluno = () => {
             {
               title: "Dados do Aluno",
               icon: User,
-              iconColor: "w-5 h-5 text-purple-600",
+              iconColor: IconColor.purple,
               items: [
                 { key: "nomeAluno", label: "Nome" },
                 { key: "cargo", label: "Cargo" },
@@ -545,7 +532,7 @@ const AcompanhamentoAluno = () => {
             {
               title: "Dados da Empresa",
               icon: Building,
-              iconColor: "w-5 h-5 text-green-600",
+              iconColor: IconColor.green,
               items: [
                 { key: "empresa", label: "Empresa" },
                 { key: "responsavelRH", label: "Responsável RH" },
@@ -554,7 +541,7 @@ const AcompanhamentoAluno = () => {
             {
               title: "Dados da Visita",
               icon: Calendar,
-              iconColor: "w-5 h-5 text-orange-600",
+              iconColor: IconColor.orange,
               gridCol: "grid grid-cols-1 md:grid-cols-3 gap-4",
               items: [
                 {
@@ -573,7 +560,7 @@ const AcompanhamentoAluno = () => {
             {
               title: "Parecer Geral",
               icon: FileText,
-              iconColor: "w-5 h-5 text-blue-600",
+              iconColor: IconColor.blue,
               items: [{ key: "parecerGeral", label: "Parecer" }],
             },
           ]}
