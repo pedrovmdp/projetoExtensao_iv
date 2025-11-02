@@ -208,6 +208,69 @@
         "observacoes": "",
         "status": "Ativo"
       }
+    },
+    {
+      "id": "db4d",
+      "nome": "Wesley Bertin Marques",
+      "cpf": "592.313.845-21",
+      "rg": "1290354810",
+      "data_nascimento": "2000-02-19",
+      "sexo": "Masculino",
+      "estado_civil": "Solteiro(a)",
+      "contato": {
+        "telefone": "",
+        "celular": "5198828282882",
+        "email": "marques@tete.com"
+      },
+      "endereco": {
+        "logradouro": "Rua Paulo Gorski",
+        "numero": "",
+        "complemento": "casa",
+        "bairro": "Mossunguê",
+        "cidade": "Curitiba",
+        "cep": "81200-000",
+        "estado": "PR"
+      },
+      "dados_familiares": {
+        "nome_pai": "",
+        "nome_mae": "",
+        "telefone_responsavel": ""
+      },
+      "dados_institucionais": {
+        "data_ingresso": "2025-11-03",
+        "observacoes": "",
+        "status": "Ativo"
+      }
+    }
+  ],
+  "monitoring": [
+    {
+      "nomeAluno": "Wesley Bertin Marques",
+      "empresa": "VerdeViva Agropecuária S.A.",
+      "responsavelRH": "Maria Fernanda Costa",
+      "cargo": "Empacotador",
+      "dataAdmissao": "2000-12-19",
+      "dataVisita": "2025-11-02",
+      "contatoCom": "Supervisor de RH",
+      "parecerGeral": "asjkhdslakhdlkçsAHDkshaLKÇDÇç",
+      "status": "Ativo",
+      "idAluno": "db4d",
+      "idEmpresa": "2",
+      "id": "3708"
+    },
+    {
+      "id": "c8ff",
+      "nomeAluno": "Teste Novo",
+      "empresa": "Café da Esquina Microempresa",
+      "responsavelRH": "Carlos Eduardo Silva",
+      "cargo": "Empacotador",
+      "dataAdmissao": "2025-11-19",
+      "dataVisita": "2025-11-20",
+      "contatoCom": "Gerente Geral",
+      "parecerGeral": "",
+      "status": "Em Observação",
+      "idAluno": "bb87",
+      "idEmpresa": "3"
     }
   ]
 }
