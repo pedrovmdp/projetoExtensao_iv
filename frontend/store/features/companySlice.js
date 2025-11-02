@@ -29,7 +29,6 @@ const companySlice = createSlice({
     name: "companys",
     initialState: {
         companys: [],
-        companyDetails: null,
         loading: false,
         error: null,
         success: false,
@@ -39,9 +38,6 @@ const companySlice = createSlice({
         resetSucess: (state) => {
             state.success = false;
         },
-        clearCompanyDetail: (state) => {
-            state.companyDetails = null;
-        }
     },
     extraReducers: (builder) => {
         builder
@@ -70,7 +66,9 @@ const companySlice = createSlice({
 
             // 🔹 Buscar por nome
             .addCase(fetchCompanytByName.fulfilled, (state, action) => {
-                state.companyDetails = action.payload;
+                state.companys = action.payload;
+                state.loading = false;
+                state.error = null;
             })
 
             // 🔹 Criar empresa
@@ -106,6 +104,6 @@ const companySlice = createSlice({
     }
 });
 
-export const { resetSuccess, clearCompanyDetail } = companySlice.actions;
+export const { resetSuccess } = companySlice.actions;
 export const { selectAllCompanys, selectLoading, selectError, selectSuccess } = companySlice.selectors;
 export const companyReducer = companySlice.reducer;

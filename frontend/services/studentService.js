@@ -10,10 +10,11 @@ const getStudentById = async (id) => {
 }
 
 const getStudentByName = async (name) => {
-    const response = await api.get(`/students`);
-    return response.data.filter(company =>
-        company.name.toLowerCase().includes(name.toLowerCase())
-    );
+    if (!name) return [];
+
+    const response = await api.get(`/students?name_like=${encodeURIComponent(name)}`);
+
+    return response.data;
 };
 
 const createStudent = async (studentData) => {
