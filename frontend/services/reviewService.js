@@ -7,6 +7,7 @@ const getAllReviews = async () => {
 
 const getReviewById = async (id) => {
     const response = await api.get(`/reviews/${id}`)
+    return response.data;
 }
 
 const createReview = async (reviewsData) => {

@@ -110,14 +110,12 @@ const studentSlice = createSlice({
                 state.success = true;
             })
     },
-    selectors: {
-        selectAllStudents: (state) => state.students,
-        selectLoading: (state) => state.loading,
-        selectError: (state) => state.error,
-        selectSuccess: (state) => state.success,
-    }
 });
 
 export const { resetSuccess, clearStudentDetail } = studentSlice.actions;
-export const { selectAllStudents, selectLoading, selectError, selectSuccess } = studentSlice.selectors;
 export const studentReducer = studentSlice.reducer;
+
+export const selectAllStudents = (state) => state.students.students;
+export const selectLoading = (state) => state.loading;
+export const selectError = (state) => state.error;
+export const selectSuccess = (state) => state.success;

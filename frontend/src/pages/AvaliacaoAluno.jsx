@@ -11,6 +11,10 @@ import {
 import { Button } from '@/components/ui/button.jsx'
 import Header from '../components/Header'
 import FormInput from '../components/FormInput'
+import { useDispatch } from 'react-redux'
+import { addReview } from '../../store/features/reviewSlice'
+import { fetchStudentByName } from '../../store/features/studentSlice'
+import AutoCompleteInput from '../components/AutoCompleteInput'
 
 // Questões do formulário de avaliação baseadas no documento
 const questoes = [
@@ -63,6 +67,8 @@ const questoes = [
 ]
 
 const AvaliacaoAluno = () => {
+  const dispatch = useDispatch()
+
   const [formData, setFormData] = useState({
     nomeAluno: '',
     dataEntrada: '',
@@ -73,7 +79,8 @@ const AvaliacaoAluno = () => {
     perfilInstituicao: '',
     justificativaPerfil: '',
     observacoes: '',
-    nomeProfessor: ''
+    nomeProfessor: '',
+    idAluno: ''
   })
 
   const [errors, setErrors] = useState({})
@@ -141,29 +148,45 @@ const AvaliacaoAluno = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (validateForm()) {
-      console.log('Dados da avaliação:', formData)
-      alert('Avaliação salva com sucesso!')
+    if (!validateForm()) return;
 
-      // Limpar formulário
-      setFormData({
-        nomeAluno: '',
-        dataEntrada: '',
-        dataAvaliacao: '',
-        tipoAvaliacao: '1',
-        respostas: {},
-        situacoesIrritacao: '',
-        perfilInstituicao: '',
-        justificativaPerfil: '',
-        observacoes: '',
-        nomeProfessor: ''
-      })
-      setCurrentSection(0)
+    const reviewData = {
+      nomeAluno: formData.nomeAluno,
+      dataEntrada: formData.dataEntrada,
+      dataAvaliacao: formData.dataAvaliacao,
+      tipoAvaliacao: formData.tipoAvaliacao, // 1ª ou 2ª avaliação
+      respostas: formData.respostas,
+      situacoesIrritacao: formData.situacoesIrritacao,
+      perfilInstituicao: formData.perfilInstituicao,
+      justificativaPerfil: formData.justificativaPerfil,
+      observacoes: formData.observacoes,
+      nomeProfessor: formData.nomeProfessor,
+      idAluno: formData.idAluno
     }
-  }
+
+    try {
+      await dispatch(addReview(reviewData))
+      alert("Avaliação salva com sucesso!")
+    } catch (error) {
+      console.error("Erro ao salvar avaliação:", e);
+    }
+  };
+
+  const handleFetchStudents = async (name) => {
+    const action = await dispatch(fetchStudentByName(name));
+    return action.payload || [];
+  };
+
+  const handleSelectStudent = (student) => {
+    setFormData((prev) => ({
+      ...prev,
+      idAluno: student.id,
+      nomeAluno: student.nome,
+    }));
+  };
 
   const getProgressPercentage = () => {
     const totalQuestoes = questoes.length
@@ -203,15 +226,12 @@ const AvaliacaoAluno = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FormInput
+            <AutoCompleteInput
               label={"Nome do Aluno *"}
-              type={"text"}
-              name={"nomeAluno"}
               value={formData.nomeAluno}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.nomeAluno ? 'border-red-500' : 'border-gray-300'
-                }`}
-              placeholder={"Digite o nome completo do aluno"}
+              onSelect={handleSelectStudent}
+              fetchData={handleFetchStudents}
+              placeholder={"Digite o nome do aluno..."}
               error={errors.nomeAluno}
             />
 
