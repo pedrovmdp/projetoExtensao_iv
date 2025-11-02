@@ -253,9 +253,9 @@
     },
     {
       "id": "6465",
-      "name": "teste",
-      "email": "pele@pele.com.br",
-      "password": "123",
+      "name": "neymar",
+      "email": "teste@1.net",
+      "password": "teste",
       "role": "professor",
       "img": "https://api.dicebear.com/9.x/avataaars/svg?seed=teste%401.com&backgroundColor=ffffff&backgroundType=solid"
     }
