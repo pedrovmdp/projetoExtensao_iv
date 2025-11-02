@@ -6,7 +6,7 @@
       "nome_fantasia": "TechSol",
       "cnpj": "12.345.678/0001-90",
       "tipo_empresa": "LTDA",
-      "data_abertura": "12/06/2018",
+      "data_abertura": "2018-06-12",
       "endereco": {
         "cep": "04567-123",
         "logradouro": "Av. das Nações Unidas",
@@ -271,6 +271,56 @@
       "status": "Em Observação",
       "idAluno": "bb87",
       "idEmpresa": "3"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "name": "Administrador IEEDF",
+      "email": "admin@admin.com",
+      "password": "1234",
+      "role": "admin",
+      "img": "https://i.pravatar.cc/150?img=1"
+    },
+    {
+      "id": "2",
+      "name": "Professor Marques",
+      "email": "professor@professor.com",
+      "password": "1234",
+      "role": "professor",
+      "img": "https://i.pravatar.cc/150?img=2"
+    },
+    {
+      "id": "d08f",
+      "name": "Pedro Vinicius",
+      "email": "pedro@pedro.com",
+      "password": "123",
+      "role": "admin",
+      "img": "https://i.pravatar.cc/150?u=pedro@pedro.com"
+    },
+    {
+      "id": "af52",
+      "name": "Wesley Marques",
+      "email": "wesley@wesley.com",
+      "password": "123",
+      "role": "professor",
+      "img": "https://i.pravatar.cc/150?u=wesley@wesley.com"
+    },
+    {
+      "id": "983f",
+      "name": "pedro teste",
+      "email": "123@teste.com",
+      "password": "123",
+      "role": "admin",
+      "img": "https://i.pravatar.cc/150?u=123@teste.com"
+    },
+    {
+      "id": "6465",
+      "name": "neymar",
+      "email": "teste@1.net",
+      "password": "teste",
+      "role": "professor",
+      "img": "https://api.dicebear.com/9.x/avataaars/svg?seed=teste%401.com&backgroundColor=ffffff&backgroundType=solid"
     }
   ]
 }

@@ -1,21 +1,27 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import { Provider } from "react-redux";
 import { Menu } from "lucide-react";
 import { Button } from "./components/ui/button";
+import { Toaster } from "sonner";
 import "./App.css";
 
-// Redux
-import { Provider } from "react-redux";
+// Store
 import { store } from "../store/index.js";
 
-
-
-
+// Layout e proteção
+import Sidebar from "./components/SideBar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 // Páginas principais
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-
 import CadastroAluno from "./pages/CadastroAluno";
 import CadastroEmpresa from "./pages/CadastroEmpresa";
 import HistoricoAluno from "./pages/HistoricoAluno";
@@ -23,31 +29,35 @@ import AvaliacaoAluno from "./pages/AvaliacaoAluno";
 import AcompanhamentoAluno from "./pages/AcompanhamentoAluno";
 import EmpresasParceiras from "./pages/EmpresasParceias";
 import EditarPerfil from "./pages/EditarPerfil";
-
-// Layout
-import Sidebar from "./components/SideBar";
-
+import CadastroUsuario from "./pages/CadastroUsuario";
 
 function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Oculta Sidebar em rotas de autenticação (login)
+  // Oculta Sidebar em rotas de autenticação
   const isAuthRoute = location.pathname.startsWith("/login");
 
+  // Layout da página de login
   if (isAuthRoute) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-200 relative">
-        <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(#00000011_1px,transparent_1px)] [background-size:16px_16px]" />
-        <div className="relative z-10 w-full max-w-5xl">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </div>
-      </div>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-200 relative">
+              <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(#00000011_1px,transparent_1px)] [background-size:16px_16px]" />
+              <div className="relative z-10 w-full max-w-5xl">
+                <Login />
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     );
   }
 
+  // Layout interno protegido
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -75,15 +85,81 @@ function AppShell() {
         {/* Área de conteúdo */}
         <main className="flex-1 overflow-auto p-6">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/cadastro-aluno" element={<CadastroAluno />} />
-            <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
-            <Route path="/historico" element={<HistoricoAluno />} />
-            <Route path="/avaliacao" element={<AvaliacaoAluno />} />
-            <Route path="/acompanhamento" element={<AcompanhamentoAluno />} />
-            <Route path="/empresas" element={<EmpresasParceiras />} />
-            <Route path="/editar-perfil" element={<EditarPerfil />} /> {/* 🔹 nova rota */}
-            <Route path="/login" element={<Login />} />
+            {/* Rotas protegidas por login */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cadastro-aluno"
+              element={
+                <ProtectedRoute>
+                  <CadastroAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cadastro-empresa"
+              element={
+                <ProtectedRoute>
+                  <CadastroEmpresa />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/historico"
+              element={
+                <ProtectedRoute>
+                  <HistoricoAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/avaliacao"
+              element={
+                <ProtectedRoute>
+                  <AvaliacaoAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/acompanhamento"
+              element={
+                <ProtectedRoute>
+                  <AcompanhamentoAluno />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/empresas"
+              element={
+                <ProtectedRoute>
+                  <EmpresasParceiras />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/editar-perfil"
+              element={
+                <ProtectedRoute>
+                  <EditarPerfil />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 🔐 Rota exclusiva de admin */}
+            <Route
+              path="/cadastro-usuario"
+              element={
+                <AdminRoute>
+                  <CadastroUsuario />
+                </AdminRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
@@ -91,13 +167,14 @@ function AppShell() {
   );
 }
 
-// Componente principal com Provider + Router
+// 🌟 App principal com Redux, Router e Toasts globais
 export default function App() {
   return (
     <Provider store={store}>
       <Router>
         <AppShell />
       </Router>
+      <Toaster richColors position="top-right" />
     </Provider>
   );
 }

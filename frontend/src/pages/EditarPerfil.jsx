@@ -1,25 +1,36 @@
 import { useState } from "react";
-import { User, Save } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { User, Save, Lock } from "lucide-react";
 import Header from "../components/Header";
 import FormInput from "../components/FormInput";
-import { Button } from "@/components/ui/button.jsx";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { login } from "../../store/features/authSlice";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 export default function EditarPerfil() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
   const [formData, setFormData] = useState({
-    nome: "Professor Marques",
-    email: "professor@professor.com",
+    nome: user?.name || "",
+    email: user?.email || "",
     senhaAtual: "",
     novaSenha: "",
     confirmarSenha: "",
   });
 
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -27,20 +38,45 @@ export default function EditarPerfil() {
     const newErrors = {};
     if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório";
     if (!formData.email.trim()) newErrors.email = "E-mail é obrigatório";
-    if (formData.novaSenha && formData.novaSenha !== formData.confirmarSenha)
+
+    if (formData.novaSenha && formData.novaSenha !== formData.confirmarSenha) {
       newErrors.confirmarSenha = "As senhas não coincidem";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    console.log("Perfil atualizado:", formData);
-    setMessage("Perfil atualizado com sucesso!");
+    setLoading(true);
 
-    setTimeout(() => setMessage(""), 2000);
+    try {
+      const updatedUser = {
+        ...user,
+        name: formData.nome,
+        email: formData.email,
+        password: formData.novaSenha || user.password, // mantém a senha antiga se não mudar
+      };
+
+      const response = await fetch(`http://localhost:3001/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser),
+      });
+
+      if (!response.ok) throw new Error("Falha ao atualizar perfil.");
+
+      const updatedData = await response.json();
+      dispatch(login(updatedData)); // atualiza Redux
+      toast.success("Perfil atualizado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao atualizar perfil.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,12 +86,6 @@ export default function EditarPerfil() {
         title="Editar Perfil"
         text="Atualize suas informações de acesso"
       />
-
-      {message && (
-        <div className="bg-green-50 border border-green-200 text-green-800 p-3 rounded-lg">
-          {message}
-        </div>
-      )}
 
       <form
         onSubmit={handleSubmit}
@@ -79,38 +109,50 @@ export default function EditarPerfil() {
           error={errors.email}
         />
 
-        <FormInput
-          label="Senha Atual"
-          type="password"
-          name="senhaAtual"
-          value={formData.senhaAtual}
-          onChange={handleChange}
-          placeholder="Digite sua senha atual"
-        />
+        {/* 🔹 Acordeon de troca de senha */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="senha">
+            <AccordionTrigger className="text-blue-600 flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Deseja alterar sua senha?
+            </AccordionTrigger>
+            <AccordionContent className="space-y-4 mt-2">
+              <FormInput
+                label="Senha Atual"
+                type="password"
+                name="senhaAtual"
+                value={formData.senhaAtual}
+                onChange={handleChange}
+                placeholder="Digite sua senha atual"
+              />
 
-        <FormInput
-          label="Nova Senha"
-          type="password"
-          name="novaSenha"
-          value={formData.novaSenha}
-          onChange={handleChange}
-        />
+              <FormInput
+                label="Nova Senha"
+                type="password"
+                name="novaSenha"
+                value={formData.novaSenha}
+                onChange={handleChange}
+              />
 
-        <FormInput
-          label="Confirmar Nova Senha"
-          type="password"
-          name="confirmarSenha"
-          value={formData.confirmarSenha}
-          onChange={handleChange}
-          error={errors.confirmarSenha}
-        />
+              <FormInput
+                label="Confirmar Nova Senha"
+                type="password"
+                name="confirmarSenha"
+                value={formData.confirmarSenha}
+                onChange={handleChange}
+                error={errors.confirmarSenha}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         <Button
           type="submit"
+          disabled={loading}
           className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
         >
           <Save className="w-5 h-5" />
-          Salvar Alterações
+          {loading ? "Salvando..." : "Salvar Alterações"}
         </Button>
       </form>
     </div>
