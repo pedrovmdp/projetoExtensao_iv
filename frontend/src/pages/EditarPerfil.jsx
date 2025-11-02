@@ -1,25 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile } from "../../store/features/authSlice";
 import { User, Save } from "lucide-react";
 import Header from "../components/Header";
 import FormInput from "../components/FormInput";
-import { Button } from "@/components/ui/button.jsx";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function EditarPerfil() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
   const [formData, setFormData] = useState({
-    nome: "Professor Marques",
-    email: "professor@professor.com",
+    nome: "",
+    email: "",
     senhaAtual: "",
     novaSenha: "",
     confirmarSenha: "",
   });
 
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  // 🔹 Preenche o formulário com os dados atuais do usuário
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        nome: user.name || "",
+        email: user.email || "",
+        senhaAtual: "",
+        novaSenha: "",
+        confirmarSenha: "",
+      });
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -33,14 +51,49 @@ export default function EditarPerfil() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    console.log("Perfil atualizado:", formData);
-    setMessage("Perfil atualizado com sucesso!");
+    setIsSaving(true);
 
-    setTimeout(() => setMessage(""), 2000);
+    try {
+      // 🔹 Prepara os dados atualizados
+      const updatedUser = {
+        name: formData.nome,
+        email: formData.email,
+        password: formData.novaSenha ? formData.novaSenha : user.password,
+        role: user.role,
+      };
+
+      // 🔹 Atualiza o usuário no JSON Server
+      const response = await fetch(`http://localhost:3001/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar o perfil no servidor.");
+      }
+
+      // 🔹 Atualiza Redux e localStorage
+      dispatch(updateProfile(updatedUser));
+      toast.success("Perfil atualizado com sucesso!");
+
+      // Limpa senhas e encerra loading
+      setFormData((prev) => ({
+        ...prev,
+        senhaAtual: "",
+        novaSenha: "",
+        confirmarSenha: "",
+      }));
+    } catch (err) {
+      console.error(err);
+      toast.error("Falha ao atualizar perfil. Tente novamente.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -50,12 +103,6 @@ export default function EditarPerfil() {
         title="Editar Perfil"
         text="Atualize suas informações de acesso"
       />
-
-      {message && (
-        <div className="bg-green-50 border border-green-200 text-green-800 p-3 rounded-lg">
-          {message}
-        </div>
-      )}
 
       <form
         onSubmit={handleSubmit}
@@ -107,10 +154,11 @@ export default function EditarPerfil() {
 
         <Button
           type="submit"
+          disabled={isSaving}
           className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
         >
           <Save className="w-5 h-5" />
-          Salvar Alterações
+          {isSaving ? "Salvando..." : "Salvar Alterações"}
         </Button>
       </form>
     </div>

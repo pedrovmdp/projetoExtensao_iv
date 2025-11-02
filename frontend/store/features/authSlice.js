@@ -38,9 +38,19 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem("user");
     },
+
+    /**
+     * ✏️ Atualiza informações do perfil do usuário logado
+     */
+    updateProfile: (state, action) => {
+      // Atualiza o usuário no estado com os novos dados
+      state.user = { ...state.user, ...action.payload };
+      // Mantém persistência
+      localStorage.setItem("user", JSON.stringify(state.user));
+    },
   },
 });
 
 // 🔸 Exportações
-export const { login, logout } = authSlice.actions;
+export const { login, logout, updateProfile } = authSlice.actions;
 export default authSlice.reducer;

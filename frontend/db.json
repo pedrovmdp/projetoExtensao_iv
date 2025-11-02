@@ -212,7 +212,7 @@
   ],
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Administrador IEEDF",
       "email": "admin@admin.com",
       "password": "1234",
@@ -220,7 +220,7 @@
       "img": "https://i.pravatar.cc/150?img=1"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Professor Marques",
       "email": "professor@professor.com",
       "password": "1234",
@@ -234,6 +234,30 @@
       "password": "123",
       "role": "admin",
       "img": "https://i.pravatar.cc/150?u=pedro@pedro.com"
+    },
+    {
+      "id": "af52",
+      "name": "Wesley Marques",
+      "email": "wesley@wesley.com",
+      "password": "123",
+      "role": "professor",
+      "img": "https://i.pravatar.cc/150?u=wesley@wesley.com"
+    },
+    {
+      "id": "983f",
+      "name": "pedro teste",
+      "email": "123@teste.com",
+      "password": "123",
+      "role": "admin",
+      "img": "https://i.pravatar.cc/150?u=123@teste.com"
+    },
+    {
+      "id": "6465",
+      "name": "teste",
+      "email": "pele@pele.com.br",
+      "password": "123",
+      "role": "professor",
+      "img": "https://api.dicebear.com/9.x/avataaars/svg?seed=teste%401.com&backgroundColor=ffffff&backgroundType=solid"
     }
   ]
 }

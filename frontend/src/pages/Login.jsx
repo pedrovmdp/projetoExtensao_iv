@@ -15,7 +15,9 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ✅ Validação simples de formulário
+  /**
+   * 🔹 Validação simples do formulário
+   */
   const validate = () => {
     const next = {};
     if (!email.trim()) next.email = "Informe seu e-mail.";
@@ -26,7 +28,9 @@ export default function Login() {
     return Object.keys(next).length === 0;
   };
 
-  // ✅ Autenticação real com json-server
+  /**
+   * 🔸 Autenticação real com json-server
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -34,11 +38,14 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`http://localhost:3000/users?email=${email}`);
+      // Busca o usuário com email e senha correspondentes
+      const res = await fetch(
+        `http://localhost:3001/users?email=${email}&password=${password}`
+      );
       const data = await res.json();
-      const user = data[0];
 
-      if (user && user.password === password) {
+      if (data.length > 0) {
+        const user = data[0];
         dispatch(login(user));
         toast.success(`Bem-vindo, ${user.name}!`);
         navigate("/");
@@ -46,6 +53,7 @@ export default function Login() {
         toast.error("E-mail ou senha inválidos.");
       }
     } catch (error) {
+      console.error("Erro ao conectar com o servidor:", error);
       toast.error("Erro ao conectar com o servidor.");
     } finally {
       setIsSubmitting(false);
@@ -73,8 +81,7 @@ export default function Login() {
               Bem-vindo de volta!
             </h3>
             <p className="mt-2 text-white/90">
-              Acesse o painel para acompanhar alunos, avaliações e
-              encaminhamentos.
+              Acesse o painel para acompanhar alunos, avaliações e encaminhamentos.
             </p>
           </div>
 
