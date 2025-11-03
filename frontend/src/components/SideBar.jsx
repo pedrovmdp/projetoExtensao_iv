@@ -1,3 +1,4 @@
+// 📁 src/components/Sidebar.jsx
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -11,16 +12,17 @@ import {
   Building2,
   Settings,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import UserProfile from "./UserProfile";
 import NavItem from "./NavItem";
-import { Button } from "@/components/ui/button";
-import LogoutDialog from "./LogoutDialog"; // ✅ Import do componente que você criou
+import LogoutDialog from "./LogoutDialog"; // ✅ Confirmação de logout
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const user = useSelector((state) => state.auth.user);
   const role = user?.role;
 
+  // 🔹 Itens padrão de navegação
   const navItems = [
     { to: "/", icon: BarChart3, label: "Dashboard" },
     { to: "/cadastro-aluno", icon: UserPlus, label: "Cadastro aluno" },
@@ -31,7 +33,7 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: "/acompanhamento", icon: Users, label: "Acompanhamento aluno" },
   ];
 
-  // 🔹 Apenas o ADMIN vê o Gerenciar Usuários
+  // 🔸 Apenas administradores veem o Gerenciar Usuários
   if (role === "admin") {
     navItems.push({
       to: "/cadastro-usuario",
@@ -42,7 +44,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Overlay para mobile */}
+      {/* 🔹 Overlay (somente em mobile) */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-60 z-50 lg:hidden"
@@ -50,13 +52,13 @@ export default function Sidebar({ isOpen, onClose }) {
         />
       )}
 
-      {/* Sidebar */}
+      {/* 🔹 Container da Sidebar */}
       <div
         className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-blue-700 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        {/* Header mobile */}
+        {/* 🔹 Cabeçalho (mobile) */}
         <div className="flex items-center justify-between p-4 lg:hidden">
           <Button
             variant="ghost"
@@ -68,10 +70,10 @@ export default function Sidebar({ isOpen, onClose }) {
           </Button>
         </div>
 
-        {/* Perfil do usuário */}
+        {/* 🔹 Perfil do usuário */}
         <UserProfile />
 
-        {/* Navegação */}
+        {/* 🔹 Navegação */}
         <nav className="mt-5 flex flex-col gap-1">
           {navItems.map((item) => (
             <NavItem
@@ -85,8 +87,10 @@ export default function Sidebar({ isOpen, onClose }) {
             </NavItem>
           ))}
 
-          {/* 🔹 Usa o componente de logout com confirmação */}
-          <LogoutDialog />
+          {/* 🔹 Logout (com confirmação) */}
+          <div className="mt-2">
+            <LogoutDialog />
+          </div>
         </nav>
       </div>
     </>
