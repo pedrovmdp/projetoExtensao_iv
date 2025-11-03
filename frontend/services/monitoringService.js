@@ -7,6 +7,7 @@ const getAllMonitorings = async () => {
 
 const getMonitoringById = async (id) => {
     const response = await api.get(`/monitoring/${id}`)
+    return response.data
 }
 
 const createMonitoring = async (monitoringData) => {

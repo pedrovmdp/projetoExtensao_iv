@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -13,39 +13,45 @@ import {
   LineChart,
   Line
 } from 'recharts'
-import { 
-  Users, 
-  Briefcase, 
-  ClipboardCheck, 
+import {
+  Users,
+  Briefcase,
+  ClipboardCheck,
   TrendingUp,
   Calendar,
   Award,
   LayoutDashboard
 } from 'lucide-react'
 import Header from '../components/Header'
-
-// Componente de Card de estatística
-const StatCard = ({ title, value, icon: Icon, color, subtitle, loading }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-3xl font-bold text-gray-900 mt-2">
-          {loading ? '...' : value}
-        </p>
-        {subtitle && (
-          <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
-        )}
-      </div>
-      <div className={`p-3 rounded-full ${color}`}>
-        <Icon className="w-6 h-6 text-white" />
-      </div>
-    </div>
-  </div>
-)
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchMonitorings, selectAllMonitoring, selectLoading } from '../../store/features/monitoringSlice'
+import StatCard from '../components/StatCard'
+import { fetchStudents, selectAllStudents } from '../../store/features/studentSlice'
+import { fetchReviews, selectAllReviews } from '../../store/features/reviewSlice'
+import { selectLoading as selectLoadingReview } from '../../store/features/reviewSlice'
+import { selectLoading as selectLoadingStudent } from '../../store/features/studentSlice'
 
 // Componente principal do Dashboard
 const Dashboard = () => {
+  const dispatch = useDispatch()
+
+  const monitoring = useSelector(selectAllMonitoring)
+  const loadingMonitoring = useSelector(selectLoading)
+
+  const students = useSelector(selectAllStudents)
+  const loadingStudents = useSelector(selectLoadingStudent)
+
+  const review = useSelector(selectAllReviews)
+  const loadingReview = useSelector(selectLoadingReview)
+
+  useEffect(() => {
+    dispatch(fetchMonitorings());
+    dispatch(fetchStudents());
+    dispatch(fetchReviews());
+  }, [dispatch]);
+
+  console.log(review)
+
   const [stats, setStats] = useState({})
   const [acompanhamentoStats, setAcompanhamentoStats] = useState({})
   const [avaliacaoStats, setAvaliacaoStats] = useState({})
@@ -56,31 +62,31 @@ const Dashboard = () => {
   // const fetchStats = async () => {
   //   try {
   //     setLoading(true)
-      
+
   //     // Buscar estatísticas dos alunos
   //     const alunosResponse = await fetch('http://localhost:5000/api/alunos/stats')
   //     const alunosData = await alunosResponse.json()
-      
+
   //     // Buscar estatísticas dos acompanhamentos
   //     const acompResponse = await fetch('http://localhost:5000/api/acompanhamentos/stats')
   //     const acompData = await acompResponse.json()
-      
+
   //     // Buscar estatísticas das avaliações
   //     const avalResponse = await fetch('http://localhost:5000/api/avaliacoes/stats')
   //     const avalData = await avalResponse.json()
-      
+
   //     if (alunosData.success) {
   //       setStats(alunosData.data)
   //     }
-      
+
   //     if (acompData.success) {
   //       setAcompanhamentoStats(acompData.data)
   //     }
-      
+
   //     if (avalData.success) {
   //       setAvaliacaoStats(avalData.data)
   //     }
-      
+
   //   } catch (err) {
   //     console.error('Erro ao buscar estatísticas:', err)
   //     setError('Erro ao carregar dados do dashboard')
@@ -95,7 +101,7 @@ const Dashboard = () => {
 
   // Dados para os gráficos
   const acompanhamentoData = stats.alunos_por_mes || []
-  
+
   const encaminhamentosData = acompanhamentoStats.status_distribuicao || [
     { nome: 'Ativos', valor: 0, cor: '#4CAF50' },
     { nome: 'Em Observação', valor: 0, cor: '#FF9800' },
@@ -115,7 +121,7 @@ const Dashboard = () => {
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-800">{error}</p>
-          <button 
+          <button
             onClick={fetchStats}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
@@ -130,7 +136,7 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Header */}
       <Header
-      icon={<LayoutDashboard className="w-8 h-8 text-blue-600"/>}
+        icon={<LayoutDashboard className="w-8 h-8 text-blue-600" />}
         title={"Dashboard"}
         text={"Visão geral das atividades do Instituto Diomício Freitas"}
       />
@@ -139,35 +145,35 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Alunos em Acompanhamento"
-          value={stats.total_alunos || 0}
+          value={monitoring.length || 0}
           icon={Users}
           color="bg-blue-500"
           subtitle="Total cadastrados"
-          loading={loading}
+          loading={loadingMonitoring}
         />
         <StatCard
           title="Encaminhados para Trabalho"
-          value={acompanhamentoStats.alunos_encaminhados || 0}
+          value={monitoring ? monitoring.filter((aluno) => aluno.status === "Em Observação").length : 0}
           icon={Briefcase}
           color="bg-green-500"
           subtitle="Alunos encaminhados"
-          loading={loading}
+          loading={loadingMonitoring}
         />
         <StatCard
           title="Avaliações Realizadas"
-          value={avaliacaoStats.total_avaliacoes || 0}
+          value={review.length || 0}
           icon={ClipboardCheck}
           color="bg-purple-500"
           subtitle="Total de avaliações"
-          loading={loading}
+          loading={loadingReview}
         />
         <StatCard
           title="Acompanhamentos Ativos"
-          value={acompanhamentoStats.acompanhamentos_ativos || 0}
+          value={monitoring ? monitoring.filter((aluno) => aluno.status === "Ativo").length : 0}
           icon={Award}
           color="bg-orange-500"
           subtitle="Em andamento"
-          loading={loading}
+          loading={loadingMonitoring}
         />
       </div>
 
@@ -186,15 +192,15 @@ const Dashboard = () => {
               <p className="text-gray-500">Carregando...</p>
             </div>
           ) : ( */}
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={acompanhamentoData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="alunos" fill="#4A90E2" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={acompanhamentoData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="mes" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="alunos" fill="#4A90E2" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
           {/* )} */}
         </div>
 
@@ -211,23 +217,23 @@ const Dashboard = () => {
               <p className="text-gray-500">Carregando...</p>
             </div>
           ) : ( */}
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={encaminhamentosData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  dataKey="valor"
-                  label={({ nome, valor }) => `${nome}: ${valor}`}
-                >
-                  {encaminhamentosData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.cor} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={encaminhamentosData}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                dataKey="valor"
+                label={({ nome, valor }) => `${nome}: ${valor}`}
+              >
+                {encaminhamentosData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.cor} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
           {/* // )} */}
         </div>
       </div>
@@ -243,25 +249,25 @@ const Dashboard = () => {
             </h3>
           </div>
           {/* {loading ? ( */}
-            <div className="h-[250px] flex items-center justify-center">
-              <p className="text-gray-500">Carregando...</p>
-            </div>
+          <div className="h-[250px] flex items-center justify-center">
+            <p className="text-gray-500">Carregando...</p>
+          </div>
           {/* ) : ( */}
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={avaliacoesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="periodo" />
-                <YAxis />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="avaliacoes" 
-                  stroke="#8B5CF6" 
-                  strokeWidth={3}
-                  dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={avaliacoesData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="periodo" />
+              <YAxis />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="avaliacoes"
+                stroke="#8B5CF6"
+                strokeWidth={3}
+                dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
           {/* )} */}
         </div>
 
@@ -277,13 +283,13 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Alunos Ativos</span>
               <span className="font-semibold text-green-600">
-                {loading ? '...' : stats.alunos_ativos || 0}
+                {loadingMonitoring ? '...' : monitoring.filter((aluno) => aluno.status === "Ativo").length || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Encaminhados</span>
               <span className="font-semibold text-blue-600">
-                {loading ? '...' : stats.alunos_encaminhados || 0}
+                {loadingMonitoring ? '...' : monitoring ? monitoring.filter((aluno) => aluno.status === "Em Observação").length : 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -295,13 +301,13 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">1ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loading ? '...' : avaliacaoStats.avaliacoes_primeira || 0}
+                {loadingReview ? '...' : review ? review.filter((review) => review.tipoAvaliacao === "1").length : 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">2ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loading ? '...' : avaliacaoStats.avaliacoes_segunda || 0}
+                {loadingReview ? '...' : review ? review.filter((review) => review.tipoAvaliacao === "2").length : 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -318,4 +324,3 @@ const Dashboard = () => {
 }
 
 export default Dashboard
-
