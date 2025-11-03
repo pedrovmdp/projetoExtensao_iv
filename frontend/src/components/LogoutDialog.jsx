@@ -1,3 +1,4 @@
+// 📁 src/components/LogoutDialog.jsx
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -30,17 +31,21 @@ export default function LogoutDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {/* 🔹 Botão de sair na sidebar */}
       <DialogTrigger asChild>
         <Button
           variant="ghost"
           size="lg"
-          className="flex items-center justify-start rounded-none w-full text-white hover:bg-blue-600 gap-3 mt-3"
+          className="flex items-center justify-start w-full rounded-none gap-3 mt-3
+                     text-white hover:text-white focus:text-white active:text-white
+                     hover:bg-blue-600 focus:bg-blue-600 transition-colors"
         >
-          <LogOut className="w-5 h-5" />
-          Sair
+          <LogOut className="w-5 h-5 text-white" />
+          <span className="text-white">Sair</span>
         </Button>
       </DialogTrigger>
 
+      {/* 🔹 Modal de confirmação */}
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>Confirmar saída</DialogTitle>
