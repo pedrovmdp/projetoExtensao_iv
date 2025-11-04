@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -11,8 +11,8 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line
-} from 'recharts'
+  Line,
+} from "recharts";
 import {
   Users,
   Briefcase,
@@ -20,29 +20,41 @@ import {
   TrendingUp,
   Calendar,
   Award,
-  LayoutDashboard
-} from 'lucide-react'
-import Header from '../components/Header'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchMonitorings, selectAllMonitoring, selectLoading } from '../../store/features/monitoringSlice'
-import StatCard from '../components/StatCard'
-import { fetchStudents, selectAllStudents } from '../../store/features/studentSlice'
-import { fetchReviews, selectAllReviews } from '../../store/features/reviewSlice'
-import { selectLoading as selectLoadingReview } from '../../store/features/reviewSlice'
-import { selectLoading as selectLoadingStudent } from '../../store/features/studentSlice'
+  LayoutDashboard,
+} from "lucide-react";
+import Header from "../components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchMonitorings,
+  selectAllMonitoring,
+  selectLoading,
+} from "../../store/features/monitoringSlice";
+import StatCard from "../components/StatCard";
+import {
+  fetchStudents,
+  selectAllStudents,
+} from "../../store/features/studentSlice";
+import {
+  fetchReviews,
+  selectAllReviews,
+} from "../../store/features/reviewSlice";
+import { selectLoading as selectLoadingReview } from "../../store/features/reviewSlice";
+import { selectLoading as selectLoadingStudent } from "../../store/features/studentSlice";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 // Componente principal do Dashboard
 const Dashboard = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const monitoring = useSelector(selectAllMonitoring)
-  const loadingMonitoring = useSelector(selectLoading)
+  const monitoring = useSelector(selectAllMonitoring);
+  const loadingMonitoring = useSelector(selectLoading);
 
-  const students = useSelector(selectAllStudents)
-  const loadingStudents = useSelector(selectLoadingStudent)
+  const students = useSelector(selectAllStudents);
+  const loadingStudents = useSelector(selectLoadingStudent);
 
-  const review = useSelector(selectAllReviews)
-  const loadingReview = useSelector(selectLoadingReview)
+  const review = useSelector(selectAllReviews);
+  const loadingReview = useSelector(selectLoadingReview);
 
   useEffect(() => {
     dispatch(fetchMonitorings());
@@ -50,65 +62,99 @@ const Dashboard = () => {
     dispatch(fetchReviews());
   }, [dispatch]);
 
-  console.log(review)
+  console.log(review);
 
-  const [stats, setStats] = useState({})
-  const [acompanhamentoStats, setAcompanhamentoStats] = useState({})
-  const [avaliacaoStats, setAvaliacaoStats] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [stats, setStats] = useState({});
+  const [acompanhamentoStats, setAcompanhamentoStats] = useState({});
+  const [avaliacaoStats, setAvaliacaoStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Função para buscar estatísticas
-  // const fetchStats = async () => {
-  //   try {
-  //     setLoading(true)
+  // Gerar dados para o gráfico de alunos por mês
+  const acompanhamentoData = useMemo(() => {
+    if (!students || students.length === 0) return [];
 
-  //     // Buscar estatísticas dos alunos
-  //     const alunosResponse = await fetch('http://localhost:5000/api/alunos/stats')
-  //     const alunosData = await alunosResponse.json()
+    const contagem = {};
 
-  //     // Buscar estatísticas dos acompanhamentos
-  //     const acompResponse = await fetch('http://localhost:5000/api/acompanhamentos/stats')
-  //     const acompData = await acompResponse.json()
+    students.forEach((aluno) => {
+      const dataStr = aluno?.dados_institucionais?.data_ingresso;
+      if (!dataStr) return;
 
-  //     // Buscar estatísticas das avaliações
-  //     const avalResponse = await fetch('http://localhost:5000/api/avaliacoes/stats')
-  //     const avalData = await avalResponse.json()
+      const data = parseISO(dataStr);
+      if (isNaN(data)) return;
 
-  //     if (alunosData.success) {
-  //       setStats(alunosData.data)
-  //     }
+      // nome do mês abreviado + ano
+      const mes = format(data, "MMM/yyyy", { locale: ptBR });
+      contagem[mes] = (contagem[mes] || 0) + 1;
+    });
 
-  //     if (acompData.success) {
-  //       setAcompanhamentoStats(acompData.data)
-  //     }
+    // converter para array ordenado
+    return Object.entries(contagem)
+      .map(([mes, alunos]) => ({ mes, alunos }))
+      .sort((a, b) => {
+        const [mesA, anoA] = a.mes.split("/");
+        const [mesB, anoB] = b.mes.split("/");
+        return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
+      });
+  }, [students]);
 
-  //     if (avalData.success) {
-  //       setAvaliacaoStats(avalData.data)
-  //     }
+  const encaminhamentosData = useMemo(() => {
+    if (!monitoring || monitoring.length === 0)
+      return [
+        { nome: "Ativos", valor: 0, cor: "#4CAF50" },
+        { nome: "Em Observação", valor: 0, cor: "#FF9800" },
+        { nome: "Finalizados", valor: 0, cor: "#9E9E9E" },
+      ];
 
-  //   } catch (err) {
-  //     console.error('Erro ao buscar estatísticas:', err)
-  //     setError('Erro ao carregar dados do dashboard')
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+    const contagem = {
+      Ativo: 0,
+      "Em Observação": 0,
+      Finalizado: 0,
+    };
 
-  // useEffect(() => {
-  //   fetchStats()
-  // }, [])
+    monitoring.forEach((item) => {
+      const status = item.status;
+      if (status === "Ativo") contagem.Ativo++;
+      else if (status === "Em Observação") contagem["Em Observação"]++;
+      else if (status === "Finalizado") contagem.Finalizado++;
+    });
 
-  // Dados para os gráficos
-  const acompanhamentoData = stats.alunos_por_mes || []
+    return [
+      { nome: "Ativos", valor: contagem.Ativo, cor: "#4CAF50" },
+      {
+        nome: "Em Observação",
+        valor: contagem["Em Observação"],
+        cor: "#FF9800",
+      },
+      { nome: "Finalizados", valor: contagem.Finalizado, cor: "#ff2121ff" },
+    ];
+  }, [monitoring]);
 
-  const encaminhamentosData = acompanhamentoStats.status_distribuicao || [
-    { nome: 'Ativos', valor: 0, cor: '#4CAF50' },
-    { nome: 'Em Observação', valor: 0, cor: '#FF9800' },
-    { nome: 'Finalizados', valor: 0, cor: '#9E9E9E' },
-  ]
+  // Gerar gráfico de avaliações por período (por mês)
+  const avaliacoesData = useMemo(() => {
+    if (!review || review.length === 0) return [];
 
-  const avaliacoesData = avaliacaoStats.avaliacoes_por_periodo || []
+    const contagem = {};
+
+    review.forEach((avaliacao) => {
+      const dataStr = avaliacao?.dataAvaliacao; // <--- substitua se o nome for diferente
+      if (!dataStr) return;
+
+      const data = parseISO(dataStr);
+      if (isNaN(data)) return;
+
+      const mes = format(data, "MMM/yyyy", { locale: ptBR });
+      contagem[mes] = (contagem[mes] || 0) + 1;
+    });
+
+    return Object.entries(contagem)
+      .map(([periodo, avaliacoes]) => ({ periodo, avaliacoes }))
+      .sort((a, b) => {
+        const [mesA, anoA] = a.periodo.split("/");
+        const [mesB, anoB] = b.periodo.split("/");
+        return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
+      });
+  }, [review]);
 
   if (error) {
     return (
@@ -122,14 +168,14 @@ const Dashboard = () => {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-800">{error}</p>
           <button
-            onClick={fetchStats}
+            onClick={encaminhamentosData}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Tentar Novamente
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -144,16 +190,21 @@ const Dashboard = () => {
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Alunos em Acompanhamento"
-          value={monitoring.length || 0}
+          title="Alunos Ativos"
+          value={students ? students.filter((student) => student.dados_institucionais.status === "Ativo").length : 0}
           icon={Users}
           color="bg-blue-500"
-          subtitle="Total cadastrados"
-          loading={loadingMonitoring}
+          subtitle="Total alunos"
+          loading={loadingStudents}
         />
         <StatCard
           title="Encaminhados para Trabalho"
-          value={monitoring ? monitoring.filter((aluno) => aluno.status === "Em Observação").length : 0}
+          value={
+            monitoring
+              ? monitoring.filter((aluno) => aluno.status === "Em Observação")
+                  .length
+              : 0
+          }
           icon={Briefcase}
           color="bg-green-500"
           subtitle="Alunos encaminhados"
@@ -169,7 +220,11 @@ const Dashboard = () => {
         />
         <StatCard
           title="Acompanhamentos Ativos"
-          value={monitoring ? monitoring.filter((aluno) => aluno.status === "Ativo").length : 0}
+          value={
+            monitoring
+              ? monitoring.filter((aluno) => aluno.status === "Ativo").length
+              : 0
+          }
           icon={Award}
           color="bg-orange-500"
           subtitle="Em andamento"
@@ -212,29 +267,29 @@ const Dashboard = () => {
               Status dos Acompanhamentos
             </h3>
           </div>
-          {/* {loading ? (
+          {loadingMonitoring ? (
             <div className="h-[300px] flex items-center justify-center">
               <p className="text-gray-500">Carregando...</p>
             </div>
-          ) : ( */}
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={encaminhamentosData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="valor"
-                label={({ nome, valor }) => `${nome}: ${valor}`}
-              >
-                {encaminhamentosData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.cor} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          {/* // )} */}
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={encaminhamentosData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="valor"
+                  label={({ nome, valor }) => `${nome}: ${valor}`}
+                >
+                  {encaminhamentosData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.cor} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -248,11 +303,6 @@ const Dashboard = () => {
               Avaliações por Período
             </h3>
           </div>
-          {/* {loading ? ( */}
-          <div className="h-[250px] flex items-center justify-center">
-            <p className="text-gray-500">Carregando...</p>
-          </div>
-          {/* ) : ( */}
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={avaliacoesData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -264,11 +314,10 @@ const Dashboard = () => {
                 dataKey="avaliacoes"
                 stroke="#8B5CF6"
                 strokeWidth={3}
-                dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 6 }}
+                dot={{ fill: "#8B5CF6", strokeWidth: 2, r: 6 }}
               />
             </LineChart>
           </ResponsiveContainer>
-          {/* )} */}
         </div>
 
         {/* Resumo de Status */}
@@ -283,44 +332,67 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Alunos Ativos</span>
               <span className="font-semibold text-green-600">
-                {loadingMonitoring ? '...' : monitoring.filter((aluno) => aluno.status === "Ativo").length || 0}
+                {loadingMonitoring
+                  ? "..."
+                  : monitoring.filter((aluno) => aluno.status === "Ativo")
+                      .length || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Encaminhados</span>
               <span className="font-semibold text-blue-600">
-                {loadingMonitoring ? '...' : monitoring ? monitoring.filter((aluno) => aluno.status === "Em Observação").length : 0}
+                {loadingMonitoring
+                  ? "..."
+                  : monitoring
+                  ? monitoring.filter(
+                      (aluno) => aluno.status === "Em Observação"
+                    ).length
+                  : 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Em Avaliação</span>
               <span className="font-semibold text-yellow-600">
-                {loading ? '...' : stats.alunos_avaliacao || 0}
+                {loadingReview ? "..." : stats.alunos_avaliacao || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">1ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loadingReview ? '...' : review ? review.filter((review) => review.tipoAvaliacao === "1").length : 0}
+                {loadingReview
+                  ? "..."
+                  : review
+                  ? review.filter((review) => review.tipoAvaliacao === "1")
+                      .length
+                  : 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">2ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loadingReview ? '...' : review ? review.filter((review) => review.tipoAvaliacao === "2").length : 0}
+                {loadingReview
+                  ? "..."
+                  : review
+                  ? review.filter((review) => review.tipoAvaliacao === "2")
+                      .length
+                  : 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Acomp. Observação</span>
               <span className="font-semibold text-orange-600">
-                {loading ? '...' : acompanhamentoStats.acompanhamentos_observacao || 0}
+                {loadingMonitoring
+                  ? "..."
+                  : monitoring.filter(
+                      (monitor) => monitor.status === "Em Observação"
+                    ).length || 0}
               </span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

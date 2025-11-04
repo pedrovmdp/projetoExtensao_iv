@@ -38,10 +38,10 @@ export default function LogoutDialog() {
           size="lg"
           className="flex items-center justify-start w-full rounded-none gap-3 mt-3
                      text-white hover:text-white focus:text-white active:text-white
-                     hover:bg-blue-600 focus:bg-blue-600 transition-colors"
+                     hover:bg-blue-600 focus:bg-blue-600 transition-colors cursor-pointer"
         >
           <LogOut className="w-5 h-5 text-white" />
-          <span className="text-white">Sair</span>
+          <span className="text-white cursor-pointer">Sair</span>
         </Button>
       </DialogTrigger>
 
