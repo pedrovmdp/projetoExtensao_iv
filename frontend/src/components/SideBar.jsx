@@ -11,6 +11,7 @@ import {
   X,
   Building2,
   Settings,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserProfile from "./UserProfile";
@@ -42,6 +43,8 @@ export default function Sidebar({ isOpen, onClose }) {
     });
   }
 
+  navItems.push({ to: "#", icon: LogOut, label: "Sair" })
+
   return (
     <>
       {/* 🔹 Overlay (somente em mobile) */}
@@ -54,9 +57,8 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* 🔹 Container da Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-blue-700 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-blue-700 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         {/* 🔹 Cabeçalho (mobile) */}
         <div className="flex items-center justify-between p-4 lg:hidden">
@@ -75,22 +77,22 @@ export default function Sidebar({ isOpen, onClose }) {
 
         {/* 🔹 Navegação */}
         <nav className="mt-5 flex flex-col gap-1">
-          {navItems.map((item) => (
-            <NavItem
-              key={item.to}
-              to={item.to}
-              icon={item.icon}
-              isActive={location.pathname === item.to}
-              onClick={onClose}
-            >
-              {item.label}
-            </NavItem>
-          ))}
-
-          {/* 🔹 Logout (com confirmação) */}
-          <div className="mt-2">
-            <LogoutDialog />
-          </div>
+          {navItems.map((item) => {
+            if (item.label === "Sair") {
+              return <LogoutDialog key="logout" className="cursor-pointer pl-4"/>; // ✅ apenas renderiza o componente
+            }
+            return (
+              <NavItem
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                isActive={location.pathname === item.to}
+                onClick={onClose}
+              >
+                {item.label}
+              </NavItem>
+            );
+          })}
         </nav>
       </div>
     </>
