@@ -11,12 +11,12 @@ import {
   Phone,
   MapPin,
   Save,
+  BookCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
 import Header from "../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addStudent,
   fetchStudents,
   selectAllStudents,
   selectError,
@@ -184,6 +184,33 @@ const HistoricoAluno = () => {
     dispatch(fetchStudents());
   }, [dispatch]);
 
+  useEffect(() => {
+    let filtrados = [...students];
+
+    // 🔹 Filtro por termo de busca (nome ou CPF)
+    if (searchTerm.trim() !== "") {
+      const termo = searchTerm.toLowerCase();
+      filtrados = filtrados.filter(
+        (a) =>
+          a.nome.toLowerCase().includes(termo) ||
+          a.cpf.toLowerCase().includes(termo)
+      );
+    }
+
+    // 🔹 Filtro por status
+    if (statusFilter !== "") {
+      filtrados = filtrados.filter(
+        (a) =>
+          a.dados_institucionais.status &&
+          a.dados_institucionais.status.toLowerCase() ===
+          statusFilter.toLowerCase()
+      );
+    }
+
+    setFilteredAlunos(filtrados);
+  }, [students, searchTerm, statusFilter]);
+
+
   const handleViewDetails = (aluno) => {
     setSelectedAluno(aluno);
     setShowModal(true);
@@ -331,6 +358,21 @@ const HistoricoAluno = () => {
     );
   }
 
+  function calcularIdade(dataNascimento) {
+    const nascimento = new Date(dataNascimento);
+    const hoje = new Date();
+
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mes = hoje.getMonth() - nascimento.getMonth();
+
+    // Ajusta se o mês/dia ainda não chegou neste ano
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
+
+    return idade;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -447,7 +489,7 @@ const HistoricoAluno = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {students.map((students) => (
+                  {filteredAlunos.map((students) => (
                     <tr key={students.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -470,7 +512,7 @@ const HistoricoAluno = () => {
                         {students.cpf}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {students.idade ? `${students.idade} anos` : "-"}
+                        {students.data_nascimento ? `${calcularIdade(students.data_nascimento)} anos` : "Idade não informada"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatDate(
@@ -492,7 +534,7 @@ const HistoricoAluno = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleViewDetails(students)}
-                            className="flex items-center gap-1"
+                            className="flex items-center gap-1 cursor-pointer"
                           >
                             <Eye className="w-4 h-4" />
                             Ver
@@ -500,11 +542,20 @@ const HistoricoAluno = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="flex items-center gap-1"
+                            className="flex items-center gap-1 cursor-pointer"
                             onClick={() => handleEdit(students)}
                           >
                             <Edit className="w-4 h-4" />
                             Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex items-center gap-1 cursor-pointer"
+                            onClick={() => handleEdit(students)}
+                          >
+                            <BookCheck className="w-4 h-4" />
+                            Avaliações
                           </Button>
                         </div>
                       </td>
@@ -841,32 +892,32 @@ const HistoricoAluno = () => {
                 {(selectedAluno.endereco.logradouro ||
                   selectedAluno.endereco.bairro ||
                   selectedAluno.endereco.cidade) && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-red-600" />
-                      Endereço
-                    </h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-900">
-                        {[
-                          selectedAluno.endereco.logradouro,
-                          selectedAluno.endereco.numero,
-                          selectedAluno.endereco.complemento,
-                          selectedAluno.endereco.bairro,
-                          selectedAluno.endereco.cidade,
-                          selectedAluno.endereco.estado,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </p>
-                      {selectedAluno.endereco.cep && (
-                        <p className="text-gray-600 mt-1">
-                          CEP: {selectedAluno.endereco.cep}
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-red-600" />
+                        Endereço
+                      </h3>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <p className="text-gray-900">
+                          {[
+                            selectedAluno.endereco.logradouro,
+                            selectedAluno.endereco.numero,
+                            selectedAluno.endereco.complemento,
+                            selectedAluno.endereco.bairro,
+                            selectedAluno.endereco.cidade,
+                            selectedAluno.endereco.estado,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
                         </p>
-                      )}
+                        {selectedAluno.endereco.cep && (
+                          <p className="text-gray-600 mt-1">
+                            CEP: {selectedAluno.endereco.cep}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Dados Institucionais */}
                 <div>
