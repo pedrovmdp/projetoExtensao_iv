@@ -22,7 +22,7 @@ import AdminRoute from "./components/AdminRoute";
 // Páginas principais
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import CadastroAluno from "./pages/CadastroAluno";
+import CadastroPessoa from "./pages/CadastroPessoa.jsx";
 import CadastroEmpresa from "./pages/CadastroEmpresa";
 import HistoricoAluno from "./pages/HistoricoAluno";
 import AvaliacaoAluno from "./pages/AvaliacaoAluno";
@@ -95,10 +95,10 @@ function AppShell() {
               }
             />
             <Route
-              path="/cadastro-aluno"
+              path="/cadastro-pessoa"
               element={
                 <ProtectedRoute>
-                  <CadastroAluno />
+                  <CadastroPessoa />
                 </ProtectedRoute>
               }
             />

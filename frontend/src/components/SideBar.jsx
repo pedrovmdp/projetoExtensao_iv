@@ -26,7 +26,7 @@ export default function Sidebar({ isOpen, onClose }) {
   // 🔹 Itens padrão de navegação
   const navItems = [
     { to: "/", icon: BarChart3, label: "Dashboard" },
-    { to: "/cadastro-aluno", icon: UserPlus, label: "Cadastro aluno" },
+    // { to: "/cadastro-pessoa", icon: UserPlus, label: "Cadastro pessoa" },
     { to: "/cadastro-empresa", icon: HousePlus, label: "Cadastro empresa" },
     { to: "/empresas", icon: Building2, label: "Empresas parceiras" },
     { to: "/historico", icon: FileText, label: "Histórico aluno" },
@@ -41,6 +41,11 @@ export default function Sidebar({ isOpen, onClose }) {
       icon: Settings,
       label: "Gerenciar Usuários",
     });
+    navItems.splice(2, 0, {
+      to: "/cadastro-pessoa", 
+      icon: UserPlus, 
+      label: "Cadastro pessoa"
+    })
   }
 
   navItems.push({ to: "#", icon: LogOut, label: "Sair" })

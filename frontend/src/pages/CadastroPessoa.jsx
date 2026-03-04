@@ -12,7 +12,7 @@ import FormInput from "../components/FormInput";
 import { useDispatch } from "react-redux";
 import { addStudent } from "../../store/features/studentSlice";
 
-const CadastroAluno = () => {
+const CadastroPessoa = () => {
   const dispatch = useDispatch()
 
   const [formData, setFormData] = useState({
@@ -282,8 +282,8 @@ const CadastroAluno = () => {
       {/* Header */}
       <Header
         icon={<UserPlus className="w-8 h-8 text-blue-600" />}
-        title={"Cadastro de Aluno"}
-        text={"Preencha as informações do novo aluno"}
+        title={"Cadastro de Pessoa"}
+        text={"Preencha as informações da nova pessoa"}
       />
 
       {/* Mensagem de feedback */}
@@ -625,4 +625,4 @@ const CadastroAluno = () => {
   );
 };
 
-export default CadastroAluno;
+export default CadastroPessoa;
