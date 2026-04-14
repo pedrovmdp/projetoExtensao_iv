@@ -16,12 +16,11 @@ export default function CadastroEmpresa() {
     const [errors, setErrors] = useState({})
 
     const [formData, setFormData] = useState({
-        // Dados da Empresa
+        // Empresa
         razao_social: '',
         nome_fantasia: '',
         cnpj: '',
-        tipo_empresa: "",
-        data_abertura: '',
+        telefone: '',
 
         // Endereço
         cep: '',
@@ -30,44 +29,32 @@ export default function CadastroEmpresa() {
         complemento: '',
         bairro: '',
         cidade: '',
-        estado: '',
+        uf: '',
 
-        // Contato
-        telefone: '',
-        celular: '',
-        email: '',
-
-        // Representante Legal
-        responsavel_nome: '',
-        responsavel_cpf: '',
-        responsavel_cargo: '',
-        responsavel_celular: '',
-        responsavel_email: ''
-    });
+        // Contato RH
+        contato_rh_nome: '',
+        contato_rh_email: ''
+    })
 
     const handleReset = () => {
         setFormData({
             razao_social: '',
             nome_fantasia: '',
             cnpj: '',
-            cnae_principal: '',
-            data_abertura: '',
+            telefone: '',
+
+            // Endereço
             cep: '',
             logradouro: '',
             numero: '',
             complemento: '',
             bairro: '',
             cidade: '',
-            estado: '',
-            telefone: '',
-            celular: '',
-            email: '',
-            responsavel_nome: '',
-            responsavel_cpf: '',
-            responsavel_cargo: '',
-            responsavel_celular: '',
-            responsavel_email: '',
-            tipo_empresa: "",
+            uf: '',
+
+            // Contato RH
+            contato_rh_nome: '',
+            contato_rh_email: ''
         })
     }
 
@@ -308,8 +295,7 @@ export default function CadastroEmpresa() {
                 razao_social: formData.razao_social,
                 nome_fantasia: formData.nome_fantasia,
                 cnpj: formData.cnpj,
-                tipo_empresa: formData.tipo_empresa,
-                data_abertura: formData.data_abertura,
+                telefone: formData.telefone,
                 endereco: {
                     cep: formData.cep,
                     logradouro: formData.logradouro,
@@ -385,251 +371,150 @@ export default function CadastroEmpresa() {
 
             {/* Formulário */}
             <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Dados Pessoais */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Dados da Empresa</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                {/* Empresa */}
+                <div className="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 className="text-xl font-semibold mb-6">Dados da Empresa</h2>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
                         <FormInput
-                            label={"Razão Social *"}
-                            type={"text"}
-                            name={"razao_social"}
+                            label="Razão Social *"
+                            name="razao_social"
                             value={formData.razao_social}
                             onChange={handleInputChange}
-                            placeholder={"Digite a razão social"}
                             error={errors.razao_social}
                         />
 
                         <FormInput
-                            label={"Nome Fantasia *"}
-                            type={"text"}
-                            name={"nome_fantasia"}
+                            label="Nome Fantasia *"
+                            name="nome_fantasia"
                             value={formData.nome_fantasia}
                             onChange={handleInputChange}
-                            placeholder={"Digite o nome fantasia"}
                             error={errors.nome_fantasia}
                         />
 
                         <FormInput
-                            label={"CNPJ *"}
-                            type={"text"}
-                            name={"cnpj"}
+                            label="CNPJ *"
+                            name="cnpj"
                             value={formData.cnpj}
                             onChange={handleCNPJChange}
-                            placeholder={"00.000.000/0001-00"}
-                            maxLength='14'
+                            maxLength="14"
                             error={errors.cnpj}
                         />
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Empresa</label>
-                            <select
-                                name="tipo_empresa"
-                                value={formData.tipo_empresa}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Selecione</option>
-                                <option value="MEI">MEI</option>
-                                <option value="LTDA">LTDA</option>
-                                <option value="EIRELI">EIRELI</option>
-                                <option value="SA">S/A</option>
-                            </select>
-                        </div>
-
                         <FormInput
-                            label={"Data de Abertura"}
-                            type={"date"}
-                            name={"data_abertura"}
-                            value={formData.data_abertura}
-                            onChange={handleInputChange}
-                            error={errors.data_abertura}
+                            label="Telefone *"
+                            name="telefone"
+                            value={formData.telefone}
+                            onChange={handleTelChange}
+                            maxLength="14"
+                            error={errors.telefone}
                         />
 
                     </div>
                 </div>
 
                 {/* Endereço */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Endereço</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 className="text-xl font-semibold mb-6">Endereço</h2>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
                         <FormInput
-                            label={"CEP *"}
-                            type={"text"}
-                            name={"cep"}
+                            label="CEP *"
+                            name="cep"
                             value={formData.cep}
                             onChange={handleCEPChange}
-                            placeholder={"00000-000"}
-                            maxLength={"8"}
+                            maxLength="8"
                             error={errors.cep}
                         />
 
                         <FormInput
-                            label={"Endereço *"}
-                            type={"text"}
-                            name={"logradouro"}
+                            label="Logradouro *"
+                            name="logradouro"
                             value={formData.logradouro}
                             onChange={handleInputChange}
-                            placeholder={"Rua Jardim da Silva"}
                             error={errors.logradouro}
                         />
 
                         <FormInput
-                            label={"Número *"}
-                            type={"text"}
-                            name={"numero"}
+                            label="Número *"
+                            name="numero"
                             value={formData.numero}
                             onChange={handleInputChange}
-                            placeholder={"123"}
-                            maxLength={"10"}
                             error={errors.numero}
                         />
 
                         <FormInput
-                            label={"Complemento"}
-                            type={"text"}
-                            name={"complemento"}
+                            label="Complemento"
+                            name="complemento"
                             value={formData.complemento}
                             onChange={handleInputChange}
-                            placeholder={"Apto"}
                         />
 
                         <FormInput
-                            label={"Bairro *"}
-                            type={"text"}
-                            name={"bairro"}
+                            label="Bairro *"
+                            name="bairro"
                             value={formData.bairro}
                             onChange={handleInputChange}
-                            placeholder={"Centro"}
                             error={errors.bairro}
                         />
 
                         <FormInput
-                            label={"Cidade *"}
-                            type={"text"}
-                            name={"cidade"}
+                            label="Cidade *"
+                            name="cidade"
                             value={formData.cidade}
                             onChange={handleInputChange}
-                            placeholder={"Digite sua cidade"}
                             error={errors.cidade}
                         />
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Estado *
-                            </label>
+                            <label className="block text-sm font-medium mb-2">UF *</label>
                             <select
-                                name="estado"
-                                value={formData.estado}
+                                name="uf"
+                                value={formData.uf}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border rounded-md"
                             >
                                 <option value="">Selecione</option>
-                                <option value="SC">Santa Catarina</option>
-                                <option value="RS">Rio Grande do Sul</option>
-                                <option value="PR">Paraná</option>
-                                <option value="SP">São Paulo</option>
-                                <option value="RJ">Rio de Janeiro</option>
-                                {/* Adicionar outros estados conforme necessário */}
+                                <option value="SC">SC</option>
+                                <option value="RS">RS</option>
+                                <option value="PR">PR</option>
+                                <option value="SP">SP</option>
+                                <option value="RJ">RJ</option>
                             </select>
                         </div>
+
                     </div>
                 </div>
 
-                {/* Contato */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Contato</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <FormInput
-                            label={"Telefone"}
-                            type={"tel"}
-                            name={"telefone"}
-                            value={formData.telefone}
-                            onChange={handleTelChange}
-                            placeholder={"(48) 3000-0000"}
-                            maxLength={"14"}
-                        />
+                {/* Contato RH */}
+                <div className="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 className="text-xl font-semibold mb-6">Contato RH</h2>
+
+                    <div className="grid md:grid-cols-2 gap-6">
 
                         <FormInput
-                            label={"Celular"}
-                            type={"tel"}
-                            name={"celular"}
-                            value={formData.celular}
-                            onChange={handlePhoneChange}
-                            placeholder={"(48) 99000-0000"}
-                            maxLength={"15"}
-                        />
-
-                        <FormInput
-                            label={"E-mail *"}
-                            type={"email"}
-                            name={"email"}
-                            value={formData.email}
+                            label="Nome do RH *"
+                            name="contato_rh_nome"
+                            value={formData.contato_rh_nome}
                             onChange={handleInputChange}
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                            placeholder={"email@exemplo.com"}
-                            error={errors.email}
+                            error={errors.contato_rh_nome}
                         />
+
+                        <FormInput
+                            label="Email do RH *"
+                            type="email"
+                            name="contato_rh_email"
+                            value={formData.contato_rh_email}
+                            onChange={handleInputChange}
+                            error={errors.contato_rh_email}
+                        />
+
                     </div>
                 </div>
 
-
-                {/* Representante Legal */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Representante Legal</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <FormInput
-                            label={"Nome *"}
-                            type={"text"}
-                            name={"responsavel_nome"}
-                            value={formData.responsavel_nome}
-                            onChange={handleInputChange}
-                            placeholder={"Nome do representante"}
-                            error={errors.responsavel_nome}
-                        />
-
-                        <FormInput
-                            label={"CPF"}
-                            type={"text"}
-                            name={"responsavel_cpf"}
-                            value={formData.responsavel_cpf}
-                            maxLength={"11"}
-                            onChange={handleCPFChange}
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 ${errors.cpf ? 'border-red-500' : 'border-gray-300'}`}
-                            placeholder={"000.000.000-00"}
-                            error={errors.cpf}
-                        />
-
-                        <FormInput
-                            label={"Cargo"}
-                            type={"text"}
-                            name={"responsavel_cargo"}
-                            value={formData.responsavel_cargo}
-                            onChange={handleInputChange}
-                            placeholder={"Cargo do responsável"}
-                        />
-
-                        <FormInput
-                            label={"Celular"}
-                            type={"tel"}
-                            name={"responsavel_celular"}
-                            value={formData.responsavel_celular}
-                            onChange={handleInputChange}
-                            placeholder={"(48) 99000-0000"}
-                            maxLength={"11"}
-                        />
-
-                        <FormInput
-                            label={"E-mail *"}
-                            type={"email"}
-                            name={"responsavel_email"}
-                            value={formData.responsavel_email}
-                            onChange={handleInputChange}
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                            placeholder={"email@exemplo.com"}
-                            error={errors.email}
-                        />
-                    </div>
-                </div>
 
                 {/* Botões */}
                 <div className="flex justify-end gap-4">
