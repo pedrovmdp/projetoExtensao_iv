@@ -10,13 +10,13 @@ const getReviewById = async (id) => {
     return response.data;
 }
 
+const getReviewsByPersonName = async (name) => {
+    const response = await api.get(`/reviews/personName/${name}`);
+    return response.data;
+}
+
 const createReview = async (reviewsData) => {
     const response = await api.post(`/reviews`, reviewsData);
-    return response.data;
-};
-
-const updateReview = async (id, reviewData) => {
-    const response = await api.put(`/reviews/${id}`, reviewData);
     return response.data;
 };
 
@@ -28,7 +28,7 @@ const deleteReview = async (id) => {
 export default {
     getAllReviews,
     getReviewById,
+    getReviewsByPersonName,
     createReview,
-    updateReview,
     deleteReview
 }

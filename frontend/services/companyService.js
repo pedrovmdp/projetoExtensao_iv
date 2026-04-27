@@ -1,42 +1,41 @@
 import api from "./api";
 
-const getAllCompanys = async () => {
-    const response = await api.get('/companys')
+const getAllCompanies = async () => {
+    const response = await api.get('/companies')
     return response.data;
 }
 
 const getCompanyById = async (id) => {
-    const response = await api.get(`/companys/${id}`)
+    const response = await api.get(`/companies/${id}`)
 }
 
-const getCompanyByName = async (name) => {
+const getCompanyByNameOrCnpj = async (name) => {
     if (!name) return [];
     // Faz a busca usando LIKE no campo correto (ex: razao_social)
-    const response = await api.get(`/companys?razao_social_like=${encodeURIComponent(name)}`);
+    const response = await api.get(`/companies/search?search=${encodeURIComponent(name)}`);
 
     return response.data;
 };
 
-
 const createCompany = async (companyData) => {
-    const response = await api.post(`/companys`, companyData);
+    const response = await api.post(`/companies`, companyData);
     return response.data;
 };
 
 const updateCompany = async (id, companyData) => {
-    const response = await api.put(`/companys/${id}`, companyData);
+    const response = await api.patch(`/companies/${id}`, companyData);
     return response.data;
 };
 
 const deleteCompany = async (id) => {
-    const response = await api.delete(`/companys/${id}`);
+    const response = await api.delete(`/companies/${id}`);
     return response.data;
 };
 
 export default {
-    getAllCompanys,
+    getAllCompanies,
     getCompanyById,
-    getCompanyByName,
+    getCompanyByNameOrCnpj,
     createCompany,
     updateCompany,
     deleteCompany,
