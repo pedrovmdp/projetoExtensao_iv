@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 
 /**
  * 🔐 Protege rotas que só podem ser acessadas por administradores
- * Exemplo de uso:
+ * Exemplo de uso::
  * <Route path="/cadastro-usuario" element={<AdminRoute><CadastroUsuario /></AdminRoute>} />
  */
 export default function AdminRoute({ children }) {
