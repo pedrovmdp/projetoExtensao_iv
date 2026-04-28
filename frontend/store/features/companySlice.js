@@ -1,32 +1,32 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import companyService from "../../services/companyService";
+import companyService from "../../services/companiesService";
 
-export const fetchCompanys = createAsyncThunk("companys/fetchAll", async () => {
-    return await companyService.getAllCompanys();
+export const fetchCompanys = createAsyncThunk("companies/fetchAll", async () => {
+    return await companyService.getAllCompanies();
 });
 
-export const fetchCompanytById = createAsyncThunk("companys/fetchById", async (id) => {
+export const fetchCompanytById = createAsyncThunk("companies/fetchById", async (id) => {
     return await companyService.getCompanyById(id);
 });
 
-export const fetchCompanytByName = createAsyncThunk("companys/fetchByName", async (name) => {
-    return await companyService.getCompanyByName(name);
+export const fetchCompanytByName = createAsyncThunk("companies/fetchByName", async (name) => {
+    return await companyService.getCompanyByNameOrCnpj(name);
 });
 
-export const addCompany = createAsyncThunk("companys/add", async (company) => {
+export const addCompany = createAsyncThunk("companies/add", async (company) => {
     return await companyService.createCompany(company);
 });
 
-export const editCompany = createAsyncThunk("companys/edit", async ({ id, companyData }) => {
+export const editCompany = createAsyncThunk("companies/edit", async ({ id, companyData }) => {
     return await companyService.updateCompany(id, companyData);
 });
 
-export const removeCompany = createAsyncThunk("companys/remove", async (id) => {
+export const removeCompany = createAsyncThunk("companies/remove", async (id) => {
     return await companyService.deleteCompany(id)
 });
 
 const companySlice = createSlice({
-    name: "companys",
+    name: "companies",
     initialState: {
         companys: [],
         loading: false,

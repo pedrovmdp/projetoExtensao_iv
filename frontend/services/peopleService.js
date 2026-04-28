@@ -7,6 +7,7 @@ const getAllPeople = async () => {
 
 const getPersonById = async (id) => {
     const response = await api.get(`/people/${id}`)
+    return response.data;
 }
 
 const getPersonByNameOrCpf = async (name) => {

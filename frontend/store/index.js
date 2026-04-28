@@ -1,18 +1,22 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { companyReducer } from "./features/companySlice";
-import { studentReducer } from "./features/studentSlice";
 import authReducer from "./features/authSlice"
-import usersReducer from "./features/usersSlice"
-import { monitoringReducer } from "./features/monitoringSlice"
 import { reviewReducer } from "./features/reviewSlice"
+import { peopleCompanyReducer } from "./features/peopleCompanySlice";
+import { peopleReducer } from "./features/peopleSlice";
+import { usersReducer } from "./features/usersSlice";
+import { rolesReducer } from "./features/roleSlice";
+import { questionsReducer } from "./features/questionsSlice";
 
 export const store = configureStore ({
     reducer:{
         companys: companyReducer,
-        students: studentReducer,
+        people: peopleReducer,
         auth: authReducer,
         users: usersReducer,
-        monitoring: monitoringReducer,
+        peopleCompany: peopleCompanyReducer,
         reviews: reviewReducer,
+        roles: rolesReducer,
+        questions: questionsReducer,
     },
 });

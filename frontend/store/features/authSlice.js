@@ -1,56 +1,71 @@
-// 📁 src/store/features/authSlice.js
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import authService from '../../services/authService';
 
-/**
- * 🔹 Recupera o usuário salvo no localStorage (mantém sessão ativa ao recarregar)
- */
-const savedUser = JSON.parse(localStorage.getItem("user"));
+// LOGIN
+export const login = createAsyncThunk(
+  'auth/login',
+  async (credentials, thunkAPI) => {
+    try {
+      const data = await authService.login(credentials);
 
-/**
- * 🔸 Estado inicial do slice
- */
+      // salva tokens
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || 'Erro ao fazer login'
+      );
+    }
+  }
+);
+
 const initialState = {
-  user: savedUser || null,          // Dados do usuário autenticado
-  isAuthenticated: !!savedUser,     // Indica se está logado
+  accessToken: localStorage.getItem('accessToken') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null,
+  isLoading: false,
+  isError: false,
+  message: ''
 };
 
-/**
- * 🔹 Slice de autenticação
- */
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
-    /**
-     * ✅ Realiza login e salva o usuário no Redux + localStorage
-     */
-    login: (state, action) => {
-      state.user = action.payload;
-      state.isAuthenticated = true;
-      localStorage.setItem("user", JSON.stringify(action.payload));
-    },
-
-    /**
-     * 🚪 Realiza logout e limpa os dados do Redux + localStorage
-     */
     logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      localStorage.removeItem("user");
-    },
+      state.accessToken = null;
+      state.refreshToken = null;
 
-    /**
-     * ✏️ Atualiza informações do perfil do usuário logado
-     */
-    updateProfile: (state, action) => {
-      // Atualiza o usuário no estado com os novos dados
-      state.user = { ...state.user, ...action.payload };
-      // Mantém persistência
-      localStorage.setItem("user", JSON.stringify(state.user));
-    },
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
   },
+  extraReducers: (builder) => {
+    builder
+      // loading
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.message = '';
+      })
+
+      // sucesso
+      .addCase(login.fulfilled, (state, action) => {
+        state.isLoading = false;
+
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+      })
+
+      // erro
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      });
+  }
 });
 
-// 🔸 Exportações
-export const { login, logout, updateProfile } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

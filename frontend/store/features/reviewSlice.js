@@ -9,12 +9,12 @@ export const fetchReviewById = createAsyncThunk("reviews/fetchById", async (id) 
     return await reviewService.getReviewById(id);
 });
 
-export const addReview = createAsyncThunk("reviews/add", async (review) => {
-    return await reviewService.createReview(review);
+export const fetchReviewsByPersonName = createAsyncThunk("reviews/fetchByPersonName", async (name) => {
+    return await reviewService.getReviewsByPersonName(name);
 });
 
-export const editReview = createAsyncThunk("reviews/edit", async ({ id, reviewData }) => {
-    return await reviewService.updateReview(id, reviewData);
+export const addReview = createAsyncThunk("reviews/add", async (review) => {
+    return await reviewService.createReview(review);
 });
 
 export const removeReview = createAsyncThunk("reviews/remove", async (id) => {
@@ -61,6 +61,13 @@ const reviewSlice = createSlice({
                 state.error = null;
             })
 
+            // 🔹 Buscar por nome da pessoa
+            .addCase(fetchReviewsByPersonName.fulfilled, (state, action) => {
+                state.reviews = action.payload;
+                state.loading = false;
+                state.error = null;
+            })
+
             // 🔹 Criar review
             .addCase(addReview.pending, (state) => {
                 state.loading = true;
@@ -73,11 +80,6 @@ const reviewSlice = createSlice({
             .addCase(addReview.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
-            })
-
-            // 🔹 Editar review
-            .addCase(editReview.fulfilled, (state) => {
-                state.success = true;
             })
 
             // 🔹 Excluir review
