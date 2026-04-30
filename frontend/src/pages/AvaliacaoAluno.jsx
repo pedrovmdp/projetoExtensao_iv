@@ -13,7 +13,7 @@ import Header from '../components/Header'
 import FormInput from '../components/FormInput'
 import { useDispatch } from 'react-redux'
 import { addReview } from '../../store/features/reviewSlice'
-import { fetchStudentByName } from '../../store/features/studentSlice'
+import { getAllPeople } from '../../store/features/peopleSlice'
 import AutoCompleteInput from '../components/AutoCompleteInput'
 
 // Questões do formulário de avaliação baseadas no documento

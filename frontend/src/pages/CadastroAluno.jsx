@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button.jsx";
 import Header from "../components/Header";
 import FormInput from "../components/FormInput";
 import { useDispatch } from "react-redux";
-import { addStudent } from "../../store/features/studentSlice";
+// import { addStudent } from "../../store/features/studentSlice";
 
 const CadastroAluno = () => {
   const dispatch = useDispatch()

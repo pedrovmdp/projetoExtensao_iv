@@ -18,15 +18,10 @@ import FormInput from "../components/FormInput";
 import TextRow from "../components/ui/textRow";
 import Stats from "../components/Stats";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchStudentByName } from "../../store/features/studentSlice";
+import { searchPeople } from "../../store/features/peopleSlice";
 import { fetchCompanytByName } from "../../store/features/companySlice";
 import AutoCompleteInput from "../components/AutoCompleteInput";
-import {
-  addMonitoring,
-  editMonitoring,
-  fetchMonitorings,
-  selectAllMonitoring,
-} from "../../store/features/monitoringSlice";
+import { fetchReviewById, fetchReviewsByPersonName, fetchReviews} from "../../store/features/reviewSlice";
 import DetailsModal from "../components/DatailsModal";
 import FormInputDiv from "../components/FormInputDiv";
 import IconColor from "../assets/IconColor"
@@ -38,7 +33,7 @@ const AcompanhamentoAluno = () => {
   const [showModal, setShowModal] = useState(false);
 
   const dispatch = useDispatch();
-  const monitorings = useSelector(selectAllMonitoring);
+  // const monitorings = useSelector(selectAllMonitoring);
 
   useEffect(() => {
     dispatch(fetchMonitorings());
@@ -157,7 +152,7 @@ const AcompanhamentoAluno = () => {
   };
 
   const handleFetchStudents = async (name) => {
-    const action = await dispatch(fetchStudentByName(name));
+    const action = await dispatch(searchPeople(name));
     return action.payload || [];
   };
 

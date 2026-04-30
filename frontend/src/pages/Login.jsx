@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../store/features/authSlice";
+import { getMe, login } from "../../store/features/authSlice";
 import { toast } from "sonner";
 
 export default function Login() {
@@ -13,7 +13,13 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isLoading, message, isError } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+  }, [isError, message]);
 
   /**
    * 🔹 Validação simples do formulário
@@ -35,28 +41,37 @@ export default function Login() {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-
     try {
-      // Busca o usuário com email e senha correspondentes
-      const res = await fetch(
-        `http://localhost:3000/users?email=${email}&password=${password}`
-      );
-      const data = await res.json();
+      const res = await dispatch(login({ email, password }));
 
-      if (data.length > 0) {
-        const user = data[0];
-        dispatch(login(user));
-        toast.success(`Bem-vindo, ${user.name}!`);
+      if (login.fulfilled.match(res)) {
+        const { accessToken, refreshToken } = res.payload;
+
+        dispatch(getMe()); // Carrega os dados do usuário após login
+
+        if (remember) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+        } else {
+          sessionStorage.setItem("accessToken", accessToken);
+          sessionStorage.setItem("refreshToken", refreshToken);
+        }
+
+        toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
-        toast.error("E-mail ou senha inválidos.");
+        const apiError = res.payload;
+
+        setErrors((prev) => ({
+          ...prev,
+          password: Array.isArray(apiError) ? apiError.join(" ") : apiError,
+        }));
+
+        // toast.error(res.payload || "Credenciais inválidas.");
       }
     } catch (error) {
-      console.error("Erro ao conectar com o servidor:", error);
-      toast.error("Erro ao conectar com o servidor.");
-    } finally {
-      setIsSubmitting(false);
+      console.error(error);
+      toast.error("Erro inesperado.");
     }
   };
 
@@ -81,7 +96,8 @@ export default function Login() {
               Bem-vindo de volta!
             </h3>
             <p className="mt-2 text-white/90">
-              Acesse o painel para acompanhar alunos, avaliações e encaminhamentos.
+              Acesse o painel para acompanhar alunos, avaliações e
+              encaminhamentos.
             </p>
           </div>
 
@@ -92,7 +108,10 @@ export default function Login() {
 
         {/* Formulário */}
         <div className="p-8 sm:p-10">
-          <h1 id="titulo-login" className="text-2xl font-semibold text-slate-900">
+          <h1
+            id="titulo-login"
+            className="text-2xl font-semibold text-slate-900"
+          >
             Entrar na plataforma
           </h1>
           <p className="mt-1 text-sm text-slate-600">
@@ -114,7 +133,10 @@ export default function Login() {
                   }`}
                   placeholder="seu@email.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrors((prev) => ({ ...prev, email: "" }));
+                  }}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-rose-600">{errors.email}</p>
@@ -136,7 +158,10 @@ export default function Login() {
                   }`}
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>{ 
+                    setPassword(e.target.value); 
+                    setErrors((prev) => ({ ...prev, password: "" }));
+                  }}
                 />
                 <button
                   type="button"
@@ -173,10 +198,10 @@ export default function Login() {
             {/* Botão */}
             <button
               type="submit"
-              disabled={isSubmitting || !email || !password}
+              disabled={isLoading || !email || !password}
               className="w-full rounded-xl px-4 py-3 font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 transition cursor-pointer"
             >
-              {isSubmitting ? "Entrando..." : "Entrar"}
+              {isLoading ? "Entrando..." : "Entrar"}
             </button>
 
             <p className="text-center text-xs text-slate-500 mt-3">

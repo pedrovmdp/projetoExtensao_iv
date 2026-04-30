@@ -5,6 +5,12 @@ const login = async (credentials) => {
     return response.data;
 }
 
-export default {
-    login
+const getMe = async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
 }
+
+export default {
+    login,
+    getMe
+};

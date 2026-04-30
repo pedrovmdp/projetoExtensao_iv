@@ -1,11 +1,5 @@
-import { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
-import { Provider } from "react-redux";
+import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Toaster } from "sonner";
@@ -30,151 +24,91 @@ import AcompanhamentoAluno from "./pages/AcompanhamentoAluno";
 import EmpresasParceiras from "./pages/EmpresasParceias";
 import EditarPerfil from "./pages/EditarPerfil";
 import CadastroUsuario from "./pages/CadastroUsuario";
+import { useDispatch } from "react-redux";
+import { getMe } from "../store/features/authSlice.js";
 
-function AppShell() {
+export default function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
+
+    if (token) {
+      dispatch(getMe());
+    }
+  }, []);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
 
-  // Oculta Sidebar em rotas de autenticação
-  const isAuthRoute = location.pathname.startsWith("/login");
+  return (
+    <Routes>
+      {/* 🔓 ROTA PÚBLICA */}
+      <Route path="/login" element={<Login />} />
 
-  // Layout da página de login
-  if (isAuthRoute) {
-    return (
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            <div className="min-h-screen w-full flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-200 relative">
-              <div className="pointer-events-none fixed inset-0 [background-image:radial-gradient(#00000011_1px,transparent_1px)] [background-size:16px_16px]" />
-              <div className="relative z-10 w-full max-w-5xl">
-                <Login />
+      {/* 🔐 ROTAS PROTEGIDAS */}
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <div className="flex h-screen bg-gray-50">
+              <Sidebar
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+              />
+
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Header mobile */}
+                <div className="lg:hidden bg-white border-b border-gray-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold text-gray-800">
+                      Instituto Diomício Freitas
+                    </h1>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSidebarOpen(true)}
+                      className="text-gray-600"
+                    >
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
+
+                <main className="flex-1 overflow-auto p-6">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/cadastro-aluno" element={<CadastroAluno />} />
+                    <Route
+                      path="/cadastro-empresa"
+                      element={<CadastroEmpresa />}
+                    />
+                    <Route path="/historico" element={<HistoricoAluno />} />
+                    <Route path="/avaliacao" element={<AvaliacaoAluno />} />
+                    <Route
+                      path="/acompanhamento"
+                      element={<AcompanhamentoAluno />}
+                    />
+                    <Route path="/empresas" element={<EmpresasParceiras />} />
+                    <Route path="/editar-perfil" element={<EditarPerfil />} />
+
+                    {/* 🔐 ADMIN */}
+                    <Route
+                      path="/cadastro-usuario"
+                      element={
+                        <AdminRoute>
+                          <CadastroUsuario />
+                        </AdminRoute>
+                      }
+                    />
+                  </Routes>
+                </main>
               </div>
             </div>
-          }
-        />
-      </Routes>
-    );
-  }
-
-  // Layout interno protegido
-  return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      {/* Conteúdo principal */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header mobile */}
-        <div className="lg:hidden bg-white border-b border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-800">
-              Instituto Diomício Freitas
-            </h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(true)}
-              className="text-gray-600"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Área de conteúdo */}
-        <main className="flex-1 overflow-auto p-6">
-          <Routes>
-            {/* Rotas protegidas por login */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cadastro-aluno"
-              element={
-                <ProtectedRoute>
-                  <CadastroAluno />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cadastro-empresa"
-              element={
-                <ProtectedRoute>
-                  <CadastroEmpresa />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/historico"
-              element={
-                <ProtectedRoute>
-                  <HistoricoAluno />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/avaliacao"
-              element={
-                <ProtectedRoute>
-                  <AvaliacaoAluno />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/acompanhamento"
-              element={
-                <ProtectedRoute>
-                  <AcompanhamentoAluno />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/empresas"
-              element={
-                <ProtectedRoute>
-                  <EmpresasParceiras />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/editar-perfil"
-              element={
-                <ProtectedRoute>
-                  <EditarPerfil />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* 🔐 Rota exclusiva de admin */}
-            <Route
-              path="/cadastro-usuario"
-              element={
-                <AdminRoute>
-                  <CadastroUsuario />
-                </AdminRoute>
-              }
-            />
-          </Routes>
-        </main>
-      </div>
-    </div>
-  );
-}
-
-// 🌟 App principal com Redux, Router e Toasts globais
-export default function App() {
-  return (
-    <Provider store={store}>
-      <Router>
-        <AppShell />
-      </Router>
-      <Toaster richColors position="top-right" />
-    </Provider>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }

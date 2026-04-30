@@ -1,45 +1,55 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import authService from '../../services/authService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import authService from "../../services/authService";
 
 // LOGIN
 export const login = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (credentials, thunkAPI) => {
     try {
       const data = await authService.login(credentials);
 
-      // salva tokens
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-
       return data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || 'Erro ao fazer login'
-      );
+      const message = Array.isArray(error.response?.data?.message)
+        ? error.response.data.message.join(" ")
+        : error.response?.data?.message || "Erro ao realizar login.";
+
+      return thunkAPI.rejectWithValue(message);
     }
-  }
+  },
 );
 
+export const getMe = createAsyncThunk("auth/me", async (_, thunkAPI) => {
+  try {
+    const data = await authService.getMe();
+    return data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue("Erro ao obter informações do usuário.");
+  }
+});
+
 const initialState = {
-  accessToken: localStorage.getItem('accessToken') || null,
-  refreshToken: localStorage.getItem('refreshToken') || null,
+  user: null,
+  accessToken: localStorage.getItem("accessToken") || null,
+  isAuthenticated: !!localStorage.getItem("accessToken"),
   isLoading: false,
+  isAuthenticatedLoading: true,
   isError: false,
-  message: ''
+  message: "",
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
+      state.user = null;
       state.accessToken = null;
-      state.refreshToken = null;
+      state.isAuthenticated = false;
 
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-    }
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -47,7 +57,7 @@ const authSlice = createSlice({
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.isError = false;
-        state.message = '';
+        state.message = "";
       })
 
       // sucesso
@@ -55,7 +65,8 @@ const authSlice = createSlice({
         state.isLoading = false;
 
         state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
+
+        state.user = action.payload.user;
       })
 
       // erro
@@ -63,8 +74,28 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+      })
+
+      .addCase(getMe.pending, (state) => {
+        state.isAuthenticatedLoading = true;
+        state.isError = false;
+        state.message = "";
+      })
+
+      .addCase(getMe.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isAuthenticated = true;
+        state.isAuthenticatedLoading = false;
+      })
+
+      .addCase(getMe.rejected, (state) => {
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+        state.isAuthenticated = false;
+        state.isAuthenticatedLoading = false;
       });
-  }
+  },
 });
 
 export const { logout } = authSlice.actions;

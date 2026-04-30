@@ -24,45 +24,32 @@ import {
 } from "lucide-react";
 import Header from "../components/Header";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchMonitorings,
-  selectAllMonitoring,
-  selectLoading,
-} from "../../store/features/monitoringSlice";
 import StatCard from "../components/StatCard";
-import {
-  fetchStudents,
-  selectAllStudents,
-} from "../../store/features/studentSlice";
-import {
-  fetchReviews,
-  selectAllReviews,
-} from "../../store/features/reviewSlice";
-import { selectLoading as selectLoadingReview } from "../../store/features/reviewSlice";
-import { selectLoading as selectLoadingStudent } from "../../store/features/studentSlice";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { searchPeopleByRoleName } from "../../store/features/peopleSlice";
+import { getAllPeopleCompany } from "../../store/features/peopleCompanySlice";
+import { fetchReviews } from "../../store/features/reviewSlice";
 
 // Componente principal do Dashboard
 const Dashboard = () => {
   const dispatch = useDispatch();
 
-  const monitoring = useSelector(selectAllMonitoring);
-  const loadingMonitoring = useSelector(selectLoading);
-
-  const students = useSelector(selectAllStudents);
-  const loadingStudents = useSelector(selectLoadingStudent);
-
-  const review = useSelector(selectAllReviews);
-  const loadingReview = useSelector(selectLoadingReview);
-
   useEffect(() => {
-    dispatch(fetchMonitorings());
-    dispatch(fetchStudents());
-    dispatch(fetchReviews());
+    dispatch(searchPeopleByRoleName("ALUNO")),
+    dispatch(getAllPeopleCompany()),
+    dispatch(fetchReviews())
   }, [dispatch]);
 
-  console.log(review);
+  const { alunosAtivos, isLoading } = useSelector((state) => state.people);
+  const {list, isLoading: loadingPeopleCompany } = useSelector((state) => state.peopleCompany);
+  const { reviews, loading: loadingReviews } = useSelector((state) => state.reviews);
+
+  const monitoring = [];
+  const loadingMonitoring = [];
+
+  const students = [];
+  const loadingStudents = [];
 
   const [stats, setStats] = useState({});
   const [acompanhamentoStats, setAcompanhamentoStats] = useState({});
@@ -71,112 +58,112 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   // Gerar dados para o gráfico de alunos por mês
-  const acompanhamentoData = useMemo(() => {
-    if (!students || students.length === 0) return [];
+  const acompanhamentoData = [] //useMemo(() => {
+  //   if (!students || students.length === 0) return [];
 
-    const contagem = {};
+  //   const contagem = {};
 
-    students.forEach((aluno) => {
-      const dataStr = aluno?.dados_institucionais?.data_ingresso;
-      if (!dataStr) return;
+  //   students.forEach((aluno) => {
+  //     const dataStr = aluno?.dados_institucionais?.data_ingresso;
+  //     if (!dataStr) return;
 
-      const data = parseISO(dataStr);
-      if (isNaN(data)) return;
+  //     const data = parseISO(dataStr);
+  //     if (isNaN(data)) return;
 
-      // nome do mês abreviado + ano
-      const mes = format(data, "MMM/yyyy", { locale: ptBR });
-      contagem[mes] = (contagem[mes] || 0) + 1;
-    });
+  //     // nome do mês abreviado + ano
+  //     const mes = format(data, "MMM/yyyy", { locale: ptBR });
+  //     contagem[mes] = (contagem[mes] || 0) + 1;
+  //   });
 
-    // converter para array ordenado
-    return Object.entries(contagem)
-      .map(([mes, alunos]) => ({ mes, alunos }))
-      .sort((a, b) => {
-        const [mesA, anoA] = a.mes.split("/");
-        const [mesB, anoB] = b.mes.split("/");
-        return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
-      });
-  }, [students]);
+  //   // converter para array ordenado
+  //   return Object.entries(contagem)
+  //     .map(([mes, alunos]) => ({ mes, alunos }))
+  //     .sort((a, b) => {
+  //       const [mesA, anoA] = a.mes.split("/");
+  //       const [mesB, anoB] = b.mes.split("/");
+  //       return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
+  //     });
+  // }, []);
 
-  const encaminhamentosData = useMemo(() => {
-    if (!monitoring || monitoring.length === 0)
-      return [
-        { nome: "Ativos", valor: 0, cor: "#4CAF50" },
-        { nome: "Em Observação", valor: 0, cor: "#FF9800" },
-        { nome: "Finalizados", valor: 0, cor: "#9E9E9E" },
-      ];
+   const encaminhamentosData = [] //useMemo(() => {
+  //   if (!monitoring || monitoring.length === 0)
+  //     return [
+  //       { nome: "Ativos", valor: 0, cor: "#4CAF50" },
+  //       { nome: "Em Observação", valor: 0, cor: "#FF9800" },
+  //       { nome: "Finalizados", valor: 0, cor: "#9E9E9E" },
+  //     ];
 
-    const contagem = {
-      Ativo: 0,
-      "Em Observação": 0,
-      Finalizado: 0,
-    };
+  //   const contagem = {
+  //     Ativo: 0,
+  //     "Em Observação": 0,
+  //     Finalizado: 0,
+  //   };
 
-    monitoring.forEach((item) => {
-      const status = item.status;
-      if (status === "Ativo") contagem.Ativo++;
-      else if (status === "Em Observação") contagem["Em Observação"]++;
-      else if (status === "Finalizado") contagem.Finalizado++;
-    });
+    // monitoring.forEach((item) => {
+    //   const status = item.status;
+    //   if (status === "Ativo") contagem.Ativo++;
+    //   else if (status === "Em Observação") contagem["Em Observação"]++;
+    //   else if (status === "Finalizado") contagem.Finalizado++;
+    // });
 
-    return [
-      { nome: "Ativos", valor: contagem.Ativo, cor: "#4CAF50" },
-      {
-        nome: "Em Observação",
-        valor: contagem["Em Observação"],
-        cor: "#FF9800",
-      },
-      { nome: "Finalizados", valor: contagem.Finalizado, cor: "#ff2121ff" },
-    ];
-  }, [monitoring]);
+  //   return [
+  //     { nome: "Ativos", valor: contagem.Ativo, cor: "#4CAF50" },
+  //     {
+  //       nome: "Em Observação",
+  //       valor: contagem["Em Observação"],
+  //       cor: "#FF9800",
+  //     },
+  //     { nome: "Finalizados", valor: contagem.Finalizado, cor: "#ff2121ff" },
+  //   ];
+  // }, [monitoring]);
 
   // Gerar gráfico de avaliações por período (por mês)
-  const avaliacoesData = useMemo(() => {
-    if (!review || review.length === 0) return [];
+   const avaliacoesData = [] //useMemo(() => {
+  //   if (!review || review.length === 0) return [];
 
-    const contagem = {};
+  //   const contagem = {};
 
-    review.forEach((avaliacao) => {
-      const dataStr = avaliacao?.dataAvaliacao; // <--- substitua se o nome for diferente
-      if (!dataStr) return;
+  //   review.forEach((avaliacao) => {
+  //     const dataStr = avaliacao?.dataAvaliacao; // <--- substitua se o nome for diferente
+  //     if (!dataStr) return;
 
-      const data = parseISO(dataStr);
-      if (isNaN(data)) return;
+  //     const data = parseISO(dataStr);
+  //     if (isNaN(data)) return;
 
-      const mes = format(data, "MMM/yyyy", { locale: ptBR });
-      contagem[mes] = (contagem[mes] || 0) + 1;
-    });
+  //     const mes = format(data, "MMM/yyyy", { locale: ptBR });
+  //     contagem[mes] = (contagem[mes] || 0) + 1;
+  //   });
 
-    return Object.entries(contagem)
-      .map(([periodo, avaliacoes]) => ({ periodo, avaliacoes }))
-      .sort((a, b) => {
-        const [mesA, anoA] = a.periodo.split("/");
-        const [mesB, anoB] = b.periodo.split("/");
-        return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
-      });
-  }, [review]);
+  //   return Object.entries(contagem)
+  //     .map(([periodo, avaliacoes]) => ({ periodo, avaliacoes }))
+  //     .sort((a, b) => {
+  //       const [mesA, anoA] = a.periodo.split("/");
+  //       const [mesB, anoB] = b.periodo.split("/");
+  //       return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
+  //     });
+  // }, [review]);
 
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Visão geral das atividades do Instituto Diomício Freitas
-          </p>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
-          <button
-            onClick={encaminhamentosData}
-            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Tentar Novamente
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="space-y-6">
+  //       <div className="mb-8">
+  //         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+  //         <p className="text-gray-600 mt-2">
+  //           Visão geral das atividades do Instituto Diomício Freitas
+  //         </p>
+  //       </div>
+  //       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+  //         <p className="text-red-800">{error}</p>
+  //         <button
+  //           onClick={encaminhamentosData}
+  //           className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+  //         >
+  //           Tentar Novamente
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-6">
@@ -191,32 +178,27 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Alunos Ativos"
-          value={students ? students.filter((student) => student.dados_institucionais.status === "Ativo").length : 0}
+          value={alunosAtivos.length}
           icon={Users}
           color="bg-blue-500"
           subtitle="Total alunos"
-          loading={loadingStudents}
+          loading={isLoading}
         />
         <StatCard
           title="Encaminhados para Trabalho"
-          value={
-            monitoring
-              ? monitoring.filter((aluno) => aluno.status === "Em Observação")
-                  .length
-              : 0
-          }
+          value={list.length}
           icon={Briefcase}
           color="bg-green-500"
           subtitle="Alunos encaminhados"
-          loading={loadingMonitoring}
+          loading={loadingPeopleCompany}
         />
         <StatCard
           title="Avaliações Realizadas"
-          value={review.length || 0}
+          value={reviews.length}
           icon={ClipboardCheck}
           color="bg-purple-500"
           subtitle="Total de avaliações"
-          loading={loadingReview}
+          loading={loadingReviews}
         />
         <StatCard
           title="Acompanhamentos Ativos"
@@ -353,16 +335,16 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Em Avaliação</span>
               <span className="font-semibold text-yellow-600">
-                {loadingReview ? "..." : stats.alunos_avaliacao || 0}
+                {loadingReviews ? "..." : stats.alunos_avaliacao || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">1ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loadingReview
+                {loadingReviews
                   ? "..."
-                  : review
-                  ? review.filter((review) => review.tipoAvaliacao === "1")
+                  : reviews
+                  ? reviews.filter((review) => review.tipo === "1")
                       .length
                   : 0}
               </span>
@@ -370,10 +352,10 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">2ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loadingReview
+                {loadingReviews
                   ? "..."
-                  : review
-                  ? review.filter((review) => review.tipoAvaliacao === "2")
+                  : reviews
+                  ? reviews.filter((review) => review.tipo === "2")
                       .length
                   : 0}
               </span>
