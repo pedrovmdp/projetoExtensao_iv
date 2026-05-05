@@ -10,601 +10,302 @@ import { Button } from "@/components/ui/button.jsx";
 import Header from "../components/Header";
 import FormInput from "../components/FormInput";
 import { useDispatch } from "react-redux";
-// import { addStudent } from "../../store/features/studentSlice";
+import { createPerson } from "../../store/features/peopleSlice";
+import { useForm } from "react-hook-form";
 
 const CadastroAluno = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const [formData, setFormData] = useState({
-    // Dados pessoais
-    nome: "",
-    cpf: "",
-    rg: "",
-    data_nascimento: "",
-    sexo: "",
-    estado_civil: "",
-
-    // Contato
-    telefone: "",
-    celular: "",
-    email: "",
-
-    // Endereço
-    logradouro: "",
-    numero: "",
-    complemento: "",
-    bairro: "",
-    cidade: "",
-    cep: "",
-    estado: "",
-
-    // Dados familiares
-    nome_pai: "",
-    nome_mae: "",
-    telefone_responsavel: "",
-
-    // Dados institucionais
-    data_ingresso: "",
-    observacoes: "",
-    status: "Ativo",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
-  const [errors, setErrors] = useState({});
-  const [error, setError] = useState(null);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Limpar erro do campo quando o usuário começar a digitar
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Campos obrigatórios
-    if (!formData.nome.trim()) {
-      newErrors.nome = "Nome é obrigatório";
-    }
-
-    if (!formData.cpf.trim()) {
-      newErrors.cpf = "CPF é obrigatório";
-    } else if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
-      newErrors.cpf = "CPF deve estar no formato 000.000.000-00";
-    }
-
-    if (!formData.data_nascimento) {
-      newErrors.data_nascimento = "Data de nascimento é obrigatória";
-    }
-
-    if (!formData.data_ingresso) {
-      newErrors.data_ingresso = "Data de ingresso é obrigatória";
-    }
-
-    // Validar email se fornecido
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "E-mail inválido";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (data) => {
-    data.preventDefault();
-
-    // Validação do formulário
-    if (!validateForm()) {
-      setMessage({
-        type: 'error',
-        text: 'Por favor, corrija os erros no formulário',
-      });
-      return;
-    }
-
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-
-    try {
-      const newStudent = {
-        nome: formData.nome,
-        cpf: formData.cpf,
-        rg: formData.rg,
-        data_nascimento: formData.data_nascimento,
-        sexo: formData.sexo,
-        estado_civil: formData.estado_civil,
-        contato: {
-          telefone: formData.telefone,
-          celular: formData.celular,
-          email: formData.email,
-        },
-        endereco: {
-          logradouro: formData.logradouro,
-          numero: formData.numero,
-          complemento: formData.complemento,
-          bairro: formData.bairro,
-          cidade: formData.cidade,
-          cep: formData.cep,
-          estado: formData.estado,
-        },
-        dados_familiares: {
-          nome_pai: formData.nome_pai,
-          nome_mae: formData.nome_mae,
-          telefone_responsavel: formData.telefone_responsavel,
-        },
-        dados_institucionais: {
-          data_ingresso: formData.data_ingresso,
-          observacoes: formData.observacoes,
-          status: "Ativo",
-        }
-      };
-
-      dispatch(addStudent(newStudent));
-
-      setMessage({
-        type: 'success',
-        text: 'Aluno cadastrado com sucesso!',
-      });
-
-      // Limpar formulário após sucesso
-      setTimeout(() => {
-        handleReset();
-        setMessage({ type: '', text: '' });
-      }, 2000);
-
-    } catch (error) {
-      console.error('Erro ao cadastrar aluno:', error)
-      setMessage({
-        type: 'error',
-        text: 'Erro ao conectar com o servidor'
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-
-  const buscarEndereco = async (cep) => {
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const data = await response.json();
-
-      //se o CEP não for inserido
-      if (data.erro) {
-        setError("CEP não encontrado");
-        setFormData((prev) => ({
-          ...prev,
-          logradouro: "",
-          bairro: "",
-          cidade: "",
-          estado: "",
-        }));
-        return;
-      }
-
-      //
-      setError(null);
-      setFormData((prev) => ({
-        ...prev,
-        logradouro: data.logradouro,
-        bairro: data.bairro,
-        cidade: data.localidade,
-        estado: data.uf,
-      }));
-    } catch (error) {
-      setError("Erro ao buscar CEP");
-      console.error(err);
-    }
-  };
-
-  const handleReset = () => {
-    setFormData({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
       nome: "",
       cpf: "",
-      rg: "",
+      roleId: 3,
       data_nascimento: "",
-      sexo: "",
-      estado_civil: "",
+      data_entrada: "",
       telefone: "",
-      celular: "",
-      email: "",
-      logradouro: "",
-      numero: "",
-      complemento: "",
-      bairro: "",
-      cidade: "",
-      cep: "",
-      estado: "",
-      nome_pai: "",
-      nome_mae: "",
+      nome_responsavel: "",
       telefone_responsavel: "",
-      data_ingresso: "",
-      observacoes: "",
-      status: "Ativo",
-    });
-    setErrors({});
-    setMessage({ type: "", text: "" });
-  };
+      usa_medicamento: false,
+      info_medicamentos: "",
+      ativo: true,
+    },
+  });
 
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  const usaMedicamento = watch("usa_medicamento");
+
+  // CPF máscara
   const formatCPF = (value) => {
-    // Remove tudo que não é dígito
-    const numbers = value.replace(/\D/g, "");
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
 
-    // Aplica a máscara
-    if (numbers.length <= 11) {
-      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    }
-
-    return value;
+    return numbers
+      .replace(/^(\d{3})(\d)/, "$1.$2")
+      .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/, ".$1-$2");
   };
 
-  const formatCEP = (value) => {
-    const numbers = value.replace(/\D/g, "");
-    if (numbers.length <= 8) {
-      return numbers.replace(/^(\d{5})(\d{3})(\d{0,4}).*/, "$1-$2");
+  const formatPhone = (value) => {
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
+
+    if (numbers.length <= 10) {
+      return numbers
+        .replace(/^(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
     }
+
+    return numbers
+      .replace(/^(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2");
   };
 
   const handleCPFChange = (e) => {
     const formatted = formatCPF(e.target.value);
-    setFormData((prev) => ({
-      ...prev,
-      cpf: formatted,
-    }));
+    setValue("cpf", formatted);
   };
 
-  const handleCEPChange = (e) => {
-    const formatted = formatCEP(e.target.value);
-    setFormData((prev) => ({
-      ...prev,
-      cep: formatted,
-    }));
+  const isValidCPF = (cpf) => {
+    const numbers = cpf.replace(/\D/g, "");
+    if (numbers.length !== 11 || /^(\d)\1+$/.test(numbers)) return false;
 
-    // Quando o CEP tem 9 caracteres, faz a busca do endereço
-    if (formatted.length === 9) {
-      buscarEndereco(formatted.replace("-", "")); // Remove o hífen antes de buscar
+    let sum = 0;
+    let rest;
+
+    for (let i = 1; i <= 9; i++)
+      sum += parseInt(numbers.substring(i - 1, i)) * (11 - i);
+
+    rest = (sum * 10) % 11;
+    if (rest >= 10) rest = 0;
+    if (rest !== parseInt(numbers.substring(9, 10))) return false;
+
+    sum = 0;
+    for (let i = 1; i <= 10; i++)
+      sum += parseInt(numbers.substring(i - 1, i)) * (12 - i);
+
+    rest = (sum * 10) % 11;
+    if (rest >= 10) rest = 0;
+
+    return rest === parseInt(numbers.substring(10, 11));
+  };
+
+  const handleBackendError = (error) => {
+    const data = error?.response?.data;
+
+    const msg = data?.message || "Erro inesperado";
+    const field = data?.field;
+
+    // 👉 ERRO por campo (CPF, data etc)
+    if (field) {
+      setError(field, {
+        type: "server",
+        message: msg,
+      });
+
+      return;
     }
+
+    // 👉 erro geral
+    setMessage({
+      type: "error",
+      text: msg,
+    });
+
+    // auto hide
+    setTimeout(() => {
+      setMessage({ type: "", text: "" });
+    }, 4000);
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      const newStudent = {
+        ...data,
+        cpf: data.cpf.replace(/\D/g, ""),
+        telefone: data.telefone.replace(/\D/g, ""),
+        telefone_responsavel: data.telefone_responsavel.replace(/\D/g, ""),
+      };
+
+      await dispatch(createPerson(newStudent)).unwrap();
+
+      setMessage({
+        type: "success",
+        text: "Cadastro realizado com sucesso!",
+      });
+
+      // 👇 auto remove mensagem
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 4000);
+
+      reset();
+      scrollToTop();
+
+    } catch (error) {
+      handleBackendError(error);
+      scrollToTop();
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <Header
         icon={<UserPlus className="w-8 h-8 text-blue-600" />}
-        title={"Cadastro de Aluno"}
-        text={"Preencha as informações do novo aluno"}
+        title="Cadastro de Pessoa"
+        text="Preencha as informações"
       />
 
-      {/* Mensagem de feedback */}
       {message.text && (
         <div
           className={`p-4 rounded-lg flex items-center gap-2 ${message.type === "success"
-            ? "bg-green-50 border border-green-200 text-green-800"
-            : "bg-red-50 border border-red-200 text-red-800"
+            ? "bg-green-50 text-green-700 border border-green-200"
+            : "bg-red-50 text-red-700 border border-red-200"
             }`}
         >
-          {message.type === "success" ? (
-            <CheckCircle className="w-5 h-5" />
-          ) : (
-            <AlertCircle className="w-5 h-5" />
-          )}
+          {message.type === "success" ? "✅" : "⚠️"}
           {message.text}
         </div>
       )}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
-      {/* Formulário */}
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Dados Pessoais */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Dados Pessoais
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Dados pessoais */}
+        <div className="bg-white p-6 rounded-lg border">
+          <h2 className="text-xl mb-4">Dados Pessoais</h2>
+
+          <div className="grid md:grid-cols-2 gap-4">
             <FormInput
-              label={"Nome Completo *"}
-              type={"text"}
-              name={"nome"}
-              value={formData.nome}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.nome ? "border-red-500" : "border-gray-300"
-                }`}
-              placeholder="Digite o nome completo"
-              error={errors.nome}
+              label="Nome *"
+              {...register("nome", { required: "Nome é obrigatório" })}
+              error={errors.nome?.message}
             />
 
             <FormInput
-              label={"CPF *"}
-              type={"text"}
-              name={"cpf"}
-              value={formData.cpf}
-              onChange={handleCPFChange}
-              maxLength={"14"}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.cpf ? "border-red-500" : "border-gray-300"
-                }`}
-              placeholder="000.000.000-00"
-              error={errors.cpf}
+              label="CPF *"
+              maxLength={14}
+              {...register("cpf", {
+                required: "CPF é obrigatório",
+                validate: (v) => isValidCPF(v) || "CPF inválido",
+                onChange: (e) => {
+                  const formatted = formatCPF(e.target.value);
+
+                  setValue("cpf", formatted, {
+                    shouldValidate: true,
+                  });
+                }
+              })}
+              error={errors.cpf?.message}
             />
 
             <FormInput
-              label={"RG"}
-              type={"text"}
-              name={"rg"}
-              value={formData.rg}
-              maxLength={10}
-              onChange={handleInputChange}
-              placeholder="Digite o RG"
+              type="date"
+              label="Data nascimento *"
+              {...register("data_nascimento", {
+                required: "Obrigatório",
+              })}
+              error={errors.data_nascimento?.message}
             />
 
             <FormInput
-              label={"Data de Nascimento *"}
-              type={"date"}
-              name={"data_nascimento"}
-              value={formData.data_nascimento}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_nascimento ? "border-red-500" : "border-gray-300"
-                }`}
-              error={errors.data_nascimento}
+              type="date"
+              label="Data entrada *"
+              {...register("data_entrada", {
+                required: "Obrigatório",
+              })}
+              error={errors.data_entrada?.message}
             />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sexo
-              </label>
-              <select
-                name="sexo"
-                value={formData.sexo}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estado Civil
-              </label>
-              <select
-                name="estado_civil"
-                value={formData.estado_civil}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione</option>
-                <option value="Solteiro(a)">Solteiro(a)</option>
-                <option value="Casado(a)">Casado(a)</option>
-                <option value="Divorciado(a)">Divorciado(a)</option>
-                <option value="Viúvo(a)">Viúvo(a)</option>
-                <option value="União Estável">União Estável</option>
-              </select>
-            </div>
           </div>
         </div>
 
         {/* Contato */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Contato</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg border">
+          <h2 className="text-xl mb-4">Contato</h2>
+
+          <div className="grid md:grid-cols-2 gap-4">
             <FormInput
-              label={"Telefone"}
-              type={"tel"}
-              name={"telefone"}
-              value={formData.telefone}
-              onChange={handleInputChange}
-              placeholder="(48) 3000-0000"
+              label="Telefone *"
+              maxLength={15}
+              {...register("telefone", {
+                required: "Telefone obrigatório",
+                onChange: (e) => {
+                  const formatted = formatPhone(e.target.value);
+
+                  setValue("telefone", formatted, {
+                    shouldValidate: true,
+                  });
+                },
+              })}
+              error={errors.telefone?.message}
             />
 
             <FormInput
-              label={"Celular"}
-              type={"tel"}
-              name={"celular"}
-              value={formData.celular}
-              onChange={handleInputChange}
-              placeholder="(48) 99000-0000"
+              label="Telefone responsável *"
+              maxLength={15}
+              {...register("telefone_responsavel", {
+                required: "Obrigatório",
+                onChange: (e) => {
+                  const formatted = formatPhone(e.target.value);
+
+                  setValue("telefone_responsavel", formatted, {
+                    shouldValidate: true,
+                  });
+                },
+              })}
+              error={errors.telefone_responsavel?.message}
             />
 
             <FormInput
-              label={"E-mail"}
-              type={"email"}
-              name={"email"}
-              value={formData.email}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? "border-red-500" : "border-gray-300"
-                }`}
-              onChange={handleInputChange}
-              placeholder="email@exemplo.com"
-              error={errors.email}
-            />
-          </div>
-        </div>
-
-        {/* Endereço */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Endereço</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FormInput
-              label={"Endereço"}
-              type={"text"}
-              name={"logradouro"}
-              value={formData.logradouro}
-              onChange={handleInputChange}
-              placeholder="Rua, Avenida, etc."
-            />
-
-            <FormInput
-              label={"Número"}
-              type={"text"}
-              name={"numero"}
-              value={formData.numero}
-              onChange={handleInputChange}
-              placeholder="123"
-            />
-
-            <FormInput
-              label={"Complemento"}
-              type={"text"}
-              name={"complemento"}
-              value={formData.complemento}
-              onChange={handleInputChange}
-              placeholder="Apto, Casa, etc."
-            />
-
-            <FormInput
-              label={"Bairro"}
-              type={"text"}
-              name={"bairro"}
-              value={formData.bairro}
-              onChange={handleInputChange}
-              placeholder="Nome do bairro"
-            />
-
-            <FormInput
-              label={"Cidade"}
-              type={"text"}
-              name={"cidade"}
-              value={formData.cidade}
-              onChange={handleInputChange}
-              placeholder="Nome da cidade"
-            />
-
-            <FormInput
-              label={"CEP"}
-              type={"text"}
-              name={"cep"}
-              value={formData.cep}
-              onChange={handleCEPChange}
-              maxLength={'8'}
-              placeholder="00000-000"
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estado
-              </label>
-              <select
-                name="estado"
-                value={formData.estado}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione</option>
-                <option value="SC">Santa Catarina</option>
-                <option value="RS">Rio Grande do Sul</option>
-                <option value="PR">Paraná</option>
-                <option value="SP">São Paulo</option>
-                <option value="RJ">Rio de Janeiro</option>
-                {/* Adicionar outros estados conforme necessário */}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Dados Familiares */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Dados Familiares
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FormInput
-              label={"Nome do Pai"}
-              type={"text"}
-              name={"nome_pai"}
-              value={formData.nome_pai}
-              onChange={handleInputChange}
-              placeholder="Nome completo do pai"
-            />
-
-            <FormInput
-              label={"Nome da Mãe"}
-              type={"text"}
-              name={"nome_mae"}
-              value={formData.nome_mae}
-              onChange={handleInputChange}
-              placeholder="Nome completo da mãe"
-            />
-
-            <FormInput
-              label={"Telefone do Responsável"}
-              type={"text"}
-              name={"telefone_responsavel"}
-              value={formData.telefone_responsavel}
-              onChange={handleInputChange}
-              placeholder="(48) 99000-0000"
+              label="Nome responsável *"
+              {...register("nome_responsavel", {
+                required: "Obrigatório",
+              })}
+              error={errors.nome_responsavel?.message}
             />
           </div>
         </div>
 
-        {/* Dados Institucionais */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Dados Institucionais
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormInput
-              label={"Data de Ingresso *"}
-              type={"date"}
-              name={"data_ingresso"}
-              value={formData.data_ingresso}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.data_ingresso ? "border-red-500" : "border-gray-300"
-                }`}
-              error={errors.data_ingresso}
+        {/* Medicamento */}
+        <div className="bg-white p-6 rounded-lg border">
+          <label className="flex gap-2">
+            <input type="checkbox" {...register("usa_medicamento")} />
+            Usa medicamento?
+          </label>
+
+          {usaMedicamento && (
+            <textarea
+              className="w-full border mt-3 p-2"
+              placeholder="Informe os medicamentos"
+              {...register("info_medicamentos", {
+                required: "Informe os medicamentos",
+              })}
             />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Ativo">Ativo</option>
-                <option value="Em Avaliação">Em Avaliação</option>
-                <option value="Encaminhado">Encaminhado</option>
-                <option value="Inativo">Inativo</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Observações
-              </label>
-              <textarea
-                name="observacoes"
-                value={formData.observacoes}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Observações adicionais sobre o aluno..."
-              />
-            </div>
-          </div>
+          )}
+          {errors.info_medicamentos && (
+            <p className="text-red-500">{errors.info_medicamentos.message}</p>
+          )}
         </div>
 
         {/* Botões */}
         <div className="flex justify-end gap-4">
           <Button
             type="button"
-            variant="outline"
-            onClick={handleReset}
-            disabled={loading}
-            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => reset()}
+            className="flex items-center gap-2 cursor-pointer bg-white text-black hover:bg-gray-100 border"
           >
             <RotateCcw className="w-4 h-4" />
             Limpar
@@ -612,12 +313,11 @@ const CadastroAluno = () => {
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
-            onClick={handleSubmit}
           >
-            <Save className="w-4 h-4" />
-            {loading ? "Salvando..." : "Salvar Aluno"}
+            <Save className="flex items-center gap-2 cursor-pointer" />
+            {isSubmitting ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       </form>

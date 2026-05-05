@@ -1,22 +1,44 @@
-export default function FormInput({label, type, name, value, onChange, placeholder, maxLength, className, error}) {
+import React from "react";
 
+const FormInput = React.forwardRef(
+  (
+    {
+      label,
+      type = "text",
+      placeholder,
+      maxLength,
+      className,
+      error,
+      ...rest // 🔥 aqui vem o register
+    },
+    ref
+  ) => {
     return (
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-            <input
-                type={type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                className={ className || "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500  placeholder-gray-500"}
-                maxLength={maxLength}
-            />
-            {error && (
-                <p className="text-red-500 text-sm mt-1">
-                    {error}
-                </p>
-            )}
-        </div>
-    )
-}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+
+        <input
+          ref={ref} // 🔥 ESSENCIAL
+          type={type}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          className={
+            className ||
+            `w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              error ? "border-red-500" : "border-gray-300"
+            }`
+          }
+          {...rest} // 🔥 register entra aqui
+        />
+
+        {error && (
+          <p className="text-red-500 text-sm mt-1">{error}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+export default FormInput;
