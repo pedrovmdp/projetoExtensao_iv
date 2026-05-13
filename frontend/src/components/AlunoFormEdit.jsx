@@ -1,8 +1,13 @@
-import { FileText, User, Phone, MapPin, Calendar, Save } from "lucide-react";
+import { FileText, User, Phone, Calendar, Save } from "lucide-react";
+
 import { Button } from "@/components/ui/button.jsx";
+
 import FormInputDiv from "./FormInputDiv";
+
 import FormInput from "./FormInput";
+
 import IconColor from "../assets/IconColor";
+
 import { toast } from "sonner";
 
 const AlunoFormEdit = ({ formData, onChange, onSubmit, onCancel }) => {
@@ -16,6 +21,18 @@ const AlunoFormEdit = ({ formData, onChange, onSubmit, onCancel }) => {
     }
 
     onSubmit(formData);
+  };
+
+  const handleStatusChange = (e) => {
+    const isAtivo = e.target.value === "true";
+
+    onChange({
+      target: {
+        name: "ativo",
+
+        value: isAtivo,
+      },
+    });
   };
 
   return (
@@ -46,28 +63,10 @@ const AlunoFormEdit = ({ formData, onChange, onSubmit, onCancel }) => {
               onChange={onChange}
             />
             <FormInput
-              label="RG"
-              name="rg"
-              value={formData.rg}
-              onChange={onChange}
-            />
-            <FormInput
               label="Data de Nascimento"
               type="date"
               name="data_nascimento"
               value={formData.data_nascimento}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Sexo"
-              name="sexo"
-              value={formData.sexo}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Estado Civil"
-              name="estado_civil"
-              value={formData.estado_civil}
               onChange={onChange}
             />
           </div>
@@ -78,69 +77,20 @@ const AlunoFormEdit = ({ formData, onChange, onSubmit, onCancel }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormInput
               label="Telefone"
-              name="contato.telefone"
-              value={formData.contato.telefone}
+              name="telefone"
+              value={formData.telefone}
               onChange={onChange}
             />
             <FormInput
-              label="Celular"
-              name="contato.celular"
-              value={formData.contato.celular}
+              label="Nome Responsável"
+              name="nome_responsavel"
+              value={formData.nome_responsavel}
               onChange={onChange}
             />
             <FormInput
-              label="E-mail"
-              name="contato.email"
-              value={formData.contato.email}
-              onChange={onChange}
-            />
-          </div>
-        </FormInputDiv>
-
-        {/* Endereço */}
-        <FormInputDiv icon={MapPin} iconColor={IconColor.red} title="Endereço">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormInput
-              label="CEP"
-              name="endereco.cep"
-              value={formData.endereco.cep}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Logradouro"
-              name="endereco.logradouro"
-              value={formData.endereco.logradouro}
-              onChange={onChange}
-              className="md:col-span-2"
-            />
-            <FormInput
-              label="Número"
-              name="endereco.numero"
-              value={formData.endereco.numero}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Complemento"
-              name="endereco.complemento"
-              value={formData.endereco.complemento}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Bairro"
-              name="endereco.bairro"
-              value={formData.endereco.bairro}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Cidade"
-              name="endereco.cidade"
-              value={formData.endereco.cidade}
-              onChange={onChange}
-            />
-            <FormInput
-              label="Estado"
-              name="endereco.estado"
-              value={formData.endereco.estado}
+              label="Telefone do Responsável"
+              name="telefone_responsavel"
+              value={formData.telefone_responsavel}
               onChange={onChange}
             />
           </div>
@@ -154,24 +104,47 @@ const AlunoFormEdit = ({ formData, onChange, onSubmit, onCancel }) => {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormInput
-              label="Data de Ingresso"
+              label="Data de Entrada"
               type="date"
-              name="dados_institucionais.data_ingresso"
-              value={formData.dados_institucionais.data_ingresso}
+              name="data_entrada"
+              value={formData.data_entrada}
               onChange={onChange}
             />
+
+            {/* 🔥 CAMPO STATUS CUSTOMIZADO */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Status *
+              </label>
+              <select
+                name="ativo"
+                value={formData.ativo}
+                onChange={handleStatusChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={true}>Ativo</option>
+                <option value={false}>Inativo</option>
+              </select>
+
+              {/* Badge Visual do Status */}
+              <div className="mt-2">
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                    formData.ativo
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {formData.ativo ? "✓ Ativo" : "✕ Inativo"}
+                </span>
+              </div>
+            </div>
+
             <FormInput
-              label="Status"
-              name="dados_institucionais.status"
-              value={formData.dados_institucionais.status}
+              label="Informações Médicas"
+              name="info_medicamentos"
+              value={formData.info_medicamentos}
               onChange={onChange}
-            />
-            <FormInput
-              label="Observações"
-              name="dados_institucionais.observacoes"
-              value={formData.dados_institucionais.observacoes}
-              onChange={onChange}
-              className="md:col-span-2"
             />
           </div>
         </FormInputDiv>

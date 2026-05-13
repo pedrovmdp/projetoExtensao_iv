@@ -120,14 +120,18 @@ const AlunoDetailsModal = ({ aluno, onClose, onEdit }) => {
               <InfoGrid>
                 <InfoItem
                   label="Data de Ingresso"
-                  value={formatDate(aluno.dados_institucionais?.data_ingresso)}
+                  value={formatDate(aluno.data_entrada)}
                 />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Status</p>
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(aluno.dados_institucionais?.status)}`}
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      aluno.ativo
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
                   >
-                    {aluno.dados_institucionais?.status}
+                    {aluno.ativo ? "Ativo" : "Inativo"}
                   </span>
                 </div>
 

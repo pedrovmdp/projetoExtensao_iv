@@ -16,37 +16,38 @@ import StatsCard from "../components/StatsCard";
 import AlunoDetailsModal from "../components/AlunoDetailsModal";
 import AlunoFormEdit from "../components/AlunoFormEdit";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  getAllPeople,
+  searchPeople,
+  updatePerson,
+} from "../../store/features/peopleSlice";
+import {
+  fetchReviewById,
+  fetchReviews,
+} from "../../store/features/reviewSlice";
+import AlunoReviewsModal from "../components/AlunoReviewsModal";
 
 const INITIAL_FORM_DATA = {
   nome: "",
   cpf: "",
-  rg: "",
   data_nascimento: "",
-  sexo: "",
-  estado_civil: "",
-  contato: { telefone: "", celular: "", email: "" },
-  endereco: {
-    logradouro: "",
-    numero: "",
-    complemento: "",
-    bairro: "",
-    cidade: "",
-    cep: "",
-    estado: "",
-  },
-  dados_institucionais: {
-    data_ingresso: "",
-    observacoes: "",
-    status: "",
-  },
+  telefone: "",
+  telefone_responsavel: "",
+  nome_responsavel: "",
+  data_entrada: "",
+  info_medicamento: "",
+  ativo: true,
 };
 
 const HistoricoAluno = () => {
   const dispatch = useDispatch();
-  // Redux state
-  const students = []; // useSelector(selectAllStudents);
-  const loading = false; // useSelector(selectLoading);
-  const error = null; // useSelector(selectError);
+  // ✅ Redux state (peopleSlice)
+  const {
+    list: people,
+    isLoading,
+    isError,
+    message,
+  } = useSelector((state) => state.people);
 
   // Local state
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,93 +57,76 @@ const HistoricoAluno = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
-  // Carregar dados
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [selectedAlunoReviews, setSelectedAlunoReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+
+  // Carregar todos os alunos
   useEffect(() => {
-    // dispatch(fetchStudents());
+    dispatch(getAllPeople());
   }, [dispatch]);
 
-  // Filtros
-  const filteredAlunos = useMemo(() => {
-    let result = [...students];
+  // 🔍 BUSCA EM TEMPO REAL (igual Empresas Parceiras)
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (searchTerm.length >= 2) {
+        try {
+          await dispatch(searchPeople(searchTerm)).unwrap();
+        } catch (error) {
+          toast.error("Erro ao buscar alunos");
+        }
+      } else if (searchTerm.length === 0) {
+        dispatch(getAllPeople());
+      }
+    }, 500); // ✅ Aguarda 500ms após parar de digitar
+    return () => clearTimeout(delayDebounce); // Limpa timeout anterior
+  }, [searchTerm, dispatch]);
+  // Handler apenas atualiza o estado (não dispara busca)
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
 
-    if (searchTerm.trim()) {
-      const termo = searchTerm.toLowerCase();
-      result = result.filter(
-        (a) =>
-          a.nome.toLowerCase().includes(termo) ||
-          a.cpf.toLowerCase().includes(termo),
-      );
-    }
+  // Filtro por status (local)
+  const filteredAlunos = useMemo(() => {
+    let result = [...people];
 
     if (statusFilter) {
       result = result.filter(
-        (a) =>
-          a.dados_institucionais?.status?.toLowerCase() ===
-          statusFilter.toLowerCase(),
+        (a) => a.ativo?.toString() === statusFilter.toString(),
       );
     }
 
     return result;
-  }, [students, searchTerm, statusFilter]);
+  }, [people, statusFilter]);
 
   // Estatísticas
   const stats = useMemo(
     () => ({
-      total: students.length,
-      ativos: students.filter((a) => a.dados_institucionais?.status === "Ativo")
-        .length,
-      encaminhados: students.filter(
-        (a) => a.dados_institucionais?.status === "Encaminhado",
-      ).length,
-      avaliacao: students.filter(
-        (a) => a.dados_institucionais?.status === "Em Avaliação",
-      ).length,
+      total: people.length,
+      ativos: people.filter((a) => a.ativo === true).length,
+      encaminhados: people.filter((a) => a.status === "Encaminhado").length,
+      avaliacao: people.filter((a) => a.status === "Em Avaliação").length,
     }),
-    [students],
+    [people],
   );
 
   // Handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: { ...prev[parent], [child]: value },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEdit = (student) => {
     setFormData({
       nome: student.nome || "",
       cpf: student.cpf || "",
-      rg: student.rg || "",
       data_nascimento: student.data_nascimento || "",
-      sexo: student.sexo || "",
-      estado_civil: student.estado_civil || "",
-      contato: {
-        telefone: student.contato?.telefone || "",
-        celular: student.contato?.celular || "",
-        email: student.contato?.email || "",
-      },
-      endereco: {
-        logradouro: student.endereco?.logradouro || "",
-        numero: student.endereco?.numero || "",
-        complemento: student.endereco?.complemento || "",
-        bairro: student.endereco?.bairro || "",
-        cidade: student.endereco?.cidade || "",
-        cep: student.endereco?.cep || "",
-        estado: student.endereco?.estado || "",
-      },
-      dados_institucionais: {
-        data_ingresso: student.dados_institucionais?.data_ingresso || "",
-        observacoes: student.dados_institucionais?.observacoes || "",
-        status: student.dados_institucionais?.status || "",
-      },
+      telefone: student.telefone || "",
+      nome_responsavel: student.nome_responsavel || "",
+      telefone_responsavel: student.telefone_responsavel || "",
+      data_entrada: student.data_entrada || "",
+      info_medicamentos: student.info_medicamentos || "",
+      ativo: student.ativo, // ✅ Mantém como boolean
     });
     setSelectedAluno(student);
     setShowForm(true);
@@ -152,12 +136,17 @@ const HistoricoAluno = () => {
     const loadingToast = toast.loading("Atualizando aluno...");
 
     try {
-      // await dispatch(updateStudent({ id: selectedAluno.id, updatedStudent: data })).unwrap();
+      await dispatch(
+        updatePerson({
+          id: selectedAluno.id,
+          data: data,
+        }),
+      ).unwrap();
       toast.success("Aluno atualizado com sucesso!", { id: loadingToast });
       setShowForm(false);
       setFormData(INITIAL_FORM_DATA);
       setSelectedAluno(null);
-      // dispatch(fetchStudents());
+      dispatch(getAllPeople());
     } catch (error) {
       toast.error("Erro ao atualizar aluno", { id: loadingToast });
     }
@@ -188,15 +177,14 @@ const HistoricoAluno = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      Ativo: "bg-green-100 text-green-800",
-      Encaminhado: "bg-blue-100 text-blue-800",
-      "Em Avaliação": "bg-yellow-100 text-yellow-800",
+      true: "bg-green-100 text-green-800",
+      false: "bg-gray-100 text-gray-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <Header
@@ -215,7 +203,7 @@ const HistoricoAluno = () => {
   }
 
   // Error state
-  if (error) {
+  if (isError) {
     return (
       <div className="space-y-6">
         <Header
@@ -224,9 +212,9 @@ const HistoricoAluno = () => {
           text="Visualize e gerencie o histórico de todos os alunos cadastrados"
         />
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+          <p className="text-red-800">{message}</p>
           <button
-            onClick={() => dispatch(fetchStudents())}
+            onClick={() => dispatch(getAllPeople())}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Tentar Novamente
@@ -235,6 +223,24 @@ const HistoricoAluno = () => {
       </div>
     );
   }
+
+  const handleViewReviews = async (student) => {
+    setLoadingReviews(true);
+    setShowReviewsModal(true);
+    try {
+      // Busca todas as reviews e filtra pelo personId
+      const response = await dispatch(fetchReviews()).unwrap();
+      const alunoReviews = response.filter(
+        (review) => review.person.id === student.id,
+      );
+      setSelectedAlunoReviews(alunoReviews);
+    } catch (error) {
+      toast.error("Erro ao carregar avaliações");
+      setSelectedAlunoReviews([]);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -255,7 +261,7 @@ const HistoricoAluno = () => {
                   type="text"
                   placeholder="Buscar por nome ou CPF..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearch(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -268,9 +274,8 @@ const HistoricoAluno = () => {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                 >
                   <option value="">Todos os status</option>
-                  <option value="Ativo">Ativo</option>
-                  <option value="Encaminhado">Encaminhado</option>
-                  <option value="Em Avaliação">Em Avaliação</option>
+                  <option value="true">Ativo</option>
+                  <option value="false">Inativo</option>
                 </select>
               </div>
 
@@ -317,7 +322,7 @@ const HistoricoAluno = () => {
                       Idade
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Data Ingresso
+                      Data Entrada
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Status
@@ -340,9 +345,7 @@ const HistoricoAluno = () => {
                               {student.nome}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {student.contato?.telefone ||
-                                student.contato?.celular ||
-                                "-"}
+                              {student.telefone || student.celular || "-"}
                             </div>
                           </div>
                         </div>
@@ -356,15 +359,17 @@ const HistoricoAluno = () => {
                           : "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(
-                          student.dados_institucionais?.data_ingresso,
-                        )}
+                        {formatDate(student.data_entrada)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(student.dados_institucionais?.status)}`}
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            student.ativo
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
                         >
-                          {student.dados_institucionais?.status}
+                          {student.ativo ? "Ativo" : "Inativo"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -376,6 +381,7 @@ const HistoricoAluno = () => {
                               setSelectedAluno(student);
                               setShowModal(true);
                             }}
+                            className="cursor-pointer"
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -383,10 +389,16 @@ const HistoricoAluno = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEdit(student)}
+                            className="cursor-pointer"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="cursor-pointer"
+                            onClick={() => handleViewReviews(student)}
+                          >
                             <BookCheck className="w-4 h-4" />
                           </Button>
                         </div>
@@ -413,6 +425,19 @@ const HistoricoAluno = () => {
           aluno={selectedAluno}
           onClose={() => setShowModal(false)}
           onEdit={handleEdit}
+        />
+      )}
+
+      {showReviewsModal && (
+        <AlunoReviewsModal
+          isOpen={showReviewsModal}
+          onClose={() => {
+            setShowReviewsModal(false);
+            setSelectedAlunoReviews([]);
+          }}
+          aluno={selectedAluno}
+          reviews={selectedAlunoReviews}
+          loading={loadingReviews}
         />
       )}
     </div>
