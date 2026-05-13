@@ -1,192 +1,168 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import {
+  LayoutDashboard,
+  Users,
+  Briefcase,
+  ClipboardCheck,
+  Award,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
-  LineChart,
-  Line,
 } from "recharts";
-import {
-  Users,
-  Briefcase,
-  ClipboardCheck,
-  TrendingUp,
-  Calendar,
-  Award,
-  LayoutDashboard,
-} from "lucide-react";
-import Header from "../components/Header";
-import { useDispatch, useSelector } from "react-redux";
-import StatCard from "../components/StatCard";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import Header from "../components/Header";
+import StatCard from "../components/StatCard";
 import { searchPeopleByRoleName } from "../../store/features/peopleSlice";
 import { getAllPeopleCompany } from "../../store/features/peopleCompanySlice";
 import { fetchReviews } from "../../store/features/reviewSlice";
+import { fetchCompanys } from "../../store/features/companySlice";
 
-// Componente principal do Dashboard
 const Dashboard = () => {
   const dispatch = useDispatch();
 
+  // 🔥 CARREGAR DADOS
   useEffect(() => {
-    dispatch(searchPeopleByRoleName("ALUNO")),
-    dispatch(getAllPeopleCompany()),
-    dispatch(fetchReviews())
+    dispatch(searchPeopleByRoleName("ALUNO"));
+    dispatch(getAllPeopleCompany());
+    dispatch(fetchCompanys());
+    dispatch(fetchReviews());
   }, [dispatch]);
 
+  // 🔥 SELECTORS
   const { alunosAtivos, isLoading } = useSelector((state) => state.people);
-  const {list, isLoading: loadingPeopleCompany } = useSelector((state) => state.peopleCompany);
-  const { reviews, loading: loadingReviews } = useSelector((state) => state.reviews);
+  const { list, isLoading: loadingPeopleCompany } = useSelector((state) => state.peopleCompany,);
+  const { reviews, loading: loadingReviews } = useSelector((state) => state.reviews,);
+  const { companys, loading: loadingCompany } = useSelector((state) => state.companys,);
 
-  const monitoring = [];
-  const loadingMonitoring = [];
+  // 🔥 GRÁFICO: Alunos por Mês (baseado em data_entrada)
+  const alunosData = useMemo(() => {
+    if (!alunosAtivos || alunosAtivos.length === 0) return [];
 
-  const students = [];
-  const loadingStudents = [];
+    const contagem = {};
 
-  const [stats, setStats] = useState({});
-  const [acompanhamentoStats, setAcompanhamentoStats] = useState({});
-  const [avaliacaoStats, setAvaliacaoStats] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    alunosAtivos.forEach((aluno) => {
+      const dataStr = aluno?.data_entrada;
+      if (!dataStr) return;
 
-  // Gerar dados para o gráfico de alunos por mês
-  const acompanhamentoData = [] //useMemo(() => {
-  //   if (!students || students.length === 0) return [];
+      try {
+        const data = parseISO(dataStr);
+        if (isNaN(data.getTime())) return;
 
-  //   const contagem = {};
+        const mes = format(data, "MMM/yyyy", { locale: ptBR });
+        contagem[mes] = (contagem[mes] || 0) + 1;
+      } catch (error) {
+        console.error("Erro ao processar data:", error);
+      }
+    });
 
-  //   students.forEach((aluno) => {
-  //     const dataStr = aluno?.dados_institucionais?.data_ingresso;
-  //     if (!dataStr) return;
+    return Object.entries(contagem)
+      .map(([mes, alunos]) => ({ mes, alunos }))
+      .sort((a, b) => {
+        const [mesA, anoA] = a.mes.split("/");
+        const [mesB, anoB] = b.mes.split("/");
+        return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
+      });
+  }, [alunosAtivos]);
 
-  //     const data = parseISO(dataStr);
-  //     if (isNaN(data)) return;
+  // 🔥 GRÁFICO: Encaminhamentos (PeopleCompany)
+  const encaminhamentosData = useMemo(() => {
+    if (!list || list.length === 0) {
+      return [
+        { nome: "Ativos", valor: 0, cor: "#4CAF50" },
+        { nome: "Inativos", valor: 0, cor: "#9E9E9E" },
+      ];
+    }
 
-  //     // nome do mês abreviado + ano
-  //     const mes = format(data, "MMM/yyyy", { locale: ptBR });
-  //     contagem[mes] = (contagem[mes] || 0) + 1;
-  //   });
+    const ativos = list.filter((item) => item.status === 'ATIVO').length;
+    const inativos = list.length - ativos;
 
-  //   // converter para array ordenado
-  //   return Object.entries(contagem)
-  //     .map(([mes, alunos]) => ({ mes, alunos }))
-  //     .sort((a, b) => {
-  //       const [mesA, anoA] = a.mes.split("/");
-  //       const [mesB, anoB] = b.mes.split("/");
-  //       return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
-  //     });
-  // }, []);
+    return [
+      { nome: "Ativos", valor: ativos, cor: "#4CAF50" },
+      { nome: "Inativos", valor: inativos, cor: "#9E9E9E" },
+    ];
+  }, [list]);
 
-   const encaminhamentosData = [] //useMemo(() => {
-  //   if (!monitoring || monitoring.length === 0)
-  //     return [
-  //       { nome: "Ativos", valor: 0, cor: "#4CAF50" },
-  //       { nome: "Em Observação", valor: 0, cor: "#FF9800" },
-  //       { nome: "Finalizados", valor: 0, cor: "#9E9E9E" },
-  //     ];
+  // 🔥 GRÁFICO: Avaliações por Período
+  const avaliacoesData = useMemo(() => {
+    if (!reviews || reviews.length === 0) return [];
 
-  //   const contagem = {
-  //     Ativo: 0,
-  //     "Em Observação": 0,
-  //     Finalizado: 0,
-  //   };
+    const contagem = {};
 
-    // monitoring.forEach((item) => {
-    //   const status = item.status;
-    //   if (status === "Ativo") contagem.Ativo++;
-    //   else if (status === "Em Observação") contagem["Em Observação"]++;
-    //   else if (status === "Finalizado") contagem.Finalizado++;
-    // });
+    reviews.forEach((avaliacao) => {
+      const dataStr = avaliacao?.data_avaliacao;
+      if (!dataStr) return;
 
-  //   return [
-  //     { nome: "Ativos", valor: contagem.Ativo, cor: "#4CAF50" },
-  //     {
-  //       nome: "Em Observação",
-  //       valor: contagem["Em Observação"],
-  //       cor: "#FF9800",
-  //     },
-  //     { nome: "Finalizados", valor: contagem.Finalizado, cor: "#ff2121ff" },
-  //   ];
-  // }, [monitoring]);
+      try {
+        const data = parseISO(dataStr);
+        if (isNaN(data.getTime())) return;
 
-  // Gerar gráfico de avaliações por período (por mês)
-   const avaliacoesData = [] //useMemo(() => {
-  //   if (!review || review.length === 0) return [];
+        const mes = format(data, "MMM/yyyy", { locale: ptBR });
+        contagem[mes] = (contagem[mes] || 0) + 1;
+      } catch (error) {
+        console.error("Erro ao processar data:", error);
+      }
+    });
 
-  //   const contagem = {};
+    return Object.entries(contagem)
+      .map(([periodo, avaliacoes]) => ({ periodo, avaliacoes }))
+      .sort((a, b) => {
+        const [mesA, anoA] = a.periodo.split("/");
+        const [mesB, anoB] = b.periodo.split("/");
+        return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
+      });
+  }, [reviews]);
 
-  //   review.forEach((avaliacao) => {
-  //     const dataStr = avaliacao?.dataAvaliacao; // <--- substitua se o nome for diferente
-  //     if (!dataStr) return;
+  // 🔥 CONTADORES
+  const primeiraAvaliacoes = useMemo(() => {
+    return (
+      reviews?.filter((review) => review.tipo === "1ª Avaliação").length || 0
+    );
+  }, [reviews]);
 
-  //     const data = parseISO(dataStr);
-  //     if (isNaN(data)) return;
-
-  //     const mes = format(data, "MMM/yyyy", { locale: ptBR });
-  //     contagem[mes] = (contagem[mes] || 0) + 1;
-  //   });
-
-  //   return Object.entries(contagem)
-  //     .map(([periodo, avaliacoes]) => ({ periodo, avaliacoes }))
-  //     .sort((a, b) => {
-  //       const [mesA, anoA] = a.periodo.split("/");
-  //       const [mesB, anoB] = b.periodo.split("/");
-  //       return new Date(`${anoA}-${mesA}-01`) - new Date(`${anoB}-${mesB}-01`);
-  //     });
-  // }, [review]);
-
-  // if (error) {
-  //   return (
-  //     <div className="space-y-6">
-  //       <div className="mb-8">
-  //         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-  //         <p className="text-gray-600 mt-2">
-  //           Visão geral das atividades do Instituto Diomício Freitas
-  //         </p>
-  //       </div>
-  //       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-  //         <p className="text-red-800">{error}</p>
-  //         <button
-  //           onClick={encaminhamentosData}
-  //           className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-  //         >
-  //           Tentar Novamente
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const segundaAvaliacoes = useMemo(() => {
+    return (
+      reviews?.filter((review) => review.tipo === "2ª Avaliação").length || 0
+    );
+  }, [reviews]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <Header
         icon={<LayoutDashboard className="w-8 h-8 text-blue-600" />}
-        title={"Dashboard"}
-        text={"Visão geral das atividades do Instituto Diomício Freitas"}
+        title="Dashboard"
+        text="Visão geral das atividades do Instituto Diomício Freitas"
       />
 
-      {/* Cards de estatísticas */}
+      {/* Cards de Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Alunos Ativos"
-          value={alunosAtivos.length}
+          value={alunosAtivos?.length || 0}
           icon={Users}
           color="bg-blue-500"
-          subtitle="Total alunos"
+          subtitle="Total de alunos"
           loading={isLoading}
         />
         <StatCard
           title="Encaminhados para Trabalho"
-          value={list.length}
+          value={list?.filter((item) => item.status === 'ATIVO').length || 0}
           icon={Briefcase}
           color="bg-green-500"
           subtitle="Alunos encaminhados"
@@ -194,29 +170,25 @@ const Dashboard = () => {
         />
         <StatCard
           title="Avaliações Realizadas"
-          value={reviews.length}
+          value={reviews?.length || 0}
           icon={ClipboardCheck}
           color="bg-purple-500"
           subtitle="Total de avaliações"
           loading={loadingReviews}
         />
         <StatCard
-          title="Acompanhamentos Ativos"
-          value={
-            monitoring
-              ? monitoring.filter((aluno) => aluno.status === "Ativo").length
-              : 0
-          }
+          title="Empresas Parceiras"
+          value={companys?.length || 0}
           icon={Award}
           color="bg-orange-500"
-          subtitle="Em andamento"
-          loading={loadingMonitoring}
+          subtitle="Parcerias ativas"
+          loading={loadingCompany}
         />
       </div>
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Gráfico de Acompanhamento por Mês */}
+        {/* Gráfico de Alunos por Mês */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-blue-500" />
@@ -224,34 +196,38 @@ const Dashboard = () => {
               Alunos por Mês
             </h3>
           </div>
-          {/* {loading ? (
+          {isLoading ? (
             <div className="h-[300px] flex items-center justify-center">
-              <p className="text-gray-500">Carregando...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-          ) : ( */}
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={acompanhamentoData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="mes" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="alunos" fill="#4A90E2" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-          {/* )} */}
+          ) : alunosData.length === 0 ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <p className="text-gray-500">Nenhum dado disponível</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={alunosData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mes" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="alunos" fill="#4A90E2" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
-        {/* Gráfico de Status dos Acompanhamentos */}
+        {/* Gráfico de Status dos Encaminhamentos */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
             <Briefcase className="w-5 h-5 text-green-500" />
             <h3 className="text-lg font-semibold text-gray-900">
-              Status dos Acompanhamentos
+              Status dos Encaminhamentos
             </h3>
           </div>
-          {loadingMonitoring ? (
+          {loadingPeopleCompany ? (
             <div className="h-[300px] flex items-center justify-center">
-              <p className="text-gray-500">Carregando...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -275,7 +251,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Gráfico de Avaliações e Estatísticas Adicionais */}
+      {/* Gráfico de Avaliações e Resumo */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Gráfico de Avaliações */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -285,21 +261,31 @@ const Dashboard = () => {
               Avaliações por Período
             </h3>
           </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={avaliacoesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="periodo" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="avaliacoes"
-                stroke="#8B5CF6"
-                strokeWidth={3}
-                dot={{ fill: "#8B5CF6", strokeWidth: 2, r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {loadingReviews ? (
+            <div className="h-[250px] flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : avaliacoesData.length === 0 ? (
+            <div className="h-[250px] flex items-center justify-center">
+              <p className="text-gray-500">Nenhuma avaliação registrada</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={avaliacoesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="periodo" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="avaliacoes"
+                  stroke="#8B5CF6"
+                  strokeWidth={3}
+                  dot={{ fill: "#8B5CF6", strokeWidth: 2, r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         {/* Resumo de Status */}
@@ -307,67 +293,46 @@ const Dashboard = () => {
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-orange-500" />
             <h3 className="text-lg font-semibold text-gray-900">
-              Resumo de Status
+              Resumo Geral
             </h3>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Alunos Ativos</span>
               <span className="font-semibold text-green-600">
-                {loadingMonitoring
-                  ? "..."
-                  : monitoring.filter((aluno) => aluno.status === "Ativo")
-                      .length || 0}
+                {isLoading ? "..." : alunosAtivos?.filter((item) => item.ativo === true).length || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Encaminhados</span>
               <span className="font-semibold text-blue-600">
-                {loadingMonitoring
-                  ? "..."
-                  : monitoring
-                  ? monitoring.filter(
-                      (aluno) => aluno.status === "Em Observação"
-                    ).length
-                  : 0}
+                {loadingPeopleCompany ? "..." : list?.filter((item) => item.status === 'ATIVO').length || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Em Avaliação</span>
-              <span className="font-semibold text-yellow-600">
-                {loadingReviews ? "..." : stats.alunos_avaliacao || 0}
+              <span className="text-sm text-gray-600">Total Avaliações</span>
+              <span className="font-semibold text-purple-600">
+                {loadingReviews ? "..." : reviews?.length || 0}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">1ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loadingReviews
-                  ? "..."
-                  : reviews
-                  ? reviews.filter((review) => review.tipo === "1")
-                      .length
-                  : 0}
+                {loadingReviews ? "..." : primeiraAvaliacoes}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">2ª Avaliações</span>
               <span className="font-semibold text-purple-600">
-                {loadingReviews
-                  ? "..."
-                  : reviews
-                  ? reviews.filter((review) => review.tipo === "2")
-                      .length
-                  : 0}
+                {loadingReviews ? "..." : segundaAvaliacoes}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Acomp. Observação</span>
-              <span className="font-semibold text-orange-600">
-                {loadingMonitoring
+              <span className="text-sm text-gray-600">Parcerias Ativas</span>
+              <span className="font-semibold text-green-600">
+                {loadingPeopleCompany
                   ? "..."
-                  : monitoring.filter(
-                      (monitor) => monitor.status === "Em Observação"
-                    ).length || 0}
+                  : list?.filter((item) => item.ativo).length || 0}
               </span>
             </div>
           </div>
