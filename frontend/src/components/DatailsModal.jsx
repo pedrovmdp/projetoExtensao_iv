@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button.jsx";
 
-export default function DetailsModal({
+export default function DetailsModal({ 
   title,
   data,
   onClose,

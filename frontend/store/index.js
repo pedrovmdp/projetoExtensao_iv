@@ -7,6 +7,7 @@ import { peopleReducer } from "./features/peopleSlice";
 import { usersReducer } from "./features/usersSlice";
 import { rolesReducer } from "./features/roleSlice";
 import { questionsReducer } from "./features/questionsSlice";
+import { monitoringSheetsReducer } from "./features/monitoringSheetSlice";
 
 export const store = configureStore ({
     reducer:{
@@ -18,5 +19,6 @@ export const store = configureStore ({
         reviews: reviewReducer,
         roles: rolesReducer,
         questions: questionsReducer,
+        monitoringSheet: monitoringSheetsReducer,
     },
 });
