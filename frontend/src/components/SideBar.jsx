@@ -18,10 +18,12 @@ import UserProfile from "./UserProfile";
 import NavItem from "./NavItem";
 import LogoutDialog from "./LogoutDialog"; // ✅ Confirmação de logout
 
+
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const user = useSelector((state) => state.auth.user);
   const role = user?.role;
+  const isAdmin = user?.role?.name === "ADMIN";
 
   // 🔹 Itens padrão de navegação
   const navItems = [
@@ -35,7 +37,7 @@ export default function Sidebar({ isOpen, onClose }) {
   ];
 
   // 🔸 Apenas administradores veem o Gerenciar Usuários
-  if (role === "admin") {
+  if (isAdmin) {
     navItems.push({
       to: "/cadastro-usuario",
       icon: Settings,
@@ -79,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <nav className="mt-5 flex flex-col gap-1">
           {navItems.map((item) => {
             if (item.label === "Sair") {
-              return <LogoutDialog key="logout" className="cursor-pointer pl-4"/>; // ✅ apenas renderiza o componente
+              return <LogoutDialog key="logout" className="cursor-pointer pl-4" />; // ✅ apenas renderiza o componente
             }
             return (
               <NavItem

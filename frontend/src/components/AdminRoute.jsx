@@ -1,16 +1,18 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
-/**
- * 🔐 Protege rotas que só podem ser acessadas por administradores
- * Verifica se o usuário tem role.name === "ADMIN"
- */
 export default function AdminRoute({ children }) {
   const { isAuthenticated, user, isAuthenticatedLoading } = useSelector(
-    (state) => state.auth,
+    (state) => state.auth
   );
 
-  // ⏳ Aguarda carregar dados do usuário
+  console.log({
+    isAuthenticated,
+    user,
+    isAuthenticatedLoading,
+  });
+
+  // Loading
   if (isAuthenticatedLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -19,16 +21,16 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  // 🚫 Se não estiver autenticado, redireciona para login
-  if (!isAuthenticated) {
+  // Não autenticado
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  // 🚫 Se não for ADMIN, redireciona para home
+  // Não é admin
   if (user?.role?.name !== "ADMIN") {
     return <Navigate to="/" replace />;
   }
 
-  // ✅ Se for ADMIN, permite acesso
+  // Admin autorizado
   return children;
 }
