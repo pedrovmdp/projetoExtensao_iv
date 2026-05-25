@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Search,
-  Filter,
   Eye,
   Edit,
   Download,
@@ -12,7 +11,10 @@ import {
 import { Button } from "@/components/ui/button.jsx";
 import { toast } from "sonner";
 import Header from "../components/Header";
-import StatsCard from "../components/StatsCard";
+import StatCard from "../components/StatCard";
+import SearchInput from "../components/SearchInput";
+import LoadingSpinner from "../components/LoadingSpinner";
+import EmptyState from "../components/EmptyState";
 import AlunoDetailsModal from "../components/AlunoDetailsModal";
 import AlunoFormEdit from "../components/AlunoFormEdit";
 import { useDispatch, useSelector } from "react-redux";
@@ -193,10 +195,7 @@ const HistoricoAluno = () => {
           text="Visualize e gerencie o histórico de todos os alunos cadastrados"
         />
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="text-gray-500 ml-3">Carregando alunos...</p>
-          </div>
+          <LoadingSpinner text="Carregando alunos..." size="md" />
         </div>
       </div>
     );
@@ -253,31 +252,26 @@ const HistoricoAluno = () => {
       {!showForm ? (
         <>
           {/* Filtros */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Buscar por nome ou CPF..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+          <SearchInput
+            placeholder="Buscar por nome ou CPF..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            totalCount={filteredAlunos.length}
+            countLabel="Alunos encontrados"
+          />
 
-              <div className="md:w-48 relative">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                >
-                  <option value="">Todos os status</option>
-                  <option value="true">Ativo</option>
-                  <option value="false">Inativo</option>
-                </select>
-              </div>
+          {/* Status Filter */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center gap-4">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Filtrar por status: Todos</option>
+                <option value="true">Filtrar por status: Ativo</option>
+                <option value="false">Filtrar por status: Inativo</option>
+              </select>
 
               <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
                 <Download className="w-4 h-4" />
@@ -288,33 +282,44 @@ const HistoricoAluno = () => {
 
           {/* Estatísticas */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <StatsCard
+            <StatCard
+              title="Total de Alunos"
               value={stats.total}
-              label="Total de Alunos"
-              color="blue"
+              variant="compact"
             />
-            <StatsCard value={stats.ativos} label="Ativos" color="green" />
-            <StatsCard
+            <StatCard 
+              title="Ativos" 
+              value={stats.ativos}
+              variant="compact"
+            />
+            <StatCard
+              title="Encaminhados"
               value={stats.encaminhados}
-              label="Encaminhados"
-              color="blue"
+              variant="compact"
             />
-            <StatsCard
+            <StatCard
+              title="Em Avaliação"
               value={stats.avaliacao}
-              label="Em Avaliação"
-              color="yellow"
+              variant="compact"
             />
           </div>
 
           {/* Tabela */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Aluno
-                    </th>
+            {filteredAlunos.length === 0 ? (
+              <EmptyState
+                icon={User}
+                title="Nenhum aluno encontrado"
+                description="Nenhum aluno corresponde aos critérios de filtro"
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Aluno
+                      </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       CPF
                     </th>
@@ -407,7 +412,8 @@ const HistoricoAluno = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+              </div>
+            )}
           </div>
         </>
       ) : (

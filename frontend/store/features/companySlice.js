@@ -65,10 +65,19 @@ const companySlice = createSlice({
             })
 
             // 🔹 Buscar por nome
+            .addCase(fetchCompanytByName.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchCompanytByName.fulfilled, (state, action) => {
-                state.companys = action.payload;
+                state.companys = action.payload || [];
                 state.loading = false;
                 state.error = null;
+            })
+            .addCase(fetchCompanytByName.rejected, (state, action) => {
+                state.companys = [];
+                state.loading = false;
+                state.error = action.error?.message || "Erro ao buscar empresas";
             })
 
             // 🔹 Criar empresa

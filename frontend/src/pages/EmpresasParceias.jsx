@@ -1,30 +1,25 @@
 import {
-  Building,
   Building2,
   Edit,
   Eye,
   Mail,
   MapPin,
   Phone,
-  Search,
-  User,
 } from "lucide-react";
 
 import Header from "../components/Header";
-
 import TextRow from "../components/ui/textRow";
-
 import { Button } from "@/components/ui/button.jsx";
+import SearchInput from "../components/SearchInput";
+import LoadingSpinner from "../components/LoadingSpinner";
+import EmptyState from "../components/EmptyState";
 
 import { useEffect, useState } from "react";
-
 import { useDispatch, useSelector } from "react-redux";
-
 import {
   fetchCompanys,
   fetchCompanytByName,
 } from "../../store/features/companySlice";
-
 import { toast } from "sonner";
 
 export default function EmpresasParceiras() {
@@ -101,35 +96,13 @@ export default function EmpresasParceiras() {
       />
 
       {/* Barra de pesquisa */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Campo de busca */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Buscar por nome fantasia, razão social ou CNPJ..."
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Total de empresas */}
-          <div className="md:w-48">
-            <div className="relative">
-              <p className="text-2xl font-bold text-blue-600 text-center">
-                {companys.length}
-              </p>
-              <p className="text-xs text-gray-600 text-center">
-                Total de empresas parceiras
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SearchInput
+        placeholder="Buscar por nome fantasia, razão social ou CNPJ..."
+        value={searchTerm}
+        onChange={(e) => handleSearch(e.target.value)}
+        totalCount={companys.length}
+        countLabel="Total de empresas"
+      />
 
       {/* Lista de empresas */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -140,14 +113,13 @@ export default function EmpresasParceiras() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
+          <LoadingSpinner text="Carregando empresas..." size="lg" />
         ) : companys.length === 0 ? (
-          <div className="text-center py-12">
-            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Nenhuma empresa encontrada</p>
-          </div>
+          <EmptyState 
+            icon={Building2}
+            title="Nenhuma empresa encontrada"
+            description="Nenhuma empresa registrada no sistema"
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">

@@ -28,6 +28,8 @@ import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
+import LoadingSpinner from "../components/LoadingSpinner";
+import EmptyState from "../components/EmptyState";
 import { searchPeopleByRoleName } from "../../store/features/peopleSlice";
 import { getAllPeopleCompany } from "../../store/features/peopleCompanySlice";
 import { fetchReviews } from "../../store/features/reviewSlice";
@@ -197,13 +199,13 @@ const Dashboard = () => {
             </h3>
           </div>
           {isLoading ? (
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
+            <LoadingSpinner fullHeight />
           ) : alunosData.length === 0 ? (
-            <div className="h-[300px] flex items-center justify-center">
-              <p className="text-gray-500">Nenhum dado disponível</p>
-            </div>
+            <EmptyState
+              icon={TrendingUp}
+              title="Nenhum dado disponível"
+              description="Não há dados de alunos para exibir"
+            />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={alunosData}>
@@ -226,9 +228,7 @@ const Dashboard = () => {
             </h3>
           </div>
           {loadingPeopleCompany ? (
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            </div>
+            <LoadingSpinner fullHeight />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -262,13 +262,13 @@ const Dashboard = () => {
             </h3>
           </div>
           {loadingReviews ? (
-            <div className="h-[250px] flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-            </div>
+            <LoadingSpinner fullHeight />
           ) : avaliacoesData.length === 0 ? (
-            <div className="h-[250px] flex items-center justify-center">
-              <p className="text-gray-500">Nenhuma avaliação registrada</p>
-            </div>
+            <EmptyState
+              icon={ClipboardCheck}
+              title="Nenhuma avaliação registrada"
+              description="Não há avaliações para exibir neste período"
+            />
           ) : (
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={avaliacoesData}>

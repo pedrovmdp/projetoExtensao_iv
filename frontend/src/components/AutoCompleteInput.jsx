@@ -1,6 +1,6 @@
 // src/components/AutoCompleteInput.jsx
 import { useState, useEffect, useRef } from "react";
-import { Search, X, User, Loader2 } from "lucide-react";
+import { Search, X, User, Building, Loader2 } from "lucide-react";
 
 const AutoCompleteInput = ({
   label,
@@ -8,19 +8,22 @@ const AutoCompleteInput = ({
   onSelect,
   fetchData,
   error,
+  displayField = "nome", // Campo principal a exibir (ex: 'nome', 'razao_social')
+  secondaryField = "cpf", // Campo secundário (ex: 'cpf', 'cnpj')
+  icon: IconComponent = User, // Ícone customizável
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
   // 🔥 BUSCA EM TEMPO REAL - SÓ SE NÃO TIVER SELECIONADO
   useEffect(() => {
-    // ✅ SE JÁ TEM ALGUÉM SELECIONADO, NÃO BUSCA
-    if (selectedPerson) {
+    // ✅ SE JÁ TEM ALGUÉM/ALGO SELECIONADO, NÃO BUSCA
+    if (selectedItem) {
       setSuggestions([]);
       setShowDropdown(false);
       return;
@@ -46,7 +49,7 @@ const AutoCompleteInput = ({
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-  }, [inputValue, fetchData, selectedPerson]); // ✅ Adicionado selectedPerson
+  }, [inputValue, fetchData, selectedItem]);
 
   // 🔥 FECHAR DROPDOWN AO CLICAR FORA
   useEffect(() => {
@@ -65,22 +68,22 @@ const AutoCompleteInput = ({
     setInputValue(value);
     // ✅ SE LIMPAR O INPUT, REMOVE A SELEÇÃO
     if (!value) {
-      setSelectedPerson(null);
+      setSelectedItem(null);
       onSelect(null);
     }
   };
 
-  const handleSelectPerson = (person) => {
-    setSelectedPerson(person);
-    setInputValue(person.nome);
+  const handleSelectItem = (item) => {
+    setSelectedItem(item);
+    setInputValue(item[displayField] || item.nome || "");
     setShowDropdown(false); // ✅ Fecha dropdown
     setSuggestions([]); // ✅ Limpa sugestões
-    onSelect(person);
+    onSelect(item);
   };
 
   const handleClear = () => {
     setInputValue("");
-    setSelectedPerson(null);
+    setSelectedItem(null);
     setSuggestions([]);
     setShowDropdown(false);
     onSelect(null);
@@ -88,7 +91,7 @@ const AutoCompleteInput = ({
   };
 
   // ✅ DESABILITA INPUT QUANDO SELECIONADO
-  const isDisabled = !!selectedPerson;
+  const isDisabled = !!selectedItem;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -110,7 +113,7 @@ const AutoCompleteInput = ({
           disabled={isDisabled} // ✅ Desabilita quando selecionado
           className={`w-full pl-10 pr-10 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
             error ? "border-red-500" : "border-gray-300"
-          } ${selectedPerson ? "bg-green-50 cursor-not-allowed" : "bg-white"}`}
+          } ${selectedItem ? "bg-green-50 cursor-not-allowed" : "bg-white"}`}
           autoComplete="off"
         />
 
@@ -126,7 +129,7 @@ const AutoCompleteInput = ({
         )}
 
         {/* Loading Spinner */}
-        {isLoading && !selectedPerson && (
+        {isLoading && !selectedItem && (
           <div className="absolute inset-y-0 right-10 flex items-center">
             <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
           </div>
@@ -136,18 +139,21 @@ const AutoCompleteInput = ({
       {/* Mensagem de Erro */}
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
-      {/* Pessoa Selecionada */}
-      {selectedPerson && (
+      {/* Item Selecionado */}
+      {selectedItem && (
         <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-green-600" />
+            <IconComponent className="w-4 h-4 text-green-600" />
             <div>
               <span className="text-sm text-green-800 font-medium block">
-                {selectedPerson.nome}
+                {selectedItem[displayField] || selectedItem.nome || ""}
               </span>
-              <span className="text-xs text-green-600">
-                CPF: {selectedPerson.cpf}
-              </span>
+              {secondaryField && selectedItem[secondaryField] && (
+                <span className="text-xs text-green-600">
+                  {secondaryField === "cnpj" ? "CNPJ: " : "CPF: "}
+                  {selectedItem[secondaryField]}
+                </span>
+              )}
             </div>
           </div>
           <button
@@ -160,26 +166,30 @@ const AutoCompleteInput = ({
         </div>
       )}
 
-      {/* 🔥 DROPDOWN - SÓ MOSTRA SE NÃO TEM NINGUÉM SELECIONADO */}
-      {showDropdown && !selectedPerson && suggestions.length > 0 && (
+      {/* 🔥 DROPDOWN - SÓ MOSTRA SE NÃO TEM NADA SELECIONADO */}
+      {showDropdown && !selectedItem && suggestions.length > 0 && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-          {suggestions.map((person) => (
+          {suggestions.map((item) => (
             <div
-              key={person.id}
-              onClick={() => handleSelectPerson(person)}
+              key={item.id}
+              onClick={() => handleSelectItem(item)}
               className="px-4 py-3 hover:bg-purple-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-purple-600" />
+                  <IconComponent className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {person.nome}
+                    {item[displayField] || item.nome || ""}
                   </p>
                   <p className="text-xs text-gray-500">
-                    CPF: {person.cpf}{" "}
-                    {person.role?.name && `• ${person.role.name}`}
+                    {secondaryField && item[secondaryField] && (
+                      <>
+                        {secondaryField === "cnpj" ? "CNPJ" : "CPF"}: {item[secondaryField]}
+                      </>
+                    )}
+                    {item.role?.name && ` • ${item.role.name}`}
                   </p>
                 </div>
               </div>
@@ -191,12 +201,12 @@ const AutoCompleteInput = ({
       {/* Mensagem quando não há resultados */}
       {showDropdown &&
         !isLoading &&
-        !selectedPerson &&
+        !selectedItem &&
         inputValue.length >= 2 &&
         suggestions.length === 0 && (
           <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-4">
             <p className="text-sm text-gray-500 text-center">
-              Nenhuma pessoa encontrada com "{inputValue}"
+              Nenhum resultado encontrado com "{inputValue}"
             </p>
           </div>
         )}

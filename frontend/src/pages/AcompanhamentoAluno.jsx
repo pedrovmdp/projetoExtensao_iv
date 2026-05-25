@@ -17,6 +17,7 @@ import Header from "../components/Header";
 import FormInput from "../components/FormInput";
 import FormInputDiv from "../components/FormInputDiv";
 import AutoCompleteInput from "../components/AutoCompleteInput";
+import LoadingSpinner from "../components/LoadingSpinner";
 import TextRow from "../components/ui/textRow";
 import IconColor from "../assets/IconColor";
 import {
@@ -212,11 +213,7 @@ const AcompanhamentoAluno = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner fullHeight text="Carregando..." />;
   }
   const handleEncaminhamentoChange = (e) => {
     const { name, value } = e.target;
@@ -633,10 +630,12 @@ const AcompanhamentoAluno = () => {
                   label="Razão Social da Empresa *"
                   value={encaminhamentoData.nomeEmpresa}
                   onSelect={handleSelectCompanyForEncaminhamento}
-                  fetchData={handleFetchCompanies} // ✅ Já está correto, usa fetchCompanies
+                  fetchData={handleFetchCompanies}
                   placeholder="Digite o nome da empresa..."
                   error={encaminhamentoErrors.empresa_id}
-                  displayField="razao_social" // Exibe a razão social no input
+                  displayField="razao_social"
+                  secondaryField="cnpj"
+                  icon={Building}
                 />
               </FormInputDiv>
             </div>

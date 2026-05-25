@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button.jsx";
 import Header from "../components/Header";
 import FormInput from "../components/FormInput";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useDispatch, useSelector } from "react-redux";
 import { addReview } from "../../store/features/reviewSlice";
 import { getAllPeople, searchPeople } from "../../store/features/peopleSlice";
@@ -200,14 +201,7 @@ const AvaliacaoAluno = () => {
   };
 
   if (questionsLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando questões...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner fullHeight text="Carregando questões..." />;
   }
 
   return (
