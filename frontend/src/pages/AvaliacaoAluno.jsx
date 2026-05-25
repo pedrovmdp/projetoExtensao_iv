@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   ClipboardList,
   Save,
@@ -7,6 +7,7 @@ import {
   FileText,
   AlertCircle,
   CheckCircle,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
 import Header from "../components/Header";
@@ -18,9 +19,11 @@ import { getAllPeople, searchPeople } from "../../store/features/peopleSlice";
 import AutoCompleteInput from "../components/AutoCompleteInput";
 import { getAllQuestions } from "../../store/features/questionsSlice";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
 
 const AvaliacaoAluno = () => {
   const dispatch = useDispatch();
+  const pdfRef = useRef(null);
   const { list: questions, isLoading: questionsLoading } = useSelector(
     (state) => state.questions,
   );
@@ -200,18 +203,182 @@ const AvaliacaoAluno = () => {
     return Math.round((questoesRespondidas / questions.length) * 100);
   };
 
+  // 🔥 EXPORTAR PARA PDF COM JSPDF (SEM HTML2CANVAS)
+  const handleExportPDF = () => {
+    if (questions.length === 0) {
+      toast.error("Carregue as questões antes de exportar");
+      return;
+    }
+
+    try {
+      // Criar novo PDF (A4, portrait)
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let yPosition = 15;
+      const margin = 10;
+      const contentWidth = pageWidth - margin * 2;
+      const lineHeight = 5;
+
+      // Cores em HEX
+      const colorPurple = [168, 85, 247]; // #a855f7
+      const colorBlack = [51, 51, 51]; // #333333
+      const colorGray = [102, 102, 102]; // #666666
+      const colorLightGray = [240, 240, 240]; // #f0f0f0
+
+      // Função para adicionar linha horizontal
+      const drawLine = (yPos, width = contentWidth) => {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(margin, yPos, margin + width, yPos);
+      };
+
+      // ===== HEADER =====
+      pdf.setFontSize(16);
+      pdf.setTextColor(...colorBlack);
+      pdf.text("Avaliação de Aluno", pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 8;
+
+      pdf.setFontSize(9);
+      pdf.setTextColor(...colorGray);
+      pdf.text("Modelo de Avaliação de Aluno em Período de Experiência", pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
+
+      drawLine(yPosition);
+      yPosition += 5;
+
+      // ===== INFORMAÇÕES BÁSICAS =====
+      pdf.setFontSize(10);
+      pdf.setTextColor(...colorBlack);
+
+      pdf.text("Nome do Aluno: ___________________________________________________________", margin, yPosition);
+      yPosition += 7;
+
+      pdf.text("Tipo de Avaliação:  ☐ 1ª Avaliação  |  ☐ 2ª Avaliação", margin, yPosition);
+      yPosition += 7;
+
+      pdf.text("Professor Responsável: ___________________________________________________", margin, yPosition);
+      yPosition += 7;
+
+      pdf.text("Data: ___/___/______", margin, yPosition);
+      yPosition += 10;
+
+      // ===== SEÇÕES E QUESTÕES =====
+      let questionNumber = 1;
+
+      secoes.forEach((secao, sectionIndex) => {
+        // Verificar se precisa de página nova
+        if (yPosition > pageHeight - 40) {
+          pdf.addPage();
+          yPosition = 15;
+        }
+
+        // Header da seção
+        pdf.setFillColor(...colorPurple);
+        pdf.rect(margin, yPosition, contentWidth, 8, 'F');
+
+        pdf.setFontSize(10);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(secao.titulo, margin + 3, yPosition + 5.5);
+        yPosition += 12;
+
+        // Questões da seção
+        secao.questoes.forEach((questao) => {
+          // Verificar se precisa de página nova
+          if (yPosition > pageHeight - 20) {
+            pdf.addPage();
+            yPosition = 15;
+          }
+
+          // Texto da questão
+          pdf.setFontSize(9);
+          pdf.setTextColor(...colorBlack);
+          
+          const questionText = `${questao.id}. ${questao.question || questao.texto}`;
+          const splitText = pdf.splitTextToSize(questionText, contentWidth - 5);
+          
+          splitText.forEach((line, index) => {
+            pdf.text(line, margin + 2, yPosition);
+            yPosition += 4;
+          });
+
+          // Opções
+          pdf.setFontSize(8);
+          const optionsX = [margin + 5, margin + contentWidth / 2];
+          const optionY = yPosition;
+
+          // Linha 1: Sim | Não
+          pdf.text("( ) Sim", optionsX[0], optionY);
+          pdf.text("( ) Não", optionsX[1], optionY);
+
+          // Linha 2: Maioria das vezes | Raras vezes
+          pdf.text("( ) Maioria das vezes", optionsX[0], optionY + 4);
+          pdf.text("() Raras vezes", optionsX[1], optionY + 4);
+
+          yPosition += 11;
+        });
+
+        yPosition += 3;
+      });
+
+      // ===== FOOTER =====
+      if (yPosition > pageHeight - 15) {
+        pdf.addPage();
+        yPosition = 15;
+      }
+
+      drawLine(yPosition);
+      yPosition += 3;
+
+      pdf.setFontSize(8);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text("Documento gerado automaticamente • Imprima e preencha manualmente", pageWidth / 2, yPosition, { align: 'center' });
+
+      // Download
+      const fileName = `Avaliacao_Aluno_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+      toast.success('PDF gerado com sucesso!', {
+        description: `Arquivo "${fileName}" foi baixado.`,
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast.error('Erro ao gerar PDF', {
+        description: error.message || 'Falha ao processar o documento',
+        duration: 5000,
+      });
+    }
+  };
+
   if (questionsLoading) {
     return <LoadingSpinner fullHeight text="Carregando questões..." />;
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <Header
-        icon={<ClipboardList className="w-8 h-8 text-purple-600" />}
-        title="Avaliação de Aluno"
-        text="Avaliação de usuário em período de experiência"
-      />
+      {/* Header com Botão de Exportação */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <Header
+            icon={<ClipboardList className="w-8 h-8 text-purple-600" />}
+            title="Avaliação de Aluno"
+            text="Avaliação de usuário em período de experiência"
+          />
+        </div>
+        <Button
+          type="button"
+          onClick={handleExportPDF}
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 h-auto"
+        >
+          <Download className="w-5 h-5" />
+          <span>Exportar Avaliação</span>
+        </Button>
+      </div>
 
       {/* Barra de Progresso */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
