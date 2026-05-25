@@ -173,16 +173,16 @@ const AcompanhamentoAluno = () => {
     setFormData((prev) => ({
       ...prev,
       people_company_id: item.id,
-      nomeAluno: item.person?.nome || "",
-      empresa: item.company?.razao_social || "",
+      nomeAluno: item.pessoa?.nome || "",
+      empresa: item.empresa?.razao_social || "",
     }));
   };
 
   const handleEdit = (acompanhamento) => {
     setFormData({
-      nomeAluno: acompanhamento.peopleCompany?.person?.nome || "",
-      empresa: acompanhamento.peopleCompany?.company?.razao_social || "",
-      people_company_id: acompanhamento.peopleCompany?.id || null,
+      nomeAluno: acompanhamento.people_company?.person?.nome || "",
+      empresa: acompanhamento.people_company?.company?.razao_social || "",
+      people_company_id: acompanhamento.people_company?.id || null,
       data_visita: acompanhamento.data_visita,
       contato_rh: acompanhamento.contato_rh,
       parecer_geral: acompanhamento.parecer_geral,
@@ -431,7 +431,7 @@ const AcompanhamentoAluno = () => {
                     <option value="">Selecione...</option>
                     {peopleCompany?.map((pc) => (
                       <option key={pc.id} value={pc.id}>
-                        {pc.person?.nome} - {pc.company?.razao_social}
+                        {pc.pessoa?.nome} - {pc.empresa?.razao_social}
                       </option>
                     ))}
                   </select>
@@ -541,52 +541,63 @@ const AcompanhamentoAluno = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {monitoringSheets?.map((acompanhamento) => (
-                  <tr key={acompanhamento.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {acompanhamento.peopleCompany?.person?.nome || "-"}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {acompanhamento.peopleCompany?.company?.razao_social ||
-                          "-"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(acompanhamento.data_visita)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {acompanhamento.contato_rh}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewDetails(acompanhamento)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(acompanhamento)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      </div>
+                {monitoringSheets?.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-6 py-10 text-center text-gray-500"
+                    >
+                      Nenhuma ficha de acompanhamento cadastrada.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  monitoringSheets?.map((acompanhamento) => (
+                    <tr key={acompanhamento.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {acompanhamento.people_company.pessoa?.nome ||
+                                "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {acompanhamento.people_company.empresa?.razao_social || "-"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {formatDate(acompanhamento.data_visita)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {acompanhamento.contato_rh}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewDetails(acompanhamento)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(acompanhamento)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -748,16 +759,16 @@ const AcompanhamentoAluno = () => {
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold mb-2">Aluno</h3>
-                  <p>{selectedAcompanhamento.peopleCompany?.person?.nome}</p>
+                  <p>
+                    {selectedAcompanhamento.people_company?.pessoa?.nome || "-"}
+                  </p>
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold mb-2">Empresa</h3>
                   <p>
-                    {
-                      selectedAcompanhamento.peopleCompany?.company
-                        ?.razao_social
-                    }
+                    {selectedAcompanhamento.people_company?.empresa
+                      ?.razao_social || "-"}
                   </p>
                 </div>
 

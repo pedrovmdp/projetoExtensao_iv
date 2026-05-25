@@ -31,8 +31,8 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: "/cadastro-aluno", icon: UserPlus, label: "Cadastro aluno" },
     { to: "/cadastro-empresa", icon: HousePlus, label: "Cadastro empresa" },
     { to: "/empresas", icon: Building2, label: "Empresas parceiras" },
-    { to: "/historico", icon: FileText, label: "Histórico aluno" },
     { to: "/avaliacao", icon: ClipboardList, label: "Avaliação aluno" },
+    { to: "/historico", icon: FileText, label: "Histórico aluno" },
     { to: "/acompanhamento", icon: Users, label: "Acompanhamento aluno" },
   ];
 

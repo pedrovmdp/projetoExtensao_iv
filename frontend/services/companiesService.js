@@ -7,6 +7,8 @@ const getAllCompanies = async () => {
 
 const getCompanyById = async (id) => {
     const response = await api.get(`/companies/${id}`)
+
+    return response.data;
 }
 
 const getCompanyByNameOrCnpj = async (name) => {

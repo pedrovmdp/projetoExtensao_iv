@@ -1,10 +1,12 @@
 import {
+  Building,
   Building2,
   Edit,
   Eye,
   Mail,
   MapPin,
   Phone,
+  User,
 } from "lucide-react";
 
 import Header from "../components/Header";
